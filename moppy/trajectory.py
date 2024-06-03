@@ -17,11 +17,7 @@ class TrajectoryDataset:
             raise ValueError("The dataset should have 3 dimensions, but got {}.".format(len(dataset.shape)))
 
         # create a trajectory object for each trajectory in the dataset
-        for trajectory in dataset:
-            traj = Trajectory()
-            for time_step, state in enumerate(trajectory):
-                traj.add_point(time_step, state)
-            self.trajectories.append(traj)
+        raise NotImplementedError("This method is not implemented yet.")
 
     def add_trajectory(self, trajectory):
         """Add a trajectory to the dataset."""
@@ -37,7 +33,7 @@ class TrajectoryDataset:
 
 class Trajectory:
     """
-    A trajectory is a set of tuples (t_i, x_i) where t_i is a time step (0, 1, 2, ...) and x_i is the state at time t_i.
+    A trajectory is a set of tuples (t_i, x_i) where t_i is a normalized time step between 0.0 and 1.0 and x_i is the state at time t_i.
     The state can be a joint configuration or a pose (the end effector position and orientation).
     """
 
@@ -46,6 +42,8 @@ class Trajectory:
 
     def add_point(self, time_step, state):
         """Add a point to the trajectory."""
+        if time_step not in range(0, 1):
+            raise ValueError("The time step should be between 0.0 and 1.0, but got {}.".format(time_step))
         self.trajectory.append((time_step, state))
 
     def get_trajectory(self):
