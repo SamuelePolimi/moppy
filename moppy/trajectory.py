@@ -1,4 +1,7 @@
 import numpy as np
+import torch
+
+from typing import List, Tuple
 
 
 class TrajectoryDataset:
@@ -8,7 +11,7 @@ class TrajectoryDataset:
     """
 
     def __init__(self):
-        self.trajectories = []
+        self.trajectories: List[Trajectory] = []
 
     def load(self, file_path):
         """Load the dataset from a file."""
@@ -25,11 +28,12 @@ class TrajectoryDataset:
 
     def save(self, file_path):
         """Save the dataset to a file."""
-        raise NotImplementedError("This method is not implemented yet.")
+        torch.save(self.trajectories, file_path)
 
     def get_dataset(self):
         """Return the dataset as a numpy array."""
         return self.trajectories
+
 
 class Trajectory:
     """
@@ -38,7 +42,7 @@ class Trajectory:
     """
 
     def __init__(self):
-        self.trajectory = []
+        self.trajectory: List[Tuple[float, any]] = []
 
     def add_point(self, time_step, state):
         """Add a point to the trajectory."""
