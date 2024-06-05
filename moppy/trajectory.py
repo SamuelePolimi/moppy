@@ -66,8 +66,3 @@ class Trajectory(Generic[T]):
 
     def __len__(self):
         return len(self.trajectory)
-
-
-traj = Trajectory[np.array]()
-traj.add_point(0.1, np.array([0.1, 0.2, 0.3]))
-print(traj)
