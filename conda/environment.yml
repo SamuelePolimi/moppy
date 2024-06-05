@@ -1,0 +1,7 @@
+name: moppy
+dependencies:
+  - python=3.12
+  - pip
+  - pip:
+    - -r requirements.txt
+    - git+https://github.com/stepjam/RLBench.git

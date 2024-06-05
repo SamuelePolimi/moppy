@@ -1,0 +1,8 @@
+setuptools==70.0
+wheel==0.43
+torch==2.3
+pytorch-lightning==2.2
+numpy==1.26
+torchmetrics==1.4
+torchvision==0.18
+gymnasium==0.29
