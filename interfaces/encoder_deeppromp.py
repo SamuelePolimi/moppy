@@ -1,0 +1,24 @@
+from abc import ABC, abstractmethod
+from typing import List, Tuple
+
+from classes.trajectory import Trajectory
+from types.types import LatentVariableZ
+
+
+class EncoderProMP(ABC):
+
+    @abstractmethod
+    def generate_latent_variable(
+            self,
+            trajectory: Trajectory,
+            context_trajecotry: List[Trajectory]
+            ) -> List[LatentVariableZ]:
+        pass
+
+    @abstractmethod
+    def sample(self,
+               mean: float,
+               standart_deviation: float,
+               percentage_of_standard_deviation: float = None
+               ) -> Tuple[LatentVariableZ, float]:
+        pass

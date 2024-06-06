@@ -1,19 +1,21 @@
 import torch
 import torch.nn as nn
 
-from promp import ProMP
-from trajectory import Trajectory
+from classes.trajectory import Trajectory
+from interfaces.decoder_deeppromp import DecoderProMP
+from interfaces.encoder_deeppromp import EncoderProMP
+from interfaces.pro_mp import ProMPInterface
 
 
 class DeepProMPException(Exception):
     pass
 
 
-class DeepProMP(ProMP):
+class DeepProMP(ProMPInterface):
 
     def __init__(self, name, encoder: nn.Module = None, decoder: nn.Module = None):
         self.name = name
-        self.encoder = encoder
+        self.encoder: EncoderProMP = encoder
 
         if encoder is None:
             self.encoder = torch.nn.Sequential(
@@ -27,7 +29,7 @@ class DeepProMP(ProMP):
                 torch.nn.ReLU(),
                 torch.nn.Linear(18, 10)
             )
-        self.decoder = decoder
+        self.decoder: DecoderProMP = decoder
         if decoder is None:
             self.decoder = torch.nn.Sequential(
                 torch.nn.Linear(9, 18),
@@ -52,11 +54,11 @@ class DeepProMP(ProMP):
     def get_traj_distribution_at(time: float, trajectory: Trajectory):
         pass
 
-    def encode():
-        pass
+    def encode(self):
+        self.encode()
 
-    def decode():
-        pass
+    def decode(self):
+        self.decode()
 
     def train():
         pass
@@ -69,6 +71,3 @@ class DeepProMP(ProMP):
 
     def __str__(self):
         return f"MP: {self.name}"
-
-
-a = DeepProMP("test")

@@ -2,6 +2,27 @@ import torch
 import torch.nn as nn
 
 from typing import List, Union
+from interfaces.encoder_deeppromp import EncoderProMP
+
+
+class VariationalGaussianEncoder(EncoderProMP):
+
+    def __init__(self,
+                 input_neurons: int,
+                 z_dimension: int,
+                 hidden_layers_neurons: List[int] = [256],
+                 activation_function="relu"):
+
+        self.encoder = VariationalGaussian(input_neurons=input_neurons,
+                                           z_dimension=z_dimension,
+                                           hidden_layers_neurons=hidden_layers_neurons,
+                                           activation_function=activation_function)
+
+    def generate_latent_variable(self, trajectory, context_trajectory):
+        raise NotImplementedError
+
+    def sample(self, mean, standart_deviation, percentage_of_standard_deviation=None):
+        raise NotImplementedError
 
 
 class VariationalGaussian(nn.Module):

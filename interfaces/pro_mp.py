@@ -1,0 +1,20 @@
+from abc import ABC, abstractmethod
+from typing import List
+
+from classes.trajectory import Trajectory
+from interfaces.decoder_deeppromp import DecoderProMP
+from interfaces.encoder_deeppromp import EncoderProMP
+
+
+class ProMPInterface(ABC):
+    """ This class is an interface for the ProMP class. It defines
+    the methods that a ProMP class should implement."""
+
+    def __init__(self, name, encoder: EncoderProMP, decoder: DecoderProMP):
+        self.name = name
+        self.encoder = encoder
+        self.decoder = decoder
+
+    @abstractmethod
+    def train(self, trajectories: List[Trajectory]):
+        pass
