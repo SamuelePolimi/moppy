@@ -14,6 +14,7 @@ class DeepProMPException(Exception):
 class DeepProMP(ProMPInterface):
 
     def __init__(self, name, encoder: nn.Module = None, decoder: nn.Module = None):
+        super().__init__(name, encoder, decoder)
         self.name = name
         self.encoder: EncoderProMP = encoder
 
@@ -51,7 +52,7 @@ class DeepProMP(ProMPInterface):
         if self.last_layer_size != self.first_layer_size:
             raise DeepProMPException("The last layer of the encoder should have the same size as the first layer of the decoder.")
 
-    def get_traj_distribution_at(time: float, trajectory: Trajectory):
+    def get_traj_distribution_at(self, time: float, trajectory: Trajectory):
         pass
 
     def encode(self):
@@ -60,13 +61,13 @@ class DeepProMP(ProMPInterface):
     def decode(self):
         self.decode()
 
-    def train():
+    def train(self, trajectories):
         pass
 
-    def test():
+    def test(self):
         pass
 
-    def validate():
+    def validate(self):
         pass
 
     def __str__(self):

@@ -11,14 +11,14 @@ class EncoderProMP(ABC):
     def generate_latent_variable(
             self,
             trajectory: Trajectory,
-            context_trajecotry: List[Trajectory]
+            context_trajectory: List[Trajectory]
             ) -> List[LatentVariableZ]:
         pass
 
     @abstractmethod
     def sample(self,
                mean: float,
-               standart_deviation: float,
+               standard_deviation: float,
                percentage_of_standard_deviation: float = None
                ) -> Tuple[LatentVariableZ, float]:
         pass

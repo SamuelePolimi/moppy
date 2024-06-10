@@ -9,19 +9,19 @@ class VariationalGaussianEncoder(EncoderProMP):
 
     def __init__(self,
                  input_neurons: int,
-                 z_dimension: int,
+                 latent_var_dimension: int,
                  hidden_layers_neurons: List[int] = [256],
                  activation_function="relu"):
 
         self.encoder = VariationalGaussian(input_neurons=input_neurons,
-                                           z_dimension=z_dimension,
+                                           latent_var_dimension=latent_var_dimension,
                                            hidden_layers_neurons=hidden_layers_neurons,
                                            activation_function=activation_function)
 
     def generate_latent_variable(self, trajectory, context_trajectory):
         raise NotImplementedError
 
-    def sample(self, mean, standart_deviation, percentage_of_standard_deviation=None):
+    def sample(self, mean, standard_deviation, percentage_of_standard_deviation=None):
         raise NotImplementedError
 
 
@@ -29,33 +29,33 @@ class VariationalGaussian(nn.Module):
 
     def __init__(self,
                  input_neurons: int,
-                 z_dimension: int,
+                 latent_var_dimension: int,
                  hidden_layers_neurons: List[int] = [256],
                  activation_function="relu",
                  linear=False):
         super().__init__()
         if linear:
-            self.transform = nn.Linear(in_features=input_neurons, out_features=z_dimension * 2)
+            self.transform = nn.Linear(in_features=input_neurons, out_features=latent_var_dimension * 2)
         else:
             self.transform = MultiLayerPerceptron(input_neurons=input_neurons,
                                                   hidden_layers_neurons=hidden_layers_neurons,
-                                                  output_neurons=z_dimension * 2,
+                                                  output_neurons=latent_var_dimension * 2,
                                                   activation_function=activation_function)
-        self.standart_activation_function = nn.Softplus()
-        self.z_dimension = z_dimension
+        self.standard_activation_function = nn.Softplus()
+        self.latent_var_dimension = latent_var_dimension
 
     def forward(self, inputs, sample=True):
         params = self.transform(inputs)
-        mu, log_std = torch.split(params, [self.z_dimension, self.z_dimension], dim=-1)
+        mu, log_std = torch.split(params, [self.latent_var_dimension, self.latent_var_dimension], dim=-1)
         log_std = torch.clamp(log_std, -10, 10)
-        return mu, self.standart_activation_function(log_std)
+        return mu, self.standard_activation_function(log_std)
 
     def forward_features(self, phi):
         params = self.transform.net[-1](phi)
-        mu, log_std = torch.split(params, [self.z_dimension, self.z_dimension], dim=-1)
+        mu, log_std = torch.split(params, [self.latent_var_dimension, self.latent_var_dimension], dim=-1)
 
         log_std = torch.clamp(log_std, -10, 10)
-        return mu, self.standart_activation_function(log_std)
+        return mu, self.standard_activation_function(log_std)
 
 
 class MultiLayerPerceptron(nn.Module):
