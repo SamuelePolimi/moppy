@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from classes.trajectory import Trajectory
+from trajectory.trajectory import Trajectory
 from interfaces.decoder_deeppromp import DecoderProMP
 from interfaces.encoder_deeppromp import EncoderProMP
 

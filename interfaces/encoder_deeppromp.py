@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple
 
-from classes.trajectory import Trajectory
+from trajectory.trajectory import Trajectory
 from movement_primitives_types.types import LatentVariableZ
 
 

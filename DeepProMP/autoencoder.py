@@ -34,6 +34,11 @@ class VariationalGaussian(nn.Module):
                  activation_function="relu",
                  linear=False):
         super().__init__()
+        if input_neurons <= 0 or latent_var_dimension <= 0:
+            raise ValueError("The input_neurons and latent_var_dimension must be greater than 0.")
+        if hidden_layers_neurons is None or len(hidden_layers_neurons) == 0:
+            raise ValueError("The hidden_layers_neurons must be a list of integers with at least one element.")
+
         if linear:
             self.transform = nn.Linear(in_features=input_neurons, out_features=latent_var_dimension * 2)
         else:
@@ -41,6 +46,7 @@ class VariationalGaussian(nn.Module):
                                                   hidden_layers_neurons=hidden_layers_neurons,
                                                   output_neurons=latent_var_dimension * 2,
                                                   activation_function=activation_function)
+
         self.standard_activation_function = nn.Softplus()
         self.latent_var_dimension = latent_var_dimension
 
@@ -73,8 +79,13 @@ class MultiLayerPerceptron(nn.Module):
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super(MultiLayerPerceptron, self).__init__()
 
+        if input_neurons <= 0 or output_neurons <= 0:
+            raise ValueError("The input_neurons and output_neurons must be greater than 0.")
+        if hidden_layers_neurons is None or len(hidden_layers_neurons) == 0:
+            raise ValueError("The hidden_layers_neurons must be a list of integers with at least one element.")
         if not isinstance(activation_function(), Union[nn.Tanh, nn.ReLU, nn.Sigmoid]):
             raise ValueError("The activation function must be one of [nn.Tanh, nn.ReLU, nn.Sigmoid]. Not {}".format(type(activation_function())))
+
         linear_layer = nn.Linear
 
         # Add input(first) layer
@@ -85,7 +96,7 @@ class MultiLayerPerceptron(nn.Module):
             layers = layers + [linear_layer(in_d, out_d)]
             layers = layers + [activation_function()]
 
-        # Add ouput(last) layer
+        # Add output(last) layer
         layers = layers + [linear_layer(hidden_layers_neurons[-1], output_neurons)]
         self.net = nn.Sequential(*layers)
 

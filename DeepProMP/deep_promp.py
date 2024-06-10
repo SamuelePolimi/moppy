@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-from classes.trajectory import Trajectory
+from trajectory.trajectory import Trajectory
 from interfaces.decoder_deeppromp import DecoderProMP
 from interfaces.encoder_deeppromp import EncoderProMP
 from interfaces.pro_mp import ProMPInterface
