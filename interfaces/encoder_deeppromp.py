@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Tuple
 
 from trajectory.trajectory import Trajectory
-from movement_primitives_types.types import LatentVariableZ
+from mp_types.types import LatentVariableZ
 
 
 class EncoderProMP(ABC):
