@@ -10,24 +10,30 @@ from trajectory.trajectory import Trajectory
 class EncoderDeepProMP(EncoderProMP):
 
     def __init__(self,
-                 input_neurons: int,
-                 hidden_neurons: List[int],
-                 output_neurons: int,
+                 neurons: List[int],
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super().__init__()
+
+        if not neurons or len(neurons) < 2:
+            raise ValueError("The number of neurons must be at least 2. Got '%s'" % neurons)
+        if not all(isinstance(neuron, int) for neuron in neurons):
+            raise ValueError("All elements of neurons must be of type int. Got '%s'" % neurons)
+        if not all(neuron > 0 for neuron in neurons):
+            raise ValueError("All elements of neurons must be greater than 0. Got '%s'" % neurons)
+        if not all(neurons[i] >= neurons[i + 1] for i in range(len(neurons) - 1)):
+            raise ValueError("The number of neurons must be decrease monotonically. Got '%s'" % neurons)
+
+        self.neurons = neurons
+        self.activation_function = activation_function
+
         linear_layer = nn.Linear
         layers = []
 
-        # Add input(first) layer
-        layers = [linear_layer(input_neurons, hidden_neurons[0]), activation_function()]
+        # create the network
+        for i in range(len(self.neurons) - 1):
+            layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
 
-        # Add hidden layers
-        for i in range(len(hidden_neurons) - 1):
-            layers += [linear_layer(hidden_neurons[i], hidden_neurons[i + 1]), activation_function()]
-
-        # Add output(last) layer
-        layers += [linear_layer(hidden_neurons[-1], output_neurons)]
-        self.net = nn.Sequential(*layers)
+        self.net = nn.Sequential(*layers).float()
 
     def generate_latent_variable(
             self,
@@ -43,5 +49,10 @@ class EncoderDeepProMP(EncoderProMP):
                ) -> Tuple[LatentVariableZ, float]:
         raise NotImplementedError()
 
+    def __str__(self):
+        ret: str = "EncoderDeepProMP(neurons=%s)" % self.neurons
+        ret += "\n" + str(self.net)
+        return ret
 
-a = EncoderDeepProMP(1, [2, 3], 4)
+    def __call__(self, x):
+        return self.net(x)
