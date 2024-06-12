@@ -29,5 +29,8 @@ class Trajectory(Generic[T]):
         """Return the trajectory as a list of tuples."""
         return self.trajectory
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.trajectory)
+
+    def __getitem__(self, i) -> T:
+        return self.trajectory[i]
