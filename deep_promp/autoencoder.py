@@ -2,10 +2,10 @@ import torch
 import torch.nn as nn
 
 from typing import List, Union
-from interfaces.encoder_deeppromp import EncoderProMP
+from interfaces.encoder_pro_mp import EncoderDeepProMP
 
 
-class VariationalGaussianEncoder(EncoderProMP):
+class VariationalGaussianEncoder(EncoderDeepProMP):
 
     def __init__(self,
                  input_neurons: int,

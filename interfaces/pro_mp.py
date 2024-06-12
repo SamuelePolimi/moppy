@@ -2,8 +2,8 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from trajectory.trajectory import Trajectory
-from interfaces.decoder_deeppromp import DecoderProMP
-from interfaces.encoder_deeppromp import EncoderProMP
+from interfaces.decoder_pro_mp import DecoderProMP
+from interfaces.encoder_pro_mp import EncoderProMP
 
 
 class ProMPInterface(ABC):

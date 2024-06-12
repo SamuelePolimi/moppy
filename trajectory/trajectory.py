@@ -1,6 +1,7 @@
 from typing import Generic, List, Tuple, TypeVar
+from trajectory.trajectory_state import TrajectoryState
 
-T = TypeVar('T', bound='TrajectoryState')
+T = TypeVar('T', bound=TrajectoryState)
 
 
 class Trajectory(Generic[T]):

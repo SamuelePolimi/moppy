@@ -1,10 +1,9 @@
 import torch
-import torch.nn as nn
 
-from trajectory.trajectory import Trajectory
-from interfaces.decoder_deeppromp import DecoderProMP
-from interfaces.encoder_deeppromp import EncoderProMP
+from deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
+from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from interfaces.pro_mp import ProMPInterface
+from trajectory.trajectory import Trajectory
 
 
 class DeepProMPException(Exception):
@@ -13,10 +12,10 @@ class DeepProMPException(Exception):
 
 class DeepProMP(ProMPInterface):
 
-    def __init__(self, name, encoder: nn.Module = None, decoder: nn.Module = None):
+    def __init__(self, name, encoder: EncoderDeepProMP = None, decoder: DecoderDeepProMP = None):
         super().__init__(name, encoder, decoder)
         self.name = name
-        self.encoder: EncoderProMP = encoder
+        self.encoder: EncoderDeepProMP = encoder
 
         if encoder is None:
             self.encoder = torch.nn.Sequential(
@@ -30,7 +29,7 @@ class DeepProMP(ProMPInterface):
                 torch.nn.ReLU(),
                 torch.nn.Linear(18, 10)
             )
-        self.decoder: DecoderProMP = decoder
+        self.decoder = decoder
         if decoder is None:
             self.decoder = torch.nn.Sequential(
                 torch.nn.Linear(9, 18),
