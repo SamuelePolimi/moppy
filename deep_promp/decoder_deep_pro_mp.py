@@ -3,10 +3,10 @@ import torch.nn as nn
 
 from typing import List, Union
 
-from interfaces.decoder_pro_mp import DecoderProMP
+from interfaces.latent_decoder import LatentDecoder
 
 
-class DecoderDeepProMP(DecoderProMP):
+class DecoderDeepProMP(LatentDecoder):
     def __init__(self,
                  neurons: List[int],
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
@@ -33,7 +33,7 @@ class DecoderDeepProMP(DecoderProMP):
 
         self.net = nn.Sequential(*layers).float()
 
-    def generate_configuration(self, z: torch.Tensor, time: float):
+    def decode_from_latent_variable(self, z: torch.Tensor, time: float):
         raise NotImplementedError()
 
     def __str__(self):

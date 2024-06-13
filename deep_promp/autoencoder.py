@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from typing import List, Union
-from interfaces.encoder_pro_mp import EncoderDeepProMP
+from interfaces.latent_encoder import EncoderDeepProMP
 
 
 class VariationalGaussianEncoder(EncoderDeepProMP):

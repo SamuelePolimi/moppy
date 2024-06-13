@@ -32,5 +32,5 @@ class Trajectory(Generic[T]):
     def __len__(self) -> int:
         return len(self.trajectory)
 
-    def __getitem__(self, i) -> T:
+    def __getitem__(self, i) -> Tuple[float, T]:
         return self.trajectory[i]

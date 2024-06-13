@@ -2,12 +2,12 @@ import torch.nn as nn
 
 from typing import List, Tuple, Union
 
-from interfaces.encoder_pro_mp import EncoderProMP
+from interfaces.latent_encoder import LatentEncoder
 from mp_types.types import LatentVariableZ
 from trajectory.trajectory import Trajectory
 
 
-class EncoderDeepProMP(EncoderProMP):
+class EncoderDeepProMP(LatentEncoder):
 
     def __init__(self,
                  neurons: List[int],
@@ -35,19 +35,12 @@ class EncoderDeepProMP(EncoderProMP):
 
         self.net = nn.Sequential(*layers).float()
 
-    def generate_latent_variable(
+    def encode_to_latent_variable(
             self,
-            trajectory: Trajectory,
-            context_trajectory: List[Trajectory]
+            trajectory: Trajectory
             ) -> List[LatentVariableZ]:
         raise NotImplementedError()
 
-    def sample(self,
-               mean: float,
-               standard_deviation: float,
-               percentage_of_standard_deviation: float = None
-               ) -> Tuple[LatentVariableZ, float]:
-        raise NotImplementedError()
 
     def __str__(self):
         ret: str = "EncoderDeepProMP(neurons=%s)" % self.neurons
