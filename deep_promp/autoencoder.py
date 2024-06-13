@@ -1,7 +1,8 @@
+from typing import List, Union
+
 import torch
 import torch.nn as nn
 
-from typing import List, Union
 from interfaces.latent_encoder import EncoderDeepProMP
 
 
@@ -12,7 +13,6 @@ class VariationalGaussianEncoder(EncoderDeepProMP):
                  latent_var_dimension: int,
                  hidden_layers_neurons: List[int] = [256],
                  activation_function="relu"):
-
         self.encoder = VariationalGaussian(input_neurons=input_neurons,
                                            latent_var_dimension=latent_var_dimension,
                                            hidden_layers_neurons=hidden_layers_neurons,
@@ -84,7 +84,8 @@ class MultiLayerPerceptron(nn.Module):
         if hidden_layers_neurons is None or len(hidden_layers_neurons) == 0:
             raise ValueError("The hidden_layers_neurons must be a list of integers with at least one element.")
         if not isinstance(activation_function(), Union[nn.Tanh, nn.ReLU, nn.Sigmoid]):
-            raise ValueError("The activation function must be one of [nn.Tanh, nn.ReLU, nn.Sigmoid]. Not {}".format(type(activation_function())))
+            raise ValueError("The activation function must be one of [nn.Tanh, nn.ReLU, nn.Sigmoid]. Not {}".format(
+                type(activation_function())))
 
         linear_layer = nn.Linear
 
@@ -102,6 +103,7 @@ class MultiLayerPerceptron(nn.Module):
 
     def forward(self, x):
         return self.net(x)
+
     """
     def _select_lin(self, lin):
         if lin == 'regular':

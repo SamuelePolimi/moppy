@@ -1,4 +1,5 @@
 from typing import Generic, List, Tuple, TypeVar
+
 from trajectory.trajectory_state import TrajectoryState
 
 T = TypeVar('T', bound=TrajectoryState)
@@ -23,9 +24,14 @@ class Trajectory(Generic[T]):
                 "The time step should be between 0.0 and 1.0, but got {}.".
                 format(time_step))
 
+        # if the trajectory has a last point, check if the trajectory state dimensions are the same
+        if len(self.trajectory) > 0:
+            if not state.get_dimensions() == self.trajectory[-1][1].get_dimensions():
+                raise ValueError("The trajectory state dimensions must be the same for all points in the trajectory.")
+
         self.trajectory.append((time_step, state))
 
-    def get_trajectory(self) -> List[Tuple[float, T]]:
+    def get_points(self) -> List[Tuple[float, T]]:
         """Return the trajectory as a list of tuples."""
         return self.trajectory
 

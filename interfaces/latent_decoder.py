@@ -1,15 +1,16 @@
-from typing import List
-
 from abc import ABC, abstractmethod
 
-from mp_types.types import LatentVariableZ
+import numpy as np
 
 
 class LatentDecoder(ABC):
-    def __init__(self):
-        pass
 
     @abstractmethod
-    def decode_from_latent_variable(self, z: List[LatentVariableZ], time: float):
-        # In neural network environments, z is a torch.Tensor, but in other environments it could be a numpy array.
+    def decode_from_latent_variable(self, latent_variable: np.array, time: float):
+        """
+
+        :param latent_variable: A sampled latent variable z vector.
+        :param time: A normalized time step between 0.0 and 1.0.
+        :return: A normal distribution for each dimension of a TrajectoryState.
+        """
         pass

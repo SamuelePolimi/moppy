@@ -1,7 +1,7 @@
-import torch
-import torch.nn as nn
-
 from typing import List, Union
+
+import numpy as np
+import torch.nn as nn
 
 from interfaces.latent_decoder import LatentDecoder
 
@@ -33,8 +33,19 @@ class DecoderDeepProMP(LatentDecoder):
 
         self.net = nn.Sequential(*layers).float()
 
-    def decode_from_latent_variable(self, z: torch.Tensor, time: float):
-        raise NotImplementedError()
+    def decode_from_latent_variable(self, latent_variable: np.array, time: float):
+        # This is the complete procedure of decoding a latent variable z to a trajectory point x
+
+        # 2. Pass the already sampled z (latent_variable) and the time through the decoder network to get the
+        # trajectory state x
+        trajectory_state_mu_rho = self.net(latent_variable, time)
+
+        # TODO find better way get the size of the output layer of the decoder network and split it into mu and rho
+        output_size = len(trajectory_state_mu_rho)
+        if output_size % 2 != 0:
+            raise ValueError("The output shape of the decoder network should have a mu and rho for each dimension of "
+                             "the TrajectoryState.")
+        return trajectory_state_mu_rho[:output_size // 2], trajectory_state_mu_rho[output_size // 2:]
 
     def __str__(self):
         ret: str = "DecoderDeepProMP(neurons=%s)" % self.neurons

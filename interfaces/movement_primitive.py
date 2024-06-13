@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from trajectory.trajectory import Trajectory
 from interfaces.latent_decoder import LatentDecoder
 from interfaces.latent_encoder import LatentEncoder
+from trajectory.trajectory import Trajectory
 
 
 class MovementPrimitive(ABC):
@@ -17,7 +17,7 @@ class MovementPrimitive(ABC):
         self.encoder = encoder
         self.decoder = decoder
 
-    def get_trajectory_distribution(self, context_trajectory: Trajectory, time: float):
+    def get_state_distribution_at(self, context_trajectory: Trajectory, time: float):
         """
         :param context_trajectory: a context trajectory
         :param time: a normalized time step between 0.0 and 1.0
@@ -34,4 +34,5 @@ class MovementPrimitive(ABC):
 
     @abstractmethod
     def train(self, trajectories: List[Trajectory]):
+        # TODO not sure if this is an essential method to a MovementPrimitive, maybe remove it?
         pass
