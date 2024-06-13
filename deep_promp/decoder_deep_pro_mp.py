@@ -42,9 +42,8 @@ class DecoderDeepProMP(LatentDecoder):
 
         # TODO find better way get the size of the output layer of the decoder network and split it into mu and rho
         output_size = len(trajectory_state_mu_rho)
-        if output_size % 2 != 0:
-            raise ValueError("The output shape of the decoder network should have a mu and rho for each dimension of "
-                             "the TrajectoryState.")
+        # TODO the dimensions on both mu and rho should match the dimensions of the TrajectoryState, check for it
+
         return trajectory_state_mu_rho[:output_size // 2], trajectory_state_mu_rho[output_size // 2:]
 
     def __str__(self):

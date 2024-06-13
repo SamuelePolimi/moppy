@@ -73,7 +73,7 @@ class EncoderDeepProMP(LatentEncoder):
         return z_sampled
 
     def bayesian_aggregation(self, mu_rho_points: List[Tuple[np.ndarray, np.ndarray]]) -> Tuple[np.ndarray, np.ndarray]:
-        # TODO implement
+        # TODO implement the formulas on top right of page 3.
         raise NotImplementedError()
 
     def __str__(self):
