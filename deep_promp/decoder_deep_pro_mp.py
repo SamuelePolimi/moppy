@@ -38,13 +38,28 @@ class DecoderDeepProMP(LatentDecoder):
 
         # 2. Pass the already sampled z (latent_variable) and the time through the decoder network to get the
         # trajectory state x
-        trajectory_state_mu_rho = self.net(latent_variable, time)
+        trajectory_state_mu_sigma = self.net(latent_variable, time)
 
-        # TODO find better way get the size of the output layer of the decoder network and split it into mu and rho
-        output_size = len(trajectory_state_mu_rho)
-        # TODO the dimensions on both mu and rho should match the dimensions of the TrajectoryState, check for it
+        # TODO find better way get the size of the output layer of the decoder network and split it into mu and sigma
+        output_size = len(trajectory_state_mu_sigma)
+        # TODO the dimensions on both mu and sigma should match the dimensions of the TrajectoryState, check for it
 
-        return trajectory_state_mu_rho[:output_size // 2], trajectory_state_mu_rho[output_size // 2:]
+        return trajectory_state_mu_sigma[:output_size // 2], trajectory_state_mu_sigma[output_size // 2:]
+
+    def evidence_lowerbound(self, sampled_latent_variable: np.array, trajectory_state_distribution: np.array):
+        evidence_lowerbound = 0
+
+        # Maximise the probability for each dimension of the trajectory_state_distribution
+        # TODO
+
+
+        # Ensure that the latent_variable stays close to a normal distribution
+        # norm (0, I) . logpdf (z)
+        # TODO
+
+        return evidence_lowerbound
+
+
 
     def __str__(self):
         ret: str = "DecoderDeepProMP(neurons=%s)" % self.neurons

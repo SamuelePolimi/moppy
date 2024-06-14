@@ -61,7 +61,7 @@ class EncoderDeepProMP(LatentEncoder):
             mu_point, sigma_point = output[:x.get_dimensions()], output[x.get_dimensions():]
             points_mu_sigma.append((mu_point, sigma_point))
 
-        # TODO get hyperparamenter for dimension of latent variable
+        # TODO get hyperparamenter for dimension of latent variable (unsure if needed)?
 
         # 2. Calculate the vectors mu_z and sigma_z using the formulas on top right of page 3.
         mu_z, sigma_z_sq = self.bayesian_aggregation(points_mu_sigma)
