@@ -3,7 +3,6 @@ from typing import List, Tuple, Union
 import numpy as np
 import torch
 import torch.nn as nn
-import jax.numpy as jnp
 from interfaces.latent_encoder import LatentEncoder
 from trajectory.trajectory import Trajectory, T
 
@@ -79,7 +78,11 @@ class EncoderDeepProMP(LatentEncoder):
         for x in traj_points:
             x: T = x
             # mu_i and sigma_i are vectors with the same dimension as the TrajectoryState that is being used.
-            output = self.net(x.to_vector())
+            x_tensor = torch.from_numpy(x.to_vector())
+            if x_tensor.shape[0] != self.input_dimension:
+                raise ValueError(
+                    "The input shape of the encoder network should have the same dimension as the TrajectoryState.")
+            output = self.net(x_tensor)
             # Check if the output shape is 2 * trajectory_state_dimensions
             if not output.shape[0] == 2 * self.latent_varialbe_dimension:
                 raise ValueError(

@@ -6,6 +6,10 @@ class JointConfigurationTrajectoryState(TrajectoryState):
     """A trajectory state that represents a joint configuration trajectory."""
 
     def __init__(self, joint_configuration: np.ndarray, gripper_open: float, time: float) -> None:
+
+        if gripper_open not in [0, 1]:
+            raise ValueError("gripper_open should be either 0 or 1.")
+
         super().__init__(time)
         self.joint_configuration = joint_configuration
         self.gripper_open = gripper_open
@@ -25,4 +29,8 @@ class JointConfigurationTrajectoryState(TrajectoryState):
         return joint_configuration_dimensions + gripper_open_dimensions + time_dimensions
 
     def __str__(self) -> str:
-        return "JointConfigurationTrajectoryState()"
+        return self.__repr__()
+
+    def __repr__(self) -> str:
+        return f"JointConfigurationTrajectoryState(joint_configuration={self.joint_configuration}, " \
+               f"gripper_open={self.gripper_open}, time={self.time})"
