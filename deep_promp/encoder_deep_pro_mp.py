@@ -86,7 +86,8 @@ class EncoderDeepProMP(LatentEncoder):
                     "The output shape of the encoder network should have a mu and sigma for each dimension of the "
                     "TrajectoryState.")
 
-            mu_point, sigma_point = output[:x.get_dimensions()], output[x.get_dimensions():]
+            mu_point = output[:self.latent_varialbe_dimension]
+            sigma_point = output[self.latent_varialbe_dimension:]
             points_mu_sigma.append((mu_point, sigma_point))
 
         # TODO get hyperparamenter for dimension of latent variable (unsure if needed)?
