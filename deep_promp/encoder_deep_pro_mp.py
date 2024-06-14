@@ -73,8 +73,29 @@ class EncoderDeepProMP(LatentEncoder):
         return z_sampled
 
     def bayesian_aggregation(self, mu_rho_points: List[Tuple[np.ndarray, np.ndarray]]) -> Tuple[np.ndarray, np.ndarray]:
-        # TODO implement the formulas on top right of page 3.
-        raise NotImplementedError()
+        """
+        Formula with both via-points(A) and context variables(C)
+        \mu_z(A,C)=\sigma_z^2(A,C)\left(\sum_{i=1}^{n}\frac{\mu_a(a_i)}{\sigma_a^2(a_i)}+\sum_{i=1}^{m}\frac{\mu_c(c_i)}{\sigma_c^2(c_i)}\right)
+        \sigma_z^2(A,C)=\left(1+\sum_{i=1}^{n}\sigma_a^2(a_i)^{-1}+\sum_{i=1}^{m}\sigma_c^2(c_i)^{-1}\right)^{-1}
+        
+        Assumtion: We only have via-points(A) and no context variables(C) | mu_i == \mu_a(a_i) and rho_i == \sigma_a^2(a_i)
+        Formula without context variables(C):
+        \mu_z(A)=\sigma_z^2(A)\left(\sum_{i=1}^{n}\frac{\mu_a(a_i)}{\sigma_a^2(a_i)}\right)
+        \sigma_z^2(A)=\left(1+\sum_{i=1}^{n}\sigma_a^2(a_i)^{-1}\right)^{-1}
+        """
+
+        # Calculate the summations in the formulas.
+        rho_sum = 0
+        mu_div_roh_sum = 0
+        for mu, rho in mu_rho_points:
+            roh_sum += 1 / rho
+            mu_div_roh_sum += mu / rho
+
+        # Calculate the final mu_z and sigma_z according to the assumptions.
+        sigma_z = 1 / (1 + roh_sum)
+        mu_z = sigma_z * mu_div_roh_sum
+
+        return (mu_z, sigma_z)
 
     def __str__(self):
         ret: str = "EncoderDeepProMP(neurons=%s)" % self.neurons
