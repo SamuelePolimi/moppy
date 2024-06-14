@@ -4,10 +4,10 @@ from trajectory.trajectory_state import TrajectoryState
 
 T = TypeVar('T', bound=TrajectoryState)
 
+
 class Trajectory(Generic[T]):
     """
-    A trajectory is a set of tuples (t_i, x_i) where t_i is a normalized time step (between 0.0 and 1.0)
-    and x_i is a trajectory state at time t_i.
+    A trajectory is a set of T, T has a nomralized timestep and the information of a Trajectory Point
     """
 
     def __init__(self):
