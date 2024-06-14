@@ -7,25 +7,6 @@ from interfaces.latent_encoder import LatentEncoder
 from trajectory.trajectory import Trajectory
 
 
-def bayesian_aggregation(mu_sigma_points: List[Tuple[np.ndarray, np.ndarray]]) -> Tuple[np.ndarray, np.ndarray]:
-    mu_as, sigma_as = zip(*mu_sigma_points)
-
-    # TODO verify if the sum is calculated correctly
-    sum_mu_a_over_sigma_a_squared = np.sum(mu_as / sigma_as ** 2, axis=0)
-    sum_sigma_a_inverse = np.sum(1 / sigma_as ** 2, axis=0)
-
-    # Calculate sigma_z^2(A) without context variables
-    sigma_z_sq = 1 / (1 + sum_sigma_a_inverse)
-
-    # Adjust for context variables if needed
-    # This part is omitted since the assumption is about having only via-points (A)
-
-    # Calculate mu_z(A) using the formula without context variables
-    mu_z = sigma_z_sq * sum_mu_a_over_sigma_a_squared
-
-    return mu_z, sigma_z_sq
-
-
 class EncoderDeepProMP(LatentEncoder):
 
     def __init__(self,
@@ -83,13 +64,31 @@ class EncoderDeepProMP(LatentEncoder):
         # TODO get hyperparamenter for dimension of latent variable
 
         # 2. Calculate the vectors mu_z and sigma_z using the formulas on top right of page 3.
-        mu_z, sigma_z_sq = bayesian_aggregation(points_mu_sigma)
+        mu_z, sigma_z_sq = self.bayesian_aggregation(points_mu_sigma)
 
         # 3. Sample the latent variable z vector.
         # This is done by sampling each element of z from a normal distribution specified by mu_z and sigma_z.
         z_sampled = np.random.normal(mu_z, sigma_z_sq)  # TODO use sqrt of sigma_z_sq or not?
 
         return z_sampled
+
+    def bayesian_aggregation(self, mu_sigma_points: List[Tuple[np.ndarray, np.ndarray]]) -> Tuple[np.ndarray, np.ndarray]:
+        mu_as, sigma_as = zip(*mu_sigma_points)
+
+        # TODO verify if the sum is calculated correctly, not sure about axis
+        sum_mu_a_over_sigma_a_squared = np.sum(mu_as / (sigma_as ** 2), axis=0)
+        sum_sigma_a_inverse = np.sum(1 / (sigma_as ** 2), axis=0)
+
+        # Calculate sigma_z^2(A) without context variables
+        sigma_z_sq = 1 / (1 + sum_sigma_a_inverse)
+
+        # Adjust for context variables if needed
+        # This part is omitted since the assumption is about having only via-points (A)
+
+        # Calculate mu_z(A) using the formula without context variables
+        mu_z = sigma_z_sq * sum_mu_a_over_sigma_a_squared
+
+        return mu_z, sigma_z_sq
 
     def __str__(self):
         ret: str = "EncoderDeepProMP(neurons=%s)" % self.neurons
