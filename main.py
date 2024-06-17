@@ -1,9 +1,10 @@
-
+from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
 from trajectory.trajectory import Trajectory
 from trajectory.joint_configuration_trajectory_state import JointConfigurationTrajectoryState
-a = EncoderDeepProMP(9, [2, 3], 4)
-
+a = EncoderDeepProMP(4, [3, 2])
+b = DecoderDeepProMP(4, [2, 3])
+print(b)
 print(a)
 
 tr1 = Trajectory()
@@ -20,4 +21,5 @@ tr1.add_point(pt2)
 
 print(tr1.get_points())
 
-a.encode_to_latent_variable(tr1)
+new_tr = a.encode_to_latent_variable(tr1)
+b.decode_from_latent_variable(new_tr)

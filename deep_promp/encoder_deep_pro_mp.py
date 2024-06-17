@@ -1,45 +1,33 @@
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Type
 
 import numpy as np
 import torch
 import torch.nn as nn
 from interfaces.latent_encoder import LatentEncoder
+from trajectory.joint_configuration_trajectory_state import JointConfigurationTrajectoryState
 from trajectory.trajectory import Trajectory, T
+from trajectory.trajectory_state import TrajectoryState
 
 
 class EncoderDeepProMP(LatentEncoder):
 
     def __init__(self,
-                 input_dimension: int,
+                 latent_variable_dimension: int,
                  hidden_neurons: List[int],
-                 latent_varialbe_dimension: int,
+                 trajectory_state_class: Type[JointConfigurationTrajectoryState] = JointConfigurationTrajectoryState,
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
-        """
-        Initializes the neural network with the given architecture.
-
-        Args:
-            input_dimension (int): The dimension of the input layer.
-            hidden_neurons (List[int]): A list of integers representing the number of neurons in each hidden layer.
-            latent_varialbe_dimension (int): The dimension of the latent variable space. The output layer will have twice this number of neurons.
-            activation_function (Union[nn.Tanh, nn.ReLU, nn.Sigmoid], optional): The activation function to be used in the network layers. Defaults to nn.ReLU.
-
-        Raises:
-            ValueError: If the neurons list is empty or has fewer than 2 elements.
-            ValueError: If any element in the neurons list is not an integer.
-            ValueError: If any element in the neurons list is not greater than 0.
-
-        Attributes:
-            neurons (List[int]): A list containing the number of neurons in each layer, including input, hidden, and output layers.
-            activation_function (Union[nn.Tanh, nn.ReLU, nn.Sigmoid]): The activation function used in the network layers.
-            input_dimension (int): The dimension of the input layer.
-            hidden_neurons (List[int]): A list of integers representing the number of neurons in each hidden layer.
-            latent_varialbe_dimension (int): The dimension of the latent variable space.
-            net (nn.Sequential): The sequential container of the network layers.
-        """
         super().__init__()
 
-        self.neurons = [input_dimension] + hidden_neurons + [latent_varialbe_dimension * 2]
+        self.input_dimension = trajectory_state_class.get_dimensions()
+        self.activation_function = activation_function
+        self.hidden_neurons = hidden_neurons
+        self.latent_variable_dimension = latent_variable_dimension
+        self.trajectory_state_class = trajectory_state_class
 
+        # create the neurons list, which is the list of the number of neurons in each layer of the network
+        self.neurons = [self.input_dimension] + hidden_neurons + [latent_variable_dimension * 2]
+
+        # Check if the neurons list is empty or has fewer than 2 elements
         if not self.neurons or len(self.neurons) < 2:
             raise ValueError("The number of neurons must be at least 2. Got '%s'" % self.neurons)
         if not all(isinstance(neuron, int) for neuron in self.neurons):
@@ -47,18 +35,11 @@ class EncoderDeepProMP(LatentEncoder):
         if not all(neuron > 0 for neuron in self.neurons):
             raise ValueError("All elements of neurons must be greater than 0. Got '%s'" % self.neurons)
 
-        self.activation_function = activation_function
-        self.input_dimension: int = input_dimension
-        self.hidden_neurons: List[int] = hidden_neurons
-        self.latent_varialbe_dimension: int = latent_varialbe_dimension
-
+        # create the network
         linear_layer = nn.Linear
         layers = []
-
-        # create the network
         for i in range(len(self.neurons) - 1):
             layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
-
         self.net = nn.Sequential(*layers).float()
 
     def encode_to_latent_variable(
@@ -84,13 +65,13 @@ class EncoderDeepProMP(LatentEncoder):
                     "The input shape of the encoder network should have the same dimension as the TrajectoryState.")
             output = self.net(x_tensor)
             # Check if the output shape is 2 * trajectory_state_dimensions
-            if not output.shape[0] == 2 * self.latent_varialbe_dimension:
+            if not output.shape[0] == 2 * self.latent_variable_dimension:
                 raise ValueError(
                     "The output shape of the encoder network should have a mu and sigma for each dimension of the "
                     "TrajectoryState.")
 
-            mu_point = output[:self.latent_varialbe_dimension]
-            sigma_point = output[self.latent_varialbe_dimension:]
+            mu_point = output[:self.latent_variable_dimension]
+            sigma_point = output[self.latent_variable_dimension:]
             points_mu_sigma.append((mu_point, sigma_point))
 
         # TODO get hyperparamenter for dimension of latent variable (unsure if needed)?
@@ -123,10 +104,16 @@ class EncoderDeepProMP(LatentEncoder):
         return mu_z, sigma_z_sq
 
     def __str__(self):
-        ret: str = "EncoderDeepProMP\n"
-        ret += "input_dimension=%s\n" % self.input_dimension
-        ret += "hidden_neurons=%s\n" % self.hidden_neurons
-        ret += "latent_varialbe_dimension=%s\n" % self.latent_varialbe_dimension
-        ret += "neurons=%s\n" % self.neurons
-        ret += str(self.net)
+        ret: str = 'EncoderDeepProMP {'
+        ret += '\n\t' + f'neurons: {self.neurons}'
+        ret += '\n\t' + f'input_dimension: {self.input_dimension}'
+        ret += '\n\t' + f'latent_variable_dimension: {self.latent_variable_dimension}'
+        ret += '\n\t' + f'hidden_neurons: {self.hidden_neurons}'
+        ret += '\n\t' + f'activation_function: {self.activation_function}'
+        ret += '\n\t' + f'trajectory_state_class: {self.trajectory_state_class}'
+        ret += '\n\t' + f'net: {str(self.net)}'
+        ret += '\n' + '}'
         return ret
+
+    def __repr__(self):
+        return f'EncoderDeepProMP(neurons={self.neurons})'
