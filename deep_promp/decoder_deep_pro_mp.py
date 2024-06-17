@@ -1,6 +1,7 @@
 from typing import List, Union, Type
 
 import numpy as np
+import torch
 import torch.nn as nn
 
 from interfaces.latent_decoder import LatentDecoder
@@ -37,7 +38,10 @@ class DecoderDeepProMP(LatentDecoder):
         linear_layer = nn.Linear
         layers = []
         for i in range(len(self.neurons) - 1):
-            layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
+            if i == len(self.neurons) - 2:
+                layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), nn.Sigmoid()]
+            else:
+                layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()
 
     def decode_from_latent_variable(self, latent_variable: np.array, time: float):
@@ -45,7 +49,9 @@ class DecoderDeepProMP(LatentDecoder):
 
         # 2. Pass the already sampled z (latent_variable) and the time through the decoder network to get the
         # trajectory state x
-        trajectory_state_mu_sigma = self.net(latent_variable, time)
+        nn_input = np.concatenate((latent_variable, [time]), axis=0)
+        nn_input = torch.from_numpy(nn_input).float()
+        trajectory_state_mu_sigma = self.net(nn_input)
 
         # Output should be a vector with the same dimension as the TrajectoryState that is being used.
         return self.trajectory_state_class.from_vector_without_time(trajectory_state_mu_sigma)

@@ -39,8 +39,12 @@ class EncoderDeepProMP(LatentEncoder):
         linear_layer = nn.Linear
         layers = []
         for i in range(len(self.neurons) - 1):
-            layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
+            if i == len(self.neurons) - 2:
+                layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), nn.Sigmoid()]
+            else:
+                layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()
+
 
     def encode_to_latent_variable(
             self,
@@ -54,7 +58,8 @@ class EncoderDeepProMP(LatentEncoder):
         # 1. For each traj_point tuple (t_i, x_i) in traj_points,
         # pass it through the encoder network and get the vectors mu_i and sigma_i.
 
-        points_mu_sigma = []
+        mu_points = []
+        sigma_points = []
 
         for x in traj_points:
             x: T = x
@@ -70,28 +75,32 @@ class EncoderDeepProMP(LatentEncoder):
                     "The output shape of the encoder network should have a mu and sigma for each dimension of the "
                     "TrajectoryState.")
 
-            mu_point = output[:self.latent_variable_dimension]
-            sigma_point = output[self.latent_variable_dimension:]
-            points_mu_sigma.append((mu_point, sigma_point))
-
-        # TODO get hyperparamenter for dimension of latent variable (unsure if needed)?
+            mu_point = output[:self.latent_variable_dimension].detach().numpy()
+            sigma_point = output[self.latent_variable_dimension:].detach().numpy()
+            mu_points.append(mu_point)
+            sigma_points.append(sigma_point)
 
         # 2. Calculate the vectors mu_z and sigma_z using the formulas on top right of page 3.
-        mu_z, sigma_z_sq = self.bayesian_aggregation(points_mu_sigma)
+        mu_z, sigma_z_sq = self.bayesian_aggregation(np.array(mu_points), np.array(sigma_points))
 
-        # 3. Sample the latent variable z vector.
-        # This is done by sampling each element of z from a normal distribution specified by mu_z and sigma_z.
-        z_sampled = np.random.normal(mu_z, sigma_z_sq)  # TODO use sqrt of sigma_z_sq or not?
+        return mu_z, sigma_z_sq
 
+    def sample_latent_variable(self, mu: np.ndarray, sigma: np.ndarray, percentage_of_standard_deviation=None) -> np.array:
+        # This is the complete procedure of sampling a latent variable z from a normal distribution
+        # specified by mu and sigma.
+
+        # 1. Calculate the standard deviation of the normal distribution.
+        #if percentage_of_standard_deviation is not None:
+        #    sigma = sigma * percentage_of_standard_deviation
+
+        # 2. Sample each element of z from a normal distribution specified by mu and sigma.
+        z_sampled = np.random.normal(mu, sigma)
         return z_sampled
 
-    def bayesian_aggregation(self, mu_sigma_points: List[Tuple[np.ndarray, np.ndarray]]) -> Tuple[np.ndarray, np.ndarray]:
-        mu_as, sigma_as = zip(*mu_sigma_points)
-
+    def bayesian_aggregation(self, mu_points: np.ndarray, sigma_points: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         # TODO verify if the sum is calculated correctly, not sure about axis
-        sum_mu_a_over_sigma_a_squared = np.sum(mu_as / (sigma_as ** 2), axis=0)
-        sum_sigma_a_inverse = np.sum(1 / (sigma_as ** 2), axis=0)
-
+        sum_mu_a_over_sigma_a_squared = np.sum(mu_points / (sigma_points ** 2), axis=0)
+        sum_sigma_a_inverse = np.sum(1 / (sigma_points ** 2), axis=0)
         # Calculate sigma_z^2(A) without context variables
         sigma_z_sq = 1 / (1 + sum_sigma_a_inverse)
 
@@ -100,7 +109,6 @@ class EncoderDeepProMP(LatentEncoder):
 
         # Calculate mu_z(A) using the formula without context variables
         mu_z = sigma_z_sq * sum_mu_a_over_sigma_a_squared
-
         return mu_z, sigma_z_sq
 
     def __str__(self):

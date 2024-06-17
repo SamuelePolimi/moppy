@@ -23,6 +23,12 @@ class TrajectoryState(ABC):
         """Create a TrajectoryState from a vector without the time dimension."""
         raise NotImplementedError("This method should be implemented by the subclass.")
 
+    @classmethod
+    @abstractmethod
+    def from_vector(cls, vector: np.ndarray) -> 'TrajectoryState':
+        """Create a TrajectoryState from a vector."""
+        raise NotImplementedError("This method should be implemented by the subclass.")
+
     @abstractmethod
     def to_vector(self) -> np.ndarray:
         """Convert the state into a numpy array. The array should be of shape (n,) where n is the dimension of the state."""

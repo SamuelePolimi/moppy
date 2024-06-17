@@ -15,3 +15,14 @@ class LatentEncoder(ABC):
         :return: the sampled latent variable z
         """
         pass
+
+    @abstractmethod
+    def sample_latent_variable(self, mu: np.ndarray, sigma: np.ndarray, percentage_of_standard_deviation=None) -> np.array:
+        """
+        Sample a latent variable z from a normal distribution specified by mu and sigma.
+        :param mu: the mean of the normal distribution
+        :param sigma: the standard deviation of the normal distribution
+        :param percentage_of_standard_deviation: the percentage of the standard deviation to sample from
+        :return: the sampled latent variable z
+        """
+        pass
