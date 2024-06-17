@@ -35,6 +35,12 @@ class TrajectoryState(ABC):
         raise NotImplementedError("This method should be implemented by the subclass.")
 
     @classmethod
+    @abstractmethod
+    def from_dict(cls, data: dict) -> 'TrajectoryState':
+        """Create a TrajectoryState from a dictionary."""
+        raise NotImplementedError("This method should be implemented by the subclass.")
+
+    @classmethod
     def get_dimensions(cls) -> int:
         """Get the total number of dimensions of the state."""
         return cls.total_dimension

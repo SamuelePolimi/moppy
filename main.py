@@ -33,6 +33,7 @@ if __name__ == '__main__':
     print(b)
     # tr1 = hand_written_trajectory()
     tr1 = load_from_file_trajectory()
+    print(tr1)
 
     mu, sigma = a.encode_to_latent_variable(tr1)
     print("encoded mu", mu)

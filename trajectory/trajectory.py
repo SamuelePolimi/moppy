@@ -1,9 +1,7 @@
 import os
+import torch
 
 from typing import Generic, List, TypeVar, Type
-
-import numpy as np
-import torch
 
 from trajectory.trajectory_state import TrajectoryState
 
@@ -12,7 +10,7 @@ T = TypeVar('T', bound=TrajectoryState)
 
 class Trajectory(Generic[T]):
     """
-    A trajectory is a set of T, T has a nomralized timestep and the information of a Trajectory Point
+    A trajectory is a set of T, T has a normalized timestep and the information of a Trajectory Point
     """
 
     def __init__(self, trajectory: List[T] = None):
@@ -40,15 +38,22 @@ class Trajectory(Generic[T]):
 
     @classmethod
     def load_points_from_file(cls, file_path: str, trajectory_state_class: Type[T]):
-        """Load the trajectory points from a file."""
-        # TODO: This is still just a test, this should be implemented in the future, DOES NOT WORK CORRECTLY
+        """Load the trajectory points from a file. The file should be a torch file.
+        The file should contain the trajectory points as a list of dictionaries."""
+
         if not os.path.isfile(file_path):
             raise ValueError(f"File '{file_path}' does not exist.")
         content = torch.load(file_path)
+
+        # Normalize the time values to be between 0 and 1 for the trajectory
+        time = normalize([v['time'] for v in content])
+        for i, state in enumerate(content):
+            state['time'] = time[i]
+
+        # Create the trajectory from the content of the file
         ret = cls[trajectory_state_class]()
-        for i, vec in enumerate(content):
-            vec = np.concatenate((vec, [1, i * 0.01]))
-            item = trajectory_state_class.from_vector(vec)
+        for state in content:
+            item = trajectory_state_class.from_dict(state)
             cls.add_point(ret, item)
         return ret
 
@@ -57,3 +62,9 @@ class Trajectory(Generic[T]):
 
     def __getitem__(self, i) -> T:
         return self.trajectory[i]
+
+
+def normalize(data: List[float]) -> List[float]:
+    min_value = min(data)
+    max_value = max(data)
+    return [(x - min_value) / (max_value - min_value) for x in data]
