@@ -16,6 +16,7 @@ class DecoderDeepProMP(LatentDecoder):
                  trajectory_state_class: Type[TrajectoryState] = JointConfigurationTrajectoryState,
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super().__init__()
+        print("DecoderDeepProMP init")
 
         # The output dimension is the total dimension of the trajectory state minus the time dimension
         self.output_dimension = trajectory_state_class.get_dimensions() - trajectory_state_class.get_time_dimension()
@@ -53,6 +54,9 @@ class DecoderDeepProMP(LatentDecoder):
         nn_input = torch.from_numpy(nn_input).float()
         trajectory_state_mu_sigma = self.net(nn_input)
 
+        # THIS IS JUST FOR TESTING
+        return trajectory_state_mu_sigma
+
         # Output should be a vector with the same dimension as the TrajectoryState that is being used.
         return self.trajectory_state_class.from_vector_without_time(trajectory_state_mu_sigma)
 
@@ -83,3 +87,6 @@ class DecoderDeepProMP(LatentDecoder):
 
     def __repr__(self):
         return f'DecoderDeepProMP(neurons={self.neurons})'
+
+    def __call__(self, *args, **kwargs):
+        return self.decode_from_latent_variable(*args, **kwargs)

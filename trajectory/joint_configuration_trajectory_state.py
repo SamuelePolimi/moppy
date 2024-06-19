@@ -1,4 +1,6 @@
 import numpy as np
+import torch
+
 from trajectory.trajectory_state import TrajectoryState
 
 
@@ -13,12 +15,21 @@ class JointConfigurationTrajectoryState(TrajectoryState):
         if gripper_open > 1 or gripper_open < 0:
             raise ValueError("gripper_open should be either 0 or 1.")
 
-        super().__init__(time)
-        self.joint_positions = joint_positions
-        self.gripper_open = gripper_open
+        if isinstance(time, torch.Tensor):
+            self.time = time.detach().numpy()
+        else:
+            self.time = time
+        if isinstance(joint_positions, torch.Tensor):
+            self.joint_positions = joint_positions.detach().numpy()
+        else:
+            self.joint_positions = np.array(joint_positions)
+        if isinstance(gripper_open, torch.Tensor):
+            self.gripper_open = gripper_open.detach().numpy()
+        else:
+            self.gripper_open = gripper_open
 
     @classmethod
-    def from_vector_without_time(cls, vector: np.array, time: float = 0) -> 'JointConfigurationTrajectoryState':
+    def from_vector_without_time(cls, vector: np.array, time: float = 0.) -> 'JointConfigurationTrajectoryState':
         """Create a JointConfigurationTrajectoryState from a vector without the time dimension."""
         if len(vector) != cls.total_dimension - cls.time_dimension:
             raise ValueError(f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.total_dimension - cls.time_dimension})")
@@ -33,7 +44,7 @@ class JointConfigurationTrajectoryState(TrajectoryState):
             raise ValueError(f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.total_dimension})")
         return cls(vector[:-2], vector[-2], vector[-1])
 
-    def to_vector(self) -> np.array:
+    def to_vector(self) -> np.ndarray:
         """Convert the state into a numpy array. So it can be used in a neural network."""
         ret = np.concatenate((self.joint_positions, [self.gripper_open], [self.time]), dtype=np.float32)
         if len(ret) != self.get_dimensions():

@@ -17,7 +17,7 @@ class EncoderDeepProMP(LatentEncoder):
                  trajectory_state_class: Type[JointConfigurationTrajectoryState] = JointConfigurationTrajectoryState,
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super().__init__()
-
+        print("EncoderDeepProMP init")
         self.input_dimension = trajectory_state_class.get_dimensions()
         self.activation_function = activation_function
         self.hidden_neurons = hidden_neurons
@@ -44,7 +44,6 @@ class EncoderDeepProMP(LatentEncoder):
             else:
                 layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()
-
 
     def encode_to_latent_variable(
             self,
@@ -125,3 +124,6 @@ class EncoderDeepProMP(LatentEncoder):
 
     def __repr__(self):
         return f'EncoderDeepProMP(neurons={self.neurons})'
+
+    def __call__(self, *args, **kwargs):
+        return self.encode_to_latent_variable(*args, **kwargs)
