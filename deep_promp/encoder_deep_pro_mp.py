@@ -4,9 +4,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 from interfaces.latent_encoder import LatentEncoder
-from trajectory.joint_configuration_trajectory_state import JointConfigurationTrajectoryState
+from trajectory.state.joint_configuration import JointConfiguration
 from trajectory.trajectory import Trajectory, T
-from trajectory.trajectory_state import TrajectoryState
 
 
 class EncoderDeepProMP(LatentEncoder):
@@ -14,7 +13,7 @@ class EncoderDeepProMP(LatentEncoder):
     def __init__(self,
                  latent_variable_dimension: int,
                  hidden_neurons: List[int],
-                 trajectory_state_class: Type[JointConfigurationTrajectoryState] = JointConfigurationTrajectoryState,
+                 trajectory_state_class: Type[JointConfiguration] = JointConfiguration,
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super().__init__()
         print("EncoderDeepProMP init")
@@ -72,7 +71,7 @@ class EncoderDeepProMP(LatentEncoder):
             if not output.shape[0] == 2 * self.latent_variable_dimension:
                 raise ValueError(
                     "The output shape of the encoder network should have a mu and sigma for each dimension of the "
-                    "TrajectoryState.")
+                    "latent variable.")
 
             mu_point = output[:self.latent_variable_dimension].detach().numpy()
             sigma_point = output[self.latent_variable_dimension:].detach().numpy()

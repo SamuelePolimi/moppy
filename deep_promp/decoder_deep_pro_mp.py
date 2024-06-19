@@ -5,15 +5,15 @@ import torch
 import torch.nn as nn
 
 from interfaces.latent_decoder import LatentDecoder
-from trajectory.joint_configuration_trajectory_state import JointConfigurationTrajectoryState
-from trajectory.trajectory_state import TrajectoryState
+from trajectory.state.joint_configuration import JointConfiguration
+from trajectory.state.trajectory_state import TrajectoryState
 
 
 class DecoderDeepProMP(LatentDecoder):
     def __init__(self,
                  latent_variable_dimension: int,
                  hidden_neurons: List[int],
-                 trajectory_state_class: Type[TrajectoryState] = JointConfigurationTrajectoryState,
+                 trajectory_state_class: Type[TrajectoryState] = JointConfiguration,
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super().__init__()
         print("DecoderDeepProMP init")
@@ -54,7 +54,7 @@ class DecoderDeepProMP(LatentDecoder):
         nn_input = torch.from_numpy(nn_input).float()
         trajectory_state_mu_sigma = self.net(nn_input)
 
-        # THIS IS JUST FOR TESTING
+        # TODO REMOVE THIS RETURN; THIS IS JUST FOR TESTING
         return trajectory_state_mu_sigma
 
         # Output should be a vector with the same dimension as the TrajectoryState that is being used.

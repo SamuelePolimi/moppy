@@ -1,21 +1,20 @@
 import numpy as np
-import torch
 
 from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
 from deep_promp.deep_promp import DeepProMP
 from trajectory.trajectory import Trajectory
-from trajectory.joint_configuration_trajectory_state import JointConfigurationTrajectoryState
+from trajectory.state.joint_configuration import JointConfiguration
 
 
 def hand_written_trajectory():
-    ret = Trajectory[JointConfigurationTrajectoryState]()
-    pt1 = JointConfigurationTrajectoryState(joint_configuration=np.array([1, 2, 3, 4, 5, 6, 7]),
-                                            gripper_open=1,
-                                            time=0.1)
-    pt2 = JointConfigurationTrajectoryState(joint_configuration=np.array([10, 11, 12, 13, 14, 15, 16]),
-                                            gripper_open=0,
-                                            time=0.1)
+    ret = Trajectory[JointConfiguration]()
+    pt1 = JointConfiguration(joint_configuration=np.array([1, 2, 3, 4, 5, 6, 7]),
+                             gripper_open=1,
+                             time=0.1)
+    pt2 = JointConfiguration(joint_configuration=np.array([10, 11, 12, 13, 14, 15, 16]),
+                             gripper_open=0,
+                             time=0.1)
 
     ret.add_point(pt1)
     ret.add_point(pt2)
@@ -28,7 +27,7 @@ def load_from_file_trajectory():
     tr = []
     for i in range(50):
         tr.append(Trajectory.load_points_from_file("deep_promp/ReachTarget/ReachTarget_trajectory_%s.pth" % i,
-                                            JointConfigurationTrajectoryState))
+                                                   JointConfiguration))
 
     return tr
 

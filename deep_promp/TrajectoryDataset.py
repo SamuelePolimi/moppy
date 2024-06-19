@@ -4,7 +4,7 @@ import glob
 import numpy as np
 from torch.utils.data import Dataset
 
-from trajectory.joint_configuration_trajectory_state import JointConfigurationTrajectoryState
+from trajectory.state.joint_configuration import JointConfiguration
 from trajectory.trajectory import Trajectory
 
 
@@ -19,7 +19,7 @@ class CustomDataset(Dataset):
 
         trajectories = []
         for traj_path in self.data:
-            traj = Trajectory.load_points_from_file(traj_path, JointConfigurationTrajectoryState)
+            traj = Trajectory.load_points_from_file(traj_path, JointConfiguration)
             ret = []
             for point in traj.get_points():
                 ret.append(point.to_vector())
@@ -32,7 +32,7 @@ class CustomDataset(Dataset):
 
     def __getitem__(self, idx):
         traj_path = self.data[idx]
-        traj = Trajectory.load_points_from_file(traj_path, JointConfigurationTrajectoryState)
+        traj = Trajectory.load_points_from_file(traj_path, JointConfiguration)
         ret = []
         for point in traj.get_points():
             ret.append(point.to_vector())

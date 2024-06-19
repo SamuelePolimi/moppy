@@ -6,6 +6,8 @@ import torch.nn as nn
 from interfaces.latent_encoder import EncoderDeepProMP
 
 
+# TODO REMOVE THIS FILE WHEN NO LONGER NEEDED
+
 class VariationalGaussianEncoder(EncoderDeepProMP):
 
     def __init__(self,

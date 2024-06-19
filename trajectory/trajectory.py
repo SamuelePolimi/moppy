@@ -3,7 +3,7 @@ import torch
 
 from typing import Generic, List, TypeVar, Type
 
-from trajectory.trajectory_state import TrajectoryState
+from trajectory.state.trajectory_state import TrajectoryState
 
 T = TypeVar('T', bound=TrajectoryState)
 

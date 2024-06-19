@@ -1,16 +1,17 @@
 import numpy as np
 import torch
 
-from trajectory.trajectory_state import TrajectoryState
+from trajectory.state.trajectory_state import TrajectoryState
 
 
-class JointConfigurationTrajectoryState(TrajectoryState):
+class JointConfiguration(TrajectoryState):
     """A trajectory state that represents a joint configuration trajectory."""
 
     total_dimension: int = 9
     time_dimension: int = 1
 
     def __init__(self, joint_positions: np.array, gripper_open: float, time: float) -> None:
+        super().__init__(time)
 
         if gripper_open > 1 or gripper_open < 0:
             raise ValueError("gripper_open should be either 0 or 1.")
@@ -29,14 +30,14 @@ class JointConfigurationTrajectoryState(TrajectoryState):
             self.gripper_open = gripper_open
 
     @classmethod
-    def from_vector_without_time(cls, vector: np.array, time: float = 0.) -> 'JointConfigurationTrajectoryState':
+    def from_vector_without_time(cls, vector: np.array, time: float = 0.) -> 'JointConfiguration':
         """Create a JointConfigurationTrajectoryState from a vector without the time dimension."""
         if len(vector) != cls.total_dimension - cls.time_dimension:
             raise ValueError(f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.total_dimension - cls.time_dimension})")
         return cls(vector[:-1], vector[-1], time)
 
     @classmethod
-    def from_vector(cls, vector: np.array) -> 'JointConfigurationTrajectoryState':
+    def from_vector(cls, vector: np.array) -> 'JointConfiguration':
         """Create a JointConfigurationTrajectoryState from a vector.
         The vector should be of shape (n,) where n is the total number of dimensions of the state.
         vector[:-2] should be the joint configuration, vector[-2] should be the gripper open value and vector[-1] should be the time."""
@@ -52,7 +53,7 @@ class JointConfigurationTrajectoryState(TrajectoryState):
         return ret
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'JointConfigurationTrajectoryState':
+    def from_dict(cls, data: dict) -> 'JointConfiguration':
         """Create a JointConfigurationTrajectoryState from a dictionary."""
         return cls(data["joint_positions"], data["gripper_open"], data["time"])
 
