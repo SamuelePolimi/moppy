@@ -9,12 +9,12 @@ class TrajectoryState(ABC):
     A trajectory state can describe anything that can be converted into a vector.
     It could be e.g. a vector of joint configurations or a vector of end effector positions and orientations.
     """
-    total_dimension: int = -1
-    time_dimension: int = -1
 
     def __init__(self, time):
         if not 0.0 <= time <= 1.0:
             raise ValueError("The time should be between 0.0 and 1.0, but got {}.".format(time))
+        if self.get_dimensions() < 0 or self.get_time_dimension() < 0 or self.get_time_dimension() >= self.get_dimensions():
+            raise ValueError("Implement the get_dimensions and get_time_dimension methods of the subclass correctly.")
         self.time = time
 
     @classmethod
@@ -43,9 +43,9 @@ class TrajectoryState(ABC):
     @classmethod
     def get_dimensions(cls) -> int:
         """Get the total number of dimensions of the state."""
-        return cls.total_dimension
+        raise NotImplementedError("This method must be implemented by the subclass.")
 
     @classmethod
     def get_time_dimension(cls) -> int:
         """Get the number of dimensions that represent the time."""
-        return cls.time_dimension
+        raise NotImplementedError("This method must be implemented by the subclass.")

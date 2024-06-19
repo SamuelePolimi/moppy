@@ -26,7 +26,7 @@ class DecoderDeepProMP(LatentDecoder):
         self.trajectory_state_class = trajectory_state_class
 
         # create the neurons list, which is the list of the number of neurons in each layer of the network
-        self.neurons = [latent_variable_dimension * 2 + trajectory_state_class.time_dimension] + hidden_neurons + [self.output_dimension]
+        self.neurons = [latent_variable_dimension * 2 + trajectory_state_class.get_time_dimension()] + hidden_neurons + [self.output_dimension]
 
         if not self.neurons or len(self.neurons) < 2:
             raise ValueError("The number of neurons must be at least 2. Got '%s'" % self.neurons)

@@ -7,8 +7,6 @@ from trajectory.state.trajectory_state import TrajectoryState
 class JointConfiguration(TrajectoryState):
     """A trajectory state that represents a joint configuration trajectory."""
 
-    total_dimension: int = 9
-    time_dimension: int = 1
 
     def __init__(self, joint_positions: np.array, gripper_open: float, time: float) -> None:
         super().__init__(time)
@@ -32,8 +30,8 @@ class JointConfiguration(TrajectoryState):
     @classmethod
     def from_vector_without_time(cls, vector: np.array, time: float = 0.) -> 'JointConfiguration':
         """Create a JointConfigurationTrajectoryState from a vector without the time dimension."""
-        if len(vector) != cls.total_dimension - cls.time_dimension:
-            raise ValueError(f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.total_dimension - cls.time_dimension})")
+        if len(vector) != cls.get_dimensions() - cls.get_time_dimension():
+            raise ValueError(f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.get_dimensions() - cls.get_time_dimension()})")
         return cls(vector[:-1], vector[-1], time)
 
     @classmethod
@@ -41,8 +39,8 @@ class JointConfiguration(TrajectoryState):
         """Create a JointConfigurationTrajectoryState from a vector.
         The vector should be of shape (n,) where n is the total number of dimensions of the state.
         vector[:-2] should be the joint configuration, vector[-2] should be the gripper open value and vector[-1] should be the time."""
-        if len(vector) != cls.total_dimension:
-            raise ValueError(f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.total_dimension})")
+        if len(vector) !=  cls.get_dimensions():
+            raise ValueError(f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.get_dimensions()})")
         return cls(vector[:-2], vector[-2], vector[-1])
 
     def to_vector(self) -> np.ndarray:
@@ -63,3 +61,13 @@ class JointConfiguration(TrajectoryState):
     def __repr__(self) -> str:
         return f"JointConfigurationTrajectoryState(joint_configuration={self.joint_positions}, " \
                f"gripper_open={self.gripper_open}, time={self.time})"
+
+    @classmethod
+    def get_dimensions(cls) -> int:
+        """Get the total number of dimensions of the state."""
+        return 9
+
+    @classmethod
+    def get_time_dimension(cls) -> int:
+        """Get the number of dimensions that represent the time."""
+        return 1
