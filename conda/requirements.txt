@@ -6,3 +6,6 @@ numpy==1.26
 torchmetrics==1.4
 torchvision==0.18
 gymnasium==0.29
+lightning==2.2
+matplotlib==3.9
+tensorboard==2.17
