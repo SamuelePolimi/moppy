@@ -2,6 +2,8 @@ from typing import List, Tuple, Union, Type
 
 import torch
 import torch.nn as nn
+from torch import Tensor
+
 from interfaces.latent_encoder import LatentEncoder
 from trajectory.state.joint_configuration import JointConfiguration
 from trajectory.trajectory import Trajectory, T
@@ -46,7 +48,7 @@ class EncoderDeepProMP(LatentEncoder):
     def encode_to_latent_variable(
             self,
             trajectory: Trajectory
-    ) -> torch.Tensor:
+    ) -> tuple[Tensor, Tensor]:
         traj_points: List[T] = trajectory.get_points()
 
         # This is the complete procedure of encoding a trajectory to a latent variable z
@@ -94,8 +96,8 @@ class EncoderDeepProMP(LatentEncoder):
         z_sampled = torch.normal(mu, sigma)
         return z_sampled
 
-    def bayesian_aggregation(self, mu_points: torch.Tensor, sigma_points: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
-        # TODO verify if the sum is calculated correctly, check if dim=0 or dim=1 is correct
+    def bayesian_aggregation(self, mu_points: torch.Tensor, sigma_points: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        # TODO verify if the sum is calculated correctly, dim = 0 should be correct
         sum_mu_a_over_sigma_a_squared = torch.sum(mu_points / (sigma_points ** 2), dim=0)
         sum_sigma_a_inverse = torch.sum(1 / (sigma_points ** 2), dim=0)
 
@@ -107,6 +109,12 @@ class EncoderDeepProMP(LatentEncoder):
 
         # Calculate mu_z(A) using the formula without context variables
         mu_z = sigma_z_sq * sum_mu_a_over_sigma_a_squared
+
+        if mu_z.shape != (self.latent_variable_dimension,):
+            raise ValueError("The shape of mu_z should be equal to the latent variable dimension.")
+        if sigma_z_sq.shape != mu_z.shape:
+            raise ValueError("The shape of sigma_z_sq should be equal to the latent variable dimension.")
+
         return mu_z, sigma_z_sq
 
     def __str__(self):
