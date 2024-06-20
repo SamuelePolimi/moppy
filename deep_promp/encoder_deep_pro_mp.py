@@ -1,6 +1,5 @@
 from typing import List, Tuple, Union, Type
 
-import numpy as np
 import torch
 import torch.nn as nn
 from interfaces.latent_encoder import LatentEncoder
@@ -47,7 +46,7 @@ class EncoderDeepProMP(LatentEncoder):
     def encode_to_latent_variable(
             self,
             trajectory: Trajectory
-    ) -> np.array:
+    ) -> torch.Tensor:
         traj_points: List[T] = trajectory.get_points()
 
         # This is the complete procedure of encoding a trajectory to a latent variable z
@@ -56,34 +55,34 @@ class EncoderDeepProMP(LatentEncoder):
         # 1. For each traj_point tuple (t_i, x_i) in traj_points,
         # pass it through the encoder network and get the vectors mu_i and sigma_i.
 
-        mu_points = []
-        sigma_points = []
+        mu_points = torch.empty((len(traj_points), self.latent_variable_dimension))
+        sigma_points = torch.empty((len(traj_points), self.latent_variable_dimension))
 
-        for x in traj_points:
+        for i, x in enumerate(traj_points):
             x: T = x
-            # mu_i and sigma_i are vectors with the same dimension as the TrajectoryState that is being used.
             x_tensor = torch.from_numpy(x.to_vector())
             if x_tensor.shape[0] != self.input_dimension:
                 raise ValueError(
                     "The input shape of the encoder network should have the same dimension as the TrajectoryState.")
             output = self.net(x_tensor)
-            # Check if the output shape is 2 * trajectory_state_dimensions
+
             if not output.shape[0] == 2 * self.latent_variable_dimension:
-                raise ValueError(
-                    "The output shape of the encoder network should have a mu and sigma for each dimension of the "
-                    "latent variable.")
+                raise ValueError("The output shape of the encoder network should have a mu and sigma"
+                                 " for each dimension of the latent variable.")
 
-            mu_point = output[:self.latent_variable_dimension].detach().numpy()
-            sigma_point = output[self.latent_variable_dimension:].detach().numpy()
-            mu_points.append(mu_point)
-            sigma_points.append(sigma_point)
+            mu_point = output[:self.latent_variable_dimension]
+            sigma_point = output[self.latent_variable_dimension:]
 
-        # 2. Calculate the vectors mu_z and sigma_z using the formulas on top right of page 3.
-        mu_z, sigma_z_sq = self.bayesian_aggregation(np.array(mu_points), np.array(sigma_points))
+            mu_points[i] = mu_point.detach()
+            sigma_points[i] = sigma_point.detach()
+
+        # Calculate the vectors mu_z and sigma_z using the formulas on top right of page 3.
+        # Assuming self.bayesian_aggregation is modified to accept torch.Tensor inputs
+        mu_z, sigma_z_sq = self.bayesian_aggregation(mu_points, sigma_points)
 
         return mu_z, sigma_z_sq
 
-    def sample_latent_variable(self, mu: np.ndarray, sigma: np.ndarray, percentage_of_standard_deviation=None) -> np.array:
+    def sample_latent_variable(self, mu: torch.Tensor, sigma: torch.Tensor, percentage_of_standard_deviation=None) -> torch.Tensor:
         # This is the complete procedure of sampling a latent variable z from a normal distribution
         # specified by mu and sigma.
 
@@ -92,13 +91,14 @@ class EncoderDeepProMP(LatentEncoder):
         #    sigma = sigma * percentage_of_standard_deviation
 
         # 2. Sample each element of z from a normal distribution specified by mu and sigma.
-        z_sampled = np.random.normal(mu, sigma)
+        z_sampled = torch.normal(mu, sigma)
         return z_sampled
 
-    def bayesian_aggregation(self, mu_points: np.ndarray, sigma_points: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        # TODO verify if the sum is calculated correctly, not sure about axis
-        sum_mu_a_over_sigma_a_squared = np.sum(mu_points / (sigma_points ** 2), axis=0)
-        sum_sigma_a_inverse = np.sum(1 / (sigma_points ** 2), axis=0)
+    def bayesian_aggregation(self, mu_points: torch.Tensor, sigma_points: torch.Tensor) -> Tuple[torch.Tensor, torch.Tensor]:
+        # TODO verify if the sum is calculated correctly, check if dim=0 or dim=1 is correct
+        sum_mu_a_over_sigma_a_squared = torch.sum(mu_points / (sigma_points ** 2), dim=0)
+        sum_sigma_a_inverse = torch.sum(1 / (sigma_points ** 2), dim=0)
+
         # Calculate sigma_z^2(A) without context variables
         sigma_z_sq = 1 / (1 + sum_sigma_a_inverse)
 
