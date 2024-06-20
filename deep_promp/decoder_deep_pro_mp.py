@@ -1,6 +1,5 @@
 from typing import List, Union, Type
 
-import numpy as np
 import torch
 import torch.nn as nn
 
@@ -26,7 +25,9 @@ class DecoderDeepProMP(LatentDecoder):
         self.trajectory_state_class = trajectory_state_class
 
         # create the neurons list, which is the list of the number of neurons in each layer of the network
-        self.neurons = [latent_variable_dimension * 2 + trajectory_state_class.get_time_dimension()] + hidden_neurons + [self.output_dimension]
+        self.neurons = [
+                           latent_variable_dimension * 2 + trajectory_state_class.get_time_dimension()] + hidden_neurons + [
+                           self.output_dimension]
 
         if not self.neurons or len(self.neurons) < 2:
             raise ValueError("The number of neurons must be at least 2. Got '%s'" % self.neurons)
@@ -45,13 +46,12 @@ class DecoderDeepProMP(LatentDecoder):
                 layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()
 
-    def decode_from_latent_variable(self, latent_variable: np.array, time: float):
+    def decode_from_latent_variable(self, latent_variable: torch.Tensor, time: float):
         # This is the complete procedure of decoding a latent variable z to a trajectory point x
 
         # 2. Pass the already sampled z (latent_variable) and the time through the decoder network to get the
         # trajectory state x
-        nn_input = np.concatenate((latent_variable, [time]), axis=0)
-        nn_input = torch.from_numpy(nn_input).float()
+        nn_input = torch.cat((latent_variable, torch.tensor([time])), dim=0)
         trajectory_state_mu_sigma = self.net(nn_input)
 
         # TODO REMOVE THIS RETURN; THIS IS JUST FOR TESTING
@@ -59,19 +59,6 @@ class DecoderDeepProMP(LatentDecoder):
 
         # Output should be a vector with the same dimension as the TrajectoryState that is being used.
         return self.trajectory_state_class.from_vector_without_time(trajectory_state_mu_sigma)
-
-    def evidence_lowerbound(self, sampled_latent_variable: np.array, trajectory_state_distribution: np.array):
-        evidence_lowerbound = 0
-
-        # Maximise the probability for each dimension of the trajectory_state_distribution
-        # TODO
-
-
-        # Ensure that the latent_variable stays close to a normal distribution
-        # norm (0, I) . logpdf (z)
-        # TODO
-
-        return evidence_lowerbound
 
     def __str__(self):
         ret: str = "DecoderDeepProMP {"

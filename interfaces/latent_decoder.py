@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
 
-import numpy as np
 
 
 class LatentDecoder(ABC):
 
     @abstractmethod
-    def decode_from_latent_variable(self, latent_variable: np.array, time: float):
+    def decode_from_latent_variable(self, latent_variable, time: float):
         """
 
         :param latent_variable: A sampled latent variable z vector.

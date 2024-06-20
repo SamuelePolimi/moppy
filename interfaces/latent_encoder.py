@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-import numpy as np
 
 from trajectory.trajectory import Trajectory
 
@@ -8,7 +7,7 @@ from trajectory.trajectory import Trajectory
 class LatentEncoder(ABC):
 
     @abstractmethod
-    def encode_to_latent_variable(self, trajectory: Trajectory) -> np.array:
+    def encode_to_latent_variable(self, trajectory: Trajectory):
         """
         Encode a trajectory to a latent variable z, which is a vector of a fixed dimension, which is a hyperparameter.
         :param trajectory: a trajectory to encode
@@ -17,7 +16,7 @@ class LatentEncoder(ABC):
         pass
 
     @abstractmethod
-    def sample_latent_variable(self, mu: np.ndarray, sigma: np.ndarray, percentage_of_standard_deviation=None) -> np.array:
+    def sample_latent_variable(self, mu, sigma, percentage_of_standard_deviation=None):
         """
         Sample a latent variable z from a normal distribution specified by mu and sigma.
         :param mu: the mean of the normal distribution
