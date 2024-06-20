@@ -18,7 +18,7 @@ class EncoderDeepProMP(LatentEncoder):
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super().__init__()
         print("EncoderDeepProMP init")
-        self.input_dimension = trajectory_state_class.get_dimensions()
+        self.input_dimension = trajectory_state_class.get_dimensions() + trajectory_state_class.get_time_dimension()
         self.activation_function = activation_function
         self.hidden_neurons = hidden_neurons
         self.latent_variable_dimension = latent_variable_dimension
@@ -62,11 +62,11 @@ class EncoderDeepProMP(LatentEncoder):
 
         for i, x in enumerate(traj_points):
             x: T = x
-            x_tensor = torch.from_numpy(x.to_vector())
+            x_tensor = torch.from_numpy(x.to_vector_time()).float()
 
             if x_tensor.shape[0] != self.input_dimension:
-                raise ValueError(
-                    "The input shape of the encoder network should have the same dimension as the TrajectoryState.")
+                raise ValueError("The input shape of the encoder network is incorrect. Got %s, expected %s" % (
+                    x_tensor.shape[0], self.input_dimension))
             output = self.net(x_tensor)
 
             if not output.shape[0] == 2 * self.latent_variable_dimension:
@@ -76,8 +76,9 @@ class EncoderDeepProMP(LatentEncoder):
             mu_point = output[:self.latent_variable_dimension]
             sigma_point = output[self.latent_variable_dimension:]
 
-            mu_points[i] = mu_point.detach()
-            sigma_points[i] = sigma_point.detach()
+            # TODO there was detach() here, but I removed it. Check if it is necessary
+            mu_points[i] = mu_point
+            sigma_points[i] = sigma_point
 
         # Calculate the vectors mu_z and sigma_z using the formulas on top right of page 3.
         # Assuming self.bayesian_aggregation is modified to accept torch.Tensor inputs

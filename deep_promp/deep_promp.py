@@ -1,6 +1,5 @@
 from typing import List
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -48,6 +47,7 @@ class DeepProMP(MovementPrimitive):
                 losses = []
                 for j in data.get_points():
                     decoded = self.decoder(latent_var_z, j.get_time())
+                    # TODO implement and use ELBO instead here (check paper)
                     loss = criterion(decoded, torch.from_numpy(j.to_vector()[: 8]))
                     losses.append(loss)
                 loss = sum(losses) / len(losses)

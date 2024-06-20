@@ -16,13 +16,17 @@ class TrajectoryState(ABC):
 
     @abstractmethod
     def to_vector(self) -> np.ndarray:
-        """Convert the state into a numpy array. The array should be of shape (n,) where n is the dimension of the state."""
+        """Convert the state into a numpy array without time.
+        The array should be of shape (n,) where n is the dimension of the state."""
         raise NotImplementedError("This method should be implemented by the subclass.")
 
     @abstractmethod
     def get_time(self) -> np.ndarray:
         """Get the time of the state."""
         raise NotImplementedError("This method must be implemented by the subclass.")
+
+    def to_vector_time(self) -> np.ndarray:
+        return np.concatenate((self.to_vector(), self.get_time()), axis=0)
 
     @classmethod
     @abstractmethod
