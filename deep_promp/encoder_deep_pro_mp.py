@@ -63,6 +63,7 @@ class EncoderDeepProMP(LatentEncoder):
         for i, x in enumerate(traj_points):
             x: T = x
             x_tensor = torch.from_numpy(x.to_vector())
+
             if x_tensor.shape[0] != self.input_dimension:
                 raise ValueError(
                     "The input shape of the encoder network should have the same dimension as the TrajectoryState.")

@@ -17,7 +17,7 @@ class MovementPrimitive(ABC):
         self.encoder = encoder
         self.decoder = decoder
 
-    def get_state_distribution_at(self, context_trajectory: Trajectory, time: float):
+    def get_state_distribution_at(self, context_trajectory: Trajectory, time):
         """
         :param context_trajectory: a context trajectory
         :param time: a normalized time step between 0.0 and 1.0
@@ -26,8 +26,6 @@ class MovementPrimitive(ABC):
         if context_trajectory is None:
             # note that the context trajectory can be empty!
             raise ValueError("The context trajectory should not be None")
-        if not 0.0 <= time <= 1.0:
-            raise ValueError("The time step should be between 0.0 and 1.0, but got {}.".format(time))
 
         z = self.encoder.encode_to_latent_variable(context_trajectory)
         return self.decoder.decode_from_latent_variable(z, time)

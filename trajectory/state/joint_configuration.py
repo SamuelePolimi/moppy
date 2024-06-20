@@ -7,10 +7,8 @@ from trajectory.state.trajectory_state import TrajectoryState
 class JointConfiguration(TrajectoryState):
     """A trajectory state that represents a joint configuration trajectory."""
 
-
     def __init__(self, joint_positions: np.array, gripper_open: float, time: float) -> None:
-        super().__init__(time)
-
+        super().__init__()
         if gripper_open > 1 or gripper_open < 0:
             raise ValueError("gripper_open should be either 0 or 1.")
 
@@ -31,7 +29,8 @@ class JointConfiguration(TrajectoryState):
     def from_vector_without_time(cls, vector: np.array, time: float = 0.) -> 'JointConfiguration':
         """Create a JointConfigurationTrajectoryState from a vector without the time dimension."""
         if len(vector) != cls.get_dimensions() - cls.get_time_dimension():
-            raise ValueError(f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.get_dimensions() - cls.get_time_dimension()})")
+            raise ValueError(
+                f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.get_dimensions() - cls.get_time_dimension()})")
         return cls(vector[:-1], vector[-1], time)
 
     @classmethod
@@ -39,16 +38,21 @@ class JointConfiguration(TrajectoryState):
         """Create a JointConfigurationTrajectoryState from a vector.
         The vector should be of shape (n,) where n is the total number of dimensions of the state.
         vector[:-2] should be the joint configuration, vector[-2] should be the gripper open value and vector[-1] should be the time."""
-        if len(vector) !=  cls.get_dimensions():
-            raise ValueError(f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.get_dimensions()})")
+        if len(vector) != cls.get_dimensions():
+            raise ValueError(
+                f"The length of the vector should be equal to the number of dimensions.({len(vector)} != {cls.get_dimensions()})")
         return cls(vector[:-2], vector[-2], vector[-1])
 
     def to_vector(self) -> np.ndarray:
         """Convert the state into a numpy array. So it can be used in a neural network."""
         ret = np.concatenate((self.joint_positions, [self.gripper_open], [self.time]), dtype=np.float32)
         if len(ret) != self.get_dimensions():
-            raise ValueError(f"The length of the vector should be equal to the number of dimensions.({len(ret)} != {self.get_dimensions()})")
+            raise ValueError(
+                f"The length of the vector should be equal to the number of dimensions.({len(ret)} != {self.get_dimensions()})")
         return ret
+
+    def get_time(self) -> np.ndarray:
+        return np.array([self.time])
 
     @classmethod
     def from_dict(cls, data: dict) -> 'JointConfiguration':

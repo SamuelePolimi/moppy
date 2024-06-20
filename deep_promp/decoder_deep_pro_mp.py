@@ -46,12 +46,12 @@ class DecoderDeepProMP(LatentDecoder):
                 layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()
 
-    def decode_from_latent_variable(self, latent_variable: torch.Tensor, time: float):
+    def decode_from_latent_variable(self, latent_variable: torch.Tensor, time):
         # This is the complete procedure of decoding a latent variable z to a trajectory point x
 
         # 2. Pass the already sampled z (latent_variable) and the time through the decoder network to get the
         # trajectory state x
-        nn_input = torch.cat((latent_variable, torch.tensor([time])), dim=0)
+        nn_input = torch.cat((latent_variable, torch.tensor(time)), dim=0).float()
         trajectory_state_mu_sigma = self.net(nn_input)
 
         # TODO REMOVE THIS RETURN; THIS IS JUST FOR TESTING

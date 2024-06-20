@@ -44,10 +44,10 @@ class DeepProMP(MovementPrimitive):
                 target = data[0].to_vector()
                 target = target[: 8]
                 mu, sigma = self.encoder(data)
-                latent_var_z = np.concatenate((np.array(mu), np.array(sigma)))
+                latent_var_z = torch.cat((mu, sigma), dim=0)
                 losses = []
-                for j in data.trajectory:
-                    decoded = self.decoder(latent_var_z, j.time)
+                for j in data.get_points():
+                    decoded = self.decoder(latent_var_z, j.get_time())
                     loss = criterion(decoded, torch.from_numpy(j.to_vector()[: 8]))
                     losses.append(loss)
                 loss = sum(losses) / len(losses)
