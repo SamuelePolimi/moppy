@@ -25,9 +25,8 @@ class DecoderDeepProMP(LatentDecoder):
         self.trajectory_state_class = trajectory_state_class
 
         # create the neurons list, which is the list of the number of neurons in each layer of the network
-        self.neurons = [
-                           latent_variable_dimension * 2 + trajectory_state_class.get_time_dimension()] + hidden_neurons + [
-                           self.output_dimension]
+        self.neurons = [latent_variable_dimension * 2 + trajectory_state_class.get_time_dimension()] + \
+            hidden_neurons + [self.output_dimension]
 
         if not self.neurons or len(self.neurons) < 2:
             raise ValueError("The number of neurons must be at least 2. Got '%s'" % self.neurons)
@@ -46,7 +45,7 @@ class DecoderDeepProMP(LatentDecoder):
                 layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()
 
-    def decode_from_latent_variable(self, latent_variable: torch.Tensor, time):
+    def decode_from_latent_variable(self, latent_variable: torch.Tensor, time: torch.Tensor | float) -> TrajectoryState:
         # This is the complete procedure of decoding a latent variable z to a trajectory point x
 
         # 2. Pass the already sampled z (latent_variable) and the time through the decoder network to get the

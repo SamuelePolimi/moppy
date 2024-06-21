@@ -3,6 +3,7 @@ from typing import List
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from matplotlib import pyplot as plt
 
 from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
@@ -37,26 +38,37 @@ class DeepProMP(MovementPrimitive):
 
         # Optimizers
         optimizer = optim.Adam(list(self.encoder.net.parameters()) + list(self.decoder.net.parameters()), lr=0.001)
-        for i in range(100):
+        losses_traj = []
+        for i in range(10):
             for data in trajectories:
                 data: Trajectory = data
-                target = data[0].to_vector()
-                target = target[: 8]
                 mu, sigma = self.encoder(data)
                 latent_var_z = torch.cat((mu, sigma), dim=0)
                 losses = []
                 for j in data.get_points():
                     decoded = self.decoder(latent_var_z, j.get_time())
                     # TODO implement and use ELBO instead here (check paper)
-                    loss = criterion(decoded, torch.from_numpy(j.to_vector()[: 8]))
+                    loss = criterion(decoded, j.to_vector())
                     losses.append(loss)
-                loss = sum(losses) / len(losses)
+                loss = torch.mean(torch.stack(losses))
                 print(loss)
-                loss = loss.mean()
+                losses_traj.append(loss)
                 # Backward pass and optimization
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+        # Extract values from tensors
+        values = [t.item() for t in losses_traj]
+
+        # Plotting
+        plt.plot(values, marker='o')
+        plt.title('Tensor Values')
+        plt.xlabel('Index')
+        plt.ylabel('Value')
+        plt.grid(True)
+
+        # Save the plot as an image file
+        plt.savefig('tensor_values_plot.png')
 
     def test(self):
         raise NotImplementedError()

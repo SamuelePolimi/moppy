@@ -18,7 +18,7 @@ class EncoderDeepProMP(LatentEncoder):
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super().__init__()
         print("EncoderDeepProMP init")
-        self.input_dimension = trajectory_state_class.get_dimensions() + trajectory_state_class.get_time_dimension()
+        self.input_dimension = trajectory_state_class.get_dimensions()
         self.activation_function = activation_function
         self.hidden_neurons = hidden_neurons
         self.latent_variable_dimension = latent_variable_dimension
@@ -57,12 +57,12 @@ class EncoderDeepProMP(LatentEncoder):
         # 1. For each traj_point tuple (t_i, x_i) in traj_points,
         # pass it through the encoder network and get the vectors mu_i and sigma_i.
 
-        mu_points = torch.empty((len(traj_points), self.latent_variable_dimension))
-        sigma_points = torch.empty((len(traj_points), self.latent_variable_dimension))
+        mu_points = torch.empty((len(traj_points), self.latent_variable_dimension), dtype=torch.float64)
+        sigma_points = torch.empty((len(traj_points), self.latent_variable_dimension), dtype=torch.float64)
 
         for i, x in enumerate(traj_points):
             x: T = x
-            x_tensor = torch.from_numpy(x.to_vector_time()).float()
+            x_tensor = x.to_vector_time()
 
             if x_tensor.shape[0] != self.input_dimension:
                 raise ValueError("The input shape of the encoder network is incorrect. Got %s, expected %s" % (
