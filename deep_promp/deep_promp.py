@@ -3,6 +3,7 @@ from typing import List
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.distributions import kl, Normal
 
 from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
@@ -19,6 +20,8 @@ class DeepProMP(MovementPrimitive):
         super().__init__(name, encoder, decoder)
         self.encoder = encoder
         self.decoder = decoder
+        self.latent_variable_dimension = encoder.latent_variable_dimension
+        self.prior = Normal(torch.zeros(self.latent_variable_dimension), torch.ones(self.latent_variable_dimension))
         if decoder is None or encoder is None:
             raise ValueError("The decoder or the encoder cannot be None.")
 
@@ -57,6 +60,13 @@ class DeepProMP(MovementPrimitive):
                 optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
+
+    # https://github.com/tonyduan/variational-autoencoders/blob/master/src/blocks.py
+    def calculate_elbo(self, data, decoded):
+        pred_z = self.encoder(data)
+        kl_div = kl.kl_divergence(pred_z, self.prior)
+        rec_loss = torch.sum(decoded.log_prob(data), dim=1, keepdim=True)
+        return -(rec_loss - kl_div).squeeze(dim=1)
 
     def test(self):
         raise NotImplementedError()
