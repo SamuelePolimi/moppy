@@ -3,8 +3,9 @@ from typing import List
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.distributions as distributions
 from matplotlib import pyplot as plt
-from torch.distributions import kl, Normal
+from torch.distributions import Normal
 
 from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
@@ -22,6 +23,8 @@ class DeepProMP(MovementPrimitive):
         self.encoder = encoder
         self.decoder = decoder
         self.latent_variable_dimension = encoder.latent_variable_dimension
+        print("DeepProMP init")
+        print(self.latent_variable_dimension)
         self.prior = Normal(torch.zeros(self.latent_variable_dimension), torch.ones(self.latent_variable_dimension))
         if decoder is None or encoder is None:
             raise ValueError("The decoder or the encoder cannot be None.")
@@ -42,7 +45,7 @@ class DeepProMP(MovementPrimitive):
         # Optimizers
         optimizer = optim.Adam(list(self.encoder.net.parameters()) + list(self.decoder.net.parameters()), lr=0.001)
         losses_traj = []
-        for i in range(10):
+        for i in range(100):
             for data in trajectories:
                 data: Trajectory = data
                 mu, sigma = self.encoder(data)
@@ -52,6 +55,7 @@ class DeepProMP(MovementPrimitive):
                     decoded = self.decoder(latent_var_z, j.get_time())
                     # TODO implement and use ELBO instead here (check paper)
                     loss = criterion(decoded, j.to_vector())
+                    loss = self.calculate_elbo(decoded, j.to_vector(), mu, sigma, beta=1.0)
                     losses.append(loss)
                 loss = torch.mean(torch.stack(losses))
                 print(loss)
@@ -74,14 +78,31 @@ class DeepProMP(MovementPrimitive):
         plt.savefig('tensor_values_plot.png')
 
     # https://github.com/tonyduan/variational-autoencoders/blob/master/src/blocks.py
-    def calculate_elbo(self, data, decoded):
-        pred_z = self.encoder(data)
-        kl_div = kl.kl_divergence(pred_z, self.prior)
-        rec_loss = torch.sum(decoded.log_prob(data), dim=1, keepdim=True)
-        return -(rec_loss - kl_div).squeeze(dim=1)
+    def calculate_elbo(self, y_pred, y_star, mu, sigma, beta=1.0):
+        # Reconstruction loss (assuming Mean Squared Error)
+        log_prob = nn.MSELoss()(y_pred, y_star)
+
+        # KL divergence between approximate posterior (q) and prior (p)
+        kl = gauss_kl(mu_q=mu, std_q=sigma, scale=1.)
+
+        # Combine terms with beta weighting
+        elbo = log_prob + kl * beta
+        return elbo
 
     def test(self):
         raise NotImplementedError()
 
     def validate(self):
         raise NotImplementedError()
+
+
+def gauss_kl(mu_q, std_q, mu_p=None, std_p=None, scale=1.0):
+    mu_p = torch.zeros_like(mu_q) if mu_p is None else mu_p
+    std_p = torch.ones_like(std_q) * scale if std_p is None else std_p
+
+    # independent treats them as multivariate Normals
+    indep = distributions.Independent
+    q_dist = indep(distributions.Normal(mu_q, std_q), 1)
+    p_dist = indep(distributions.Normal(mu_p, std_p), 1)
+
+    return distributions.kl_divergence(q_dist, p_dist)
