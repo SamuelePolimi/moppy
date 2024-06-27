@@ -50,8 +50,7 @@ class DeepProMP(MovementPrimitive):
                 losses = []
                 for j in data.get_points():
                     decoded = self.decoder(latent_var_z, j.get_time())
-                    # TODO implement and use ELBO instead here (check paper)
-                    loss = criterion(decoded, j.to_vector())
+                    loss = self.calculate_elbo(j.to_vector(), decoded)
                     losses.append(loss)
                 loss = torch.mean(torch.stack(losses))
                 print(loss)
