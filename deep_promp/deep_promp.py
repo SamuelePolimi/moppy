@@ -68,7 +68,7 @@ class DeepProMP(MovementPrimitive):
         values = [t.item() for t in losses_traj]
 
         # Plotting
-        plt.plot(values, marker='o')
+        plt.plot(values)
         plt.title('Tensor Values')
         plt.xlabel('Index')
         plt.ylabel('Value')
