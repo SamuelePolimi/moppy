@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Type, Union
 
 import torch
 import torch.nn as nn
@@ -10,32 +10,61 @@ from torch.distributions import Normal
 from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
 from interfaces.movement_primitive import MovementPrimitive
+from trajectory.state.joint_configuration import JointConfiguration
 from trajectory.trajectory import Trajectory
 
 
 class DeepProMP(MovementPrimitive):
-    """
-    A DeepProMP is a probabilistic movement primitive that uses deep neural networks to encode and decode trajectories.
-    """
+    """A DeepProMP is a probabilistic movement primitive that uses deep neural networks to encode and decode trajectories."""
 
-    def __init__(self, name, encoder: EncoderDeepProMP, decoder: DecoderDeepProMP):
+    def __init__(self, name: str, encoder: EncoderDeepProMP, decoder: DecoderDeepProMP):
         super().__init__(name, encoder, decoder)
-        self.encoder = encoder
-        self.decoder = decoder
-        self.latent_variable_dimension = encoder.latent_variable_dimension
         print("DeepProMP init")
-        print(self.latent_variable_dimension)
+
+        # Check if the encoder and decoder are instances/subclasses of EncoderDeepProMP and DecoderDeepProMP
+        if not issubclass(type(encoder), EncoderDeepProMP):
+            raise TypeError(f"The encoder must be an instance of '{EncoderDeepProMP.__name__}' or a subclass. Got '{type(encoder)}'."
+                            f"\nThe usable classes are {[EncoderDeepProMP] + EncoderDeepProMP.__subclasses__()}")
+        if not issubclass(type(decoder), DecoderDeepProMP):
+            raise TypeError(f"The decoder must be an instance of '{DecoderDeepProMP.__name__}' or a subclass. Got '{type(decoder)}'."
+                            f"\nThe usable classes are {[DecoderDeepProMP] + DecoderDeepProMP.__subclasses__()}")
+
+        # Check if the encoder and decoder are compatible
+        if encoder.latent_variable_dimension != decoder.latent_variable_dimension:
+            raise ValueError("The encoder and decoder must have the same latent variable dimension. "
+                             f"Got encoder latent variable dimension '{encoder.latent_variable_dimension}'"
+                             f"and decoder latent variable dimension '{decoder.latent_variable_dimension}'")
+
+        self.decoder = decoder
+        self.encoder = encoder
+        self.latent_variable_dimension = encoder.latent_variable_dimension
         self.prior = Normal(torch.zeros(self.latent_variable_dimension), torch.ones(self.latent_variable_dimension))
-        if decoder is None or encoder is None:
-            raise ValueError("The decoder or the encoder cannot be None.")
 
-        # self.last_layer_size = self.encoder[-1].out_features
-        # self.first_layer_size = self.decoder[0].in_features
+    @classmethod
+    def from_latent_variable_dimension(
+            cls,
+            name: str,
+            latent_variable_dimension: int,
+            hidden_neurons_encoder: List[int],
+            hidden_neurons_decoder: List[int],
+            trajectory_state_class: Type[JointConfiguration] = JointConfiguration,
+            activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU
+    ):
+        """Create a DeepProMP from the latent variable dimension and the hidden neurons of the encoder and decoder.
+        decoder and encoder are instances of DecoderDeepProMP and EncoderDeepProMP."""
 
-        # print(self.last_layer_size)
-        # print(self.first_layer_size)
-        # if self.last_layer_size != self.first_layer_size:
-        #    raise DeepProMPException("The last layer of the encoder should have the same size as the first layer of the decoder.")
+        encoder = EncoderDeepProMP(
+            latent_variable_dimension=latent_variable_dimension,
+            hidden_neurons=hidden_neurons_encoder,
+            trajectory_state_class=trajectory_state_class,
+            activation_function=activation_function,)
+
+        decoder = DecoderDeepProMP(
+            latent_variable_dimension=latent_variable_dimension,
+            hidden_neurons=hidden_neurons_decoder,
+            trajectory_state_class=trajectory_state_class,
+            activation_function=activation_function,)
+        return cls(name=name, encoder=encoder, decoder=decoder)
 
     def train(self, trajectories: List[Trajectory]):
 
@@ -53,8 +82,7 @@ class DeepProMP(MovementPrimitive):
                 losses = []
                 for j in data.get_points():
                     decoded = self.decoder(latent_var_z, j.get_time())
-                    # TODO implement and use ELBO instead here (check paper)
-                    loss = criterion(decoded, j.to_vector())
+                    # loss = criterion(decoded, j.to_vector())
                     loss = self.calculate_elbo(decoded, j.to_vector(), mu, sigma, beta=1.0)
                     losses.append(loss)
                 loss = torch.mean(torch.stack(losses))

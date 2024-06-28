@@ -3,23 +3,9 @@ import numpy as np
 from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
 from deep_promp.deep_promp import DeepProMP
+from trajectory.state.trajectory_state import TrajectoryState
 from trajectory.trajectory import Trajectory
 from trajectory.state.joint_configuration import JointConfiguration
-
-
-def hand_written_trajectory():
-    ret = Trajectory[JointConfiguration]()
-    pt1 = JointConfiguration(joint_configuration=np.array([1, 2, 3, 4, 5, 6, 7]),
-                             gripper_open=1,
-                             time=0.1)
-    pt2 = JointConfiguration(joint_configuration=np.array([10, 11, 12, 13, 14, 15, 16]),
-                             gripper_open=0,
-                             time=0.1)
-
-    ret.add_point(pt1)
-    ret.add_point(pt2)
-
-    return ret
 
 
 def load_from_file_trajectory():
@@ -32,24 +18,6 @@ def load_from_file_trajectory():
     return tr
 
 
-def test_decoder_and_encoder():
-    a = EncoderDeepProMP(3, [8, 7])
-    b = DecoderDeepProMP(3, [7, 8])
-    print(a)
-    print(b)
-    # tr1 = hand_written_trajectory()
-    tr1 = load_from_file_trajectory()[0]
-    print(tr1)
-
-    mu, sigma = a.encode_to_latent_variable(tr1)
-    print("encoded mu", mu)
-    print("encoded sigma", sigma)
-    z = np.concatenate((np.array(mu), np.array(sigma)))
-    tr2 = b.decode_from_latent_variable(z, tr1[0].time)
-    print("decoded", tr2)
-    print("original", tr1)
-
-
 def test_deep_pro_mp():
     encoder = EncoderDeepProMP(3, [8, 7])
     decoder = DecoderDeepProMP(3, [7, 8])
@@ -57,5 +25,15 @@ def test_deep_pro_mp():
     deep_pro_mp.train(load_from_file_trajectory())
 
 
+def test_deep_pro_mp_from_latent_variable_dimension():
+    deep_pro_mp = DeepProMP.from_latent_variable_dimension(
+        name="deep_pro_mp",
+        latent_variable_dimension=3,
+        hidden_neurons_encoder=[8, 7],
+        hidden_neurons_decoder=[7, 8])
+    deep_pro_mp.train(load_from_file_trajectory())
+
+
 if __name__ == '__main__':
     test_deep_pro_mp()
+    # test_deep_pro_mp_from_latent_variable_dimension()

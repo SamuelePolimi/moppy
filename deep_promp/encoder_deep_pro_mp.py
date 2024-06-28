@@ -6,6 +6,7 @@ from torch import Tensor
 
 from interfaces.latent_encoder import LatentEncoder
 from trajectory.state.joint_configuration import JointConfiguration
+from trajectory.state.trajectory_state import TrajectoryState
 from trajectory.trajectory import Trajectory, T
 
 
@@ -14,10 +15,17 @@ class EncoderDeepProMP(LatentEncoder):
     def __init__(self,
                  latent_variable_dimension: int,
                  hidden_neurons: List[int],
-                 trajectory_state_class: Type[JointConfiguration] = JointConfiguration,
+                 trajectory_state_class: Type[TrajectoryState] = JointConfiguration,
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super().__init__()
         print("EncoderDeepProMP init")
+
+        # Check if the trajectory state class is a subclass of TrajectoryState
+        if trajectory_state_class not in TrajectoryState.__subclasses__():
+            raise TypeError(f"The trajectory state class must be a subclass of '{TrajectoryState.__name__}'. "
+                            f"Got '{trajectory_state_class}'"
+                            f"\nThe usable subclasses are {TrajectoryState.__subclasses__()}")
+
         self.input_dimension = trajectory_state_class.get_dimensions()
         self.activation_function = activation_function
         self.hidden_neurons = hidden_neurons

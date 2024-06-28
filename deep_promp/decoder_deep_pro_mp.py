@@ -17,6 +17,12 @@ class DecoderDeepProMP(LatentDecoder):
         super().__init__()
         print("DecoderDeepProMP init")
 
+        # Check if the trajectory state class is a subclass of TrajectoryState
+        if trajectory_state_class not in TrajectoryState.__subclasses__():
+            raise TypeError(f"The trajectory state class must be a subclass of '{TrajectoryState.__name__}'. "
+                            f"Got '{trajectory_state_class}'"
+                            f"\nThe usable subclasses are {TrajectoryState.__subclasses__()}")
+
         # The output dimension is the total dimension of the trajectory state minus the time dimension
         self.output_dimension = trajectory_state_class.get_dimensions() - trajectory_state_class.get_time_dimension()
         self.hidden_neurons = hidden_neurons
@@ -50,6 +56,8 @@ class DecoderDeepProMP(LatentDecoder):
 
         # 2. Pass the already sampled z (latent_variable) and the time through the decoder network to get the
         # trajectory state x
+        if isinstance(time, float):
+            time = torch.tensor(time)
         nn_input = torch.cat((latent_variable, torch.tensor(time)), dim=0).float()
         trajectory_state_mu_sigma = self.net(nn_input)
 
