@@ -4,6 +4,9 @@ from torch.utils.data import DataLoader
 
 from deep_promp.TrajectoryDataset import CustomDataset
 
+class Test:
+    pass
+
 if __name__ == "__main__":
     dataset = CustomDataset()
     print("Dataset has length: ", len(dataset))

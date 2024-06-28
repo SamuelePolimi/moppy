@@ -7,11 +7,11 @@ import torch.optim as optim
 import torch.distributions as distributions
 from matplotlib import pyplot as plt
 
-from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
-from deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
-from interfaces.movement_primitive import MovementPrimitive
-from trajectory.state.joint_configuration import JointConfiguration
-from trajectory.trajectory import Trajectory
+from moppy.deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
+from moppy.deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
+from moppy.interfaces.movement_primitive import MovementPrimitive
+from moppy.trajectory.state.joint_configuration import JointConfiguration
+from moppy.trajectory.trajectory import Trajectory
 
 
 losses = []

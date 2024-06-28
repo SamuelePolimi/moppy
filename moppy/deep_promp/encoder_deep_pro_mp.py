@@ -5,10 +5,10 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 
-from interfaces.latent_encoder import LatentEncoder
-from trajectory.state.joint_configuration import JointConfiguration
-from trajectory.state.trajectory_state import TrajectoryState
-from trajectory.trajectory import Trajectory, T
+from moppy.interfaces.latent_encoder import LatentEncoder
+from moppy.trajectory.state.joint_configuration import JointConfiguration
+from moppy.trajectory.state.trajectory_state import TrajectoryState
+from moppy.trajectory.trajectory import Trajectory, T
 
 
 class EncoderDeepProMP(LatentEncoder):

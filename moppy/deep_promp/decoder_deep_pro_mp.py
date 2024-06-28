@@ -4,9 +4,9 @@ import os
 import torch
 import torch.nn as nn
 
-from interfaces.latent_decoder import LatentDecoder
-from trajectory.state.joint_configuration import JointConfiguration
-from trajectory.state.trajectory_state import TrajectoryState
+from moppy.interfaces.latent_decoder import LatentDecoder
+from moppy.trajectory.state.joint_configuration import JointConfiguration
+from moppy.trajectory.state.trajectory_state import TrajectoryState
 
 
 class DecoderDeepProMP(LatentDecoder):

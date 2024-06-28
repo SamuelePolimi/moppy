@@ -3,7 +3,7 @@ from typing import List, Union
 import torch
 import torch.nn as nn
 
-from interfaces.latent_encoder import EncoderDeepProMP
+from moppy.interfaces.latent_encoder import EncoderDeepProMP
 
 
 # TODO REMOVE THIS FILE WHEN NO LONGER NEEDED

@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from interfaces.latent_decoder import LatentDecoder
-from interfaces.latent_encoder import LatentEncoder
-from trajectory.trajectory import Trajectory
+from moppy.interfaces.latent_decoder import LatentDecoder
+from moppy.interfaces.latent_encoder import LatentEncoder
+from moppy.trajectory.trajectory import Trajectory
 
 
 class MovementPrimitive(ABC):

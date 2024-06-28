@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-from trajectory.trajectory import Trajectory
+from moppy.trajectory.trajectory import Trajectory
 
 
 class LatentEncoder(ABC):

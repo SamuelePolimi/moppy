@@ -4,8 +4,8 @@ import glob
 import numpy as np
 from torch.utils.data import Dataset
 
-from trajectory.state.joint_configuration import JointConfiguration
-from trajectory.trajectory import Trajectory
+from moppy.trajectory.state.joint_configuration import JointConfiguration
+from moppy.trajectory.trajectory import Trajectory
 
 
 class CustomDataset(Dataset):

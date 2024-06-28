@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 
-from trajectory.state.trajectory_state import TrajectoryState
+from moppy.trajectory.state.trajectory_state import TrajectoryState
 
 
 class JointConfiguration(TrajectoryState):
