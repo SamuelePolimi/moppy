@@ -12,8 +12,7 @@ setup(
     packages=['moppy',
               'moppy.deep_promp',
               'moppy.trajectory',
-              'moppy.interfaces',
-              'moppy.mp_types'],
+              'moppy.interfaces'],
     python_requires='>=3.12',
     install_requires=[
         'torch',
