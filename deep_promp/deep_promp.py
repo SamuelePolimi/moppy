@@ -14,6 +14,33 @@ from trajectory.state.joint_configuration import JointConfiguration
 from trajectory.trajectory import Trajectory
 
 
+def gauss_kl(mu_q, std_q, mu_p=None, std_p=None, scale=1.0):
+    mu_p = torch.zeros_like(mu_q) if mu_p is None else mu_p
+    std_p = torch.ones_like(std_q) * scale if std_p is None else std_p
+
+    # independent treats them as multivariate Normals
+    indep = distributions.Independent
+    q_dist = indep(distributions.Normal(mu_q, std_q), 1)
+    p_dist = indep(distributions.Normal(mu_p, std_p), 1)
+
+    return distributions.kl_divergence(q_dist, p_dist)
+
+
+def calculate_elbo(y_pred, y_star, mu, sigma, beta=1.0):
+    """Calculate the Evidence Lower Bound (ELBO) using the reconstruction loss and the KL divergence.
+    The ELBO is the loss function used to train the DeepProMP."""
+
+    # Reconstruction loss (assuming Mean Squared Error)
+    log_prob = nn.MSELoss()(y_pred, y_star)
+
+    # KL divergence between approximate posterior (q) and prior (p)
+    kl = gauss_kl(mu_q=mu, std_q=sigma, scale=1.)
+
+    # Combine terms with beta weighting
+    elbo = log_prob + kl * beta
+    return elbo
+
+
 class DeepProMP(MovementPrimitive):
     """A DeepProMP is a probabilistic movement primitive that uses deep neural networks to encode and decode trajectories."""
 
@@ -66,37 +93,33 @@ class DeepProMP(MovementPrimitive):
             activation_function=activation_function,)
         return cls(name=name, encoder=encoder, decoder=decoder)
 
-    def train(self, trajectories: List[Trajectory]):
-
-        # Loss function
-        criterion = nn.MSELoss()
-
+    def train(self, trajectories: List[Trajectory]) -> None:
+        """Train the DeepProMP using the given trajectories.
+        The training is done using the Evidence Lower Bound (ELBO) as the loss function."""
         # Optimizers
         optimizer = optim.Adam(list(self.encoder.net.parameters()) + list(self.decoder.net.parameters()), lr=0.001)
         losses_traj = []
-        for i in range(100):
+        for i in range(10):
             for data in trajectories:
-                data: Trajectory = data
+                optimizer.zero_grad()  # Zero the gradients of the optimizer to avoid accumulation
                 mu, sigma = self.encoder(data)
-                latent_var_z = torch.cat((mu, sigma), dim=0)
-                losses = []
+                latent_var_z = self.encoder.sample_latent_variable(mu, sigma)
+
+                decoded = []
                 for j in data.get_points():
-                    decoded = self.decoder(latent_var_z, j.get_time())
-                    # loss = criterion(decoded, j.to_vector())
-                    loss = self.calculate_elbo(decoded, j.to_vector(), mu, sigma, beta=1.0)
-                    losses.append(loss)
-                loss = torch.mean(torch.stack(losses))
+                    decoded.append(self.decoder(latent_var_z, j.get_time()))
+                decoded = torch.cat(decoded)
+
+                loss = calculate_elbo(decoded, data.to_vector(), mu, sigma, beta=1.0)
                 print(loss)
                 losses_traj.append(loss)
-                # Backward pass and optimization
-                optimizer.zero_grad()
                 loss.backward()
                 optimizer.step()
         # Extract values from tensors
         values = [t.item() for t in losses_traj]
 
         # Plotting
-        plt.plot(values, marker='o')
+        plt.plot(values)
         plt.title('Tensor Values')
         plt.xlabel('Index')
         plt.ylabel('Value')
@@ -105,32 +128,8 @@ class DeepProMP(MovementPrimitive):
         # Save the plot as an image file
         plt.savefig('tensor_values_plot.png')
 
-    # https://github.com/tonyduan/variational-autoencoders/blob/master/src/blocks.py
-    def calculate_elbo(self, y_pred, y_star, mu, sigma, beta=1.0):
-        # Reconstruction loss (assuming Mean Squared Error)
-        log_prob = nn.MSELoss()(y_pred, y_star)
-
-        # KL divergence between approximate posterior (q) and prior (p)
-        kl = gauss_kl(mu_q=mu, std_q=sigma, scale=1.)
-
-        # Combine terms with beta weighting
-        elbo = log_prob + kl * beta
-        return elbo
-
     def test(self):
         raise NotImplementedError()
 
     def validate(self):
         raise NotImplementedError()
-
-
-def gauss_kl(mu_q, std_q, mu_p=None, std_p=None, scale=1.0):
-    mu_p = torch.zeros_like(mu_q) if mu_p is None else mu_p
-    std_p = torch.ones_like(std_q) * scale if std_p is None else std_p
-
-    # independent treats them as multivariate Normals
-    indep = distributions.Independent
-    q_dist = indep(distributions.Normal(mu_q, std_q), 1)
-    p_dist = indep(distributions.Normal(mu_p, std_p), 1)
-
-    return distributions.kl_divergence(q_dist, p_dist)

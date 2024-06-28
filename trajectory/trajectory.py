@@ -36,6 +36,10 @@ class Trajectory(Generic[T]):
         """Return the trajectory as a list of tuples."""
         return self.trajectory
 
+    def to_vector(self) -> torch.Tensor:
+        """Return the trajectory as a tensor. The tensor is a concatenation of the trajectory states."""
+        return torch.cat([state.to_vector() for state in self.trajectory])
+
     @classmethod
     def load_points_from_file(cls, file_path: str, trajectory_state_class: Type[T]):
         """Load the trajectory points from a file. The file should be a torch file.

@@ -31,7 +31,7 @@ class DecoderDeepProMP(LatentDecoder):
         self.trajectory_state_class = trajectory_state_class
 
         # create the neurons list, which is the list of the number of neurons in each layer of the network
-        self.neurons = [latent_variable_dimension * 2 + trajectory_state_class.get_time_dimension()] + \
+        self.neurons = [latent_variable_dimension + trajectory_state_class.get_time_dimension()] + \
             hidden_neurons + [self.output_dimension]
 
         if not self.neurons or len(self.neurons) < 2:
@@ -51,24 +51,17 @@ class DecoderDeepProMP(LatentDecoder):
                 layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()
 
-    def decode_from_latent_variable(self, latent_variable: torch.Tensor, time: torch.Tensor | float) -> TrajectoryState:
-        # This is the complete procedure of decoding a latent variable z to a trajectory point x
+    def decode_from_latent_variable(self, latent_variable: torch.Tensor, time: torch.Tensor | float) -> torch.Tensor:
+        """This is the complete procedure of decoding a latent variable z to a Tensor representing the trajectoryState
+        using the decoder network. The latent variable z is concatenated with the time t"""
 
-        # 2. Pass the already sampled z (latent_variable) and the time through the decoder network to get the
-        # trajectory state x
         if isinstance(time, float):
             time = torch.tensor(time)
         nn_input = torch.cat((latent_variable, torch.tensor(time)), dim=0).float()
-        trajectory_state_mu_sigma = self.net(nn_input)
-
-        # TODO REMOVE THIS RETURN; THIS IS JUST FOR TESTING
-        return trajectory_state_mu_sigma
-
-        # Output should be a vector with the same dimension as the TrajectoryState that is being used.
-        return self.trajectory_state_class.from_vector_without_time(trajectory_state_mu_sigma)
+        return self.net(nn_input)
 
     def __str__(self):
-        ret: str = "DecoderDeepProMP {"
+        ret: str = "DecoderDeepProMP() {"
         ret += "\n\t" + f'neurons: {self.neurons}'
         ret += '\n\t' + f'latent_variable_dimension: {self.latent_variable_dimension}'
         ret += "\n\t" + f'hidden_neurons: {self.hidden_neurons}'
