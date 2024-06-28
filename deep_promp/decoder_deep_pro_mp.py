@@ -1,5 +1,6 @@
 from typing import List, Union, Type
 
+import os
 import torch
 import torch.nn as nn
 
@@ -59,6 +60,14 @@ class DecoderDeepProMP(LatentDecoder):
             time = torch.tensor(time)
         nn_input = torch.cat((latent_variable, torch.tensor(time)), dim=0).float()
         return self.net(nn_input)
+
+    def save_model(self, path: str = '', filename: str = "decoder_deep_pro_mp.pth"):
+        file_path = os.path.join(path, filename)
+        torch.save(self.net.state_dict(), file_path)
+
+    def load_model(self, path: str = '', filename: str = "decoder_deep_pro_mp.pth"):
+        file_path = os.path.join(path, filename)
+        self.net.load_state_dict(torch.load(file_path))
 
     def __str__(self):
         ret: str = "DecoderDeepProMP() {"

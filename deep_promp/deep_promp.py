@@ -1,5 +1,6 @@
 from typing import List, Type, Union
 
+import os
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -46,7 +47,7 @@ def calculate_elbo(y_pred, y_star, mu, sigma, beta=1.0):
 class DeepProMP(MovementPrimitive):
     """A DeepProMP is a probabilistic movement primitive that uses deep neural networks to encode and decode trajectories."""
 
-    def __init__(self, name: str, encoder: EncoderDeepProMP, decoder: DecoderDeepProMP):
+    def __init__(self, name: str, encoder: EncoderDeepProMP, decoder: DecoderDeepProMP, save_path: str = './deep_promp/output/'):
         super().__init__(name, encoder, decoder)
         print("DeepProMP init")
 
@@ -66,6 +67,9 @@ class DeepProMP(MovementPrimitive):
 
         self.decoder = decoder
         self.encoder = encoder
+        self.save_path = save_path
+        if not os.path.exists(save_path):
+            os.makedirs(save_path)
         self.latent_variable_dimension = encoder.latent_variable_dimension
 
     @classmethod
@@ -100,7 +104,7 @@ class DeepProMP(MovementPrimitive):
         # Optimizers
         optimizer = optim.Adam(list(self.encoder.net.parameters()) + list(self.decoder.net.parameters()), lr=0.001)
         losses_traj = []
-        for i in range(20):
+        for i in range(10):
             for data in trajectories:
                 optimizer.zero_grad()  # Zero the gradients of the optimizer to avoid accumulation
                 mu, sigma = self.encoder(data)
@@ -117,6 +121,8 @@ class DeepProMP(MovementPrimitive):
                 loss.backward()
                 optimizer.step()
 
+        print("Training finished")
+        print("Plotting...", end='', flush=True)
         # Extract values from tensors
         values = [t.item() for t in losses_traj]
         # Plotting
@@ -126,10 +132,8 @@ class DeepProMP(MovementPrimitive):
         plt.ylabel('Value')
         plt.grid(True)
 
-
-
         # Save the plot as an image file
-        plt.savefig('tensor_values_plot.png')
+        #plt.savefig('tensor_values_plot.png')
         values = [t.item() for t in losses]
         # Plotting
         plt.plot(values)
@@ -139,7 +143,13 @@ class DeepProMP(MovementPrimitive):
         plt.grid(True)
 
         # Save the plot as an image file
-        plt.savefig('msloss.png')
+        plt.savefig(self.save_path + 'msloss.png')
+
+        print("finished")
+        print("Saving models...", end='', flush=True)
+        self.decoder.save_model(self.save_path)
+        self.encoder.save_model(self.save_path)
+        print("finished")
 
     def test(self):
         raise NotImplementedError()

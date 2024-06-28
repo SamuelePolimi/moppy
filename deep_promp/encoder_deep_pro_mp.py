@@ -1,5 +1,6 @@
-from typing import List, Tuple, Union, Type
+from typing import List, Union, Type
 
+import os
 import torch
 import torch.nn as nn
 from torch import Tensor
@@ -126,6 +127,14 @@ class EncoderDeepProMP(LatentEncoder):
             raise ValueError("The shape of sigma_z_sq should be equal to the latent variable dimension.")
 
         return mu_z, sigma_z_sq
+
+    def save_model(self, path: str = '', filename: str = "encoder_deep_pro_mp.pth"):
+        file_path = os.path.join(path, filename)
+        torch.save(self.net.state_dict(), file_path)
+
+    def load_model(self, path: str = '', filename: str = "encoder_deep_pro_mp.pth"):
+        file_path = os.path.join(path, filename)
+        self.net.load_state_dict(torch.load(file_path))
 
     def __str__(self):
         ret: str = 'EncoderDeepProMP {'
