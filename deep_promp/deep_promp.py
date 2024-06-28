@@ -5,13 +5,15 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.distributions as distributions
 from matplotlib import pyplot as plt
-from torch.distributions import Normal
 
 from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
 from interfaces.movement_primitive import MovementPrimitive
 from trajectory.state.joint_configuration import JointConfiguration
 from trajectory.trajectory import Trajectory
+
+
+losses = []
 
 
 def gauss_kl(mu_q, std_q, mu_p=None, std_p=None, scale=1.0):
@@ -32,7 +34,7 @@ def calculate_elbo(y_pred, y_star, mu, sigma, beta=1.0):
 
     # Reconstruction loss (assuming Mean Squared Error)
     log_prob = nn.MSELoss()(y_pred, y_star)
-
+    losses.append(log_prob)
     # KL divergence between approximate posterior (q) and prior (p)
     kl = gauss_kl(mu_q=mu, std_q=sigma, scale=1.)
 
@@ -65,7 +67,6 @@ class DeepProMP(MovementPrimitive):
         self.decoder = decoder
         self.encoder = encoder
         self.latent_variable_dimension = encoder.latent_variable_dimension
-        self.prior = Normal(torch.zeros(self.latent_variable_dimension), torch.ones(self.latent_variable_dimension))
 
     @classmethod
     def from_latent_variable_dimension(
@@ -94,12 +95,12 @@ class DeepProMP(MovementPrimitive):
         return cls(name=name, encoder=encoder, decoder=decoder)
 
     def train(self, trajectories: List[Trajectory]) -> None:
-        """Train the DeepProMP using the given trajectories.
-        The training is done using the Evidence Lower Bound (ELBO) as the loss function."""
+        """Train the DeepProMP using the given trajectories. The training is done using the Evidence Lower Bound (ELBO).
+        The ELBO is the loss function used to train the DeepProMP. The training is done using the Adam optimizer."""
         # Optimizers
         optimizer = optim.Adam(list(self.encoder.net.parameters()) + list(self.decoder.net.parameters()), lr=0.001)
         losses_traj = []
-        for i in range(10):
+        for i in range(20):
             for data in trajectories:
                 optimizer.zero_grad()  # Zero the gradients of the optimizer to avoid accumulation
                 mu, sigma = self.encoder(data)
@@ -110,14 +111,26 @@ class DeepProMP(MovementPrimitive):
                     decoded.append(self.decoder(latent_var_z, j.get_time()))
                 decoded = torch.cat(decoded)
 
-                loss = calculate_elbo(decoded, data.to_vector(), mu, sigma, beta=1.0)
+                loss = calculate_elbo(decoded, data.to_vector(), mu, sigma)
                 print(loss)
                 losses_traj.append(loss)
                 loss.backward()
                 optimizer.step()
+
         # Extract values from tensors
         values = [t.item() for t in losses_traj]
+        # Plotting
+        plt.plot(values)
+        plt.title('Tensor Values')
+        plt.xlabel('Index')
+        plt.ylabel('Value')
+        plt.grid(True)
 
+
+
+        # Save the plot as an image file
+        plt.savefig('tensor_values_plot.png')
+        values = [t.item() for t in losses]
         # Plotting
         plt.plot(values)
         plt.title('Tensor Values')
@@ -126,7 +139,7 @@ class DeepProMP(MovementPrimitive):
         plt.grid(True)
 
         # Save the plot as an image file
-        plt.savefig('tensor_values_plot.png')
+        plt.savefig('msloss.png')
 
     def test(self):
         raise NotImplementedError()
