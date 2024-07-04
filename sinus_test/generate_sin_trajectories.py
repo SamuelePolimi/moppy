@@ -19,4 +19,6 @@ for i in range(10):
         traj.append(vec)
         time += 1/num_steps
 
+    traj[-1]["time"] = 1.0
+
     torch.save(traj, f"trajectories/sin_{i}.pth")
