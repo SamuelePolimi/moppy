@@ -112,7 +112,9 @@ class DeepProMP(MovementPrimitive):
 
                 decoded = []
                 for j in data.get_points():
+                    print("latent_var_z: ", latent_var_z)
                     decoded.append(self.decoder(latent_var_z, j.get_time()))
+                print("shape: ", decoded[0].shape)
                 decoded = torch.cat(decoded)
 
                 loss = calculate_elbo(decoded, data.to_vector(), mu, sigma)

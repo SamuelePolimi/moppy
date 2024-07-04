@@ -19,23 +19,23 @@ class JointConfiguration(TrajectoryState):
         # because we want to use them in a neural network
 
         if isinstance(time, float | int):
-            self.time = torch.tensor([time])
+            self.time = torch.tensor([time]).float()
         elif isinstance(time, np.ndarray):
-            self.time = torch.from_numpy(time)
+            self.time = torch.from_numpy(time).float()
         elif not isinstance(time, torch.Tensor):
             self.time = torch.tensor(time, dtype=torch.float)
         else:
             self.time = time
 
         if isinstance(joint_positions, np.ndarray):
-            self.joint_positions = torch.from_numpy(joint_positions)
+            self.joint_positions = torch.from_numpy(joint_positions).float()
         elif not isinstance(joint_positions, torch.Tensor):
             self.joint_positions = torch.tensor(joint_positions, dtype=torch.float)
         else:
             self.joint_positions = joint_positions
 
         if isinstance(gripper_open, np.ndarray):
-            self.gripper_open = torch.from_numpy(gripper_open)
+            self.gripper_open = torch.from_numpy(gripper_open).float()
         elif not isinstance(gripper_open, torch.Tensor):
             self.gripper_open = torch.tensor(gripper_open, dtype=torch.float)
         else:
