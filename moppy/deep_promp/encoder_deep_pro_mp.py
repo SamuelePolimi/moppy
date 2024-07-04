@@ -49,7 +49,7 @@ class EncoderDeepProMP(LatentEncoder):
         layers = []
         for i in range(len(self.neurons) - 1):
             if i == len(self.neurons) - 2:
-                layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), nn.Sigmoid()]
+                layers += [linear_layer(self.neurons[i], self.neurons[i + 1])]
             else:
                 layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()

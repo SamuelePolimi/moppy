@@ -3,12 +3,12 @@ import torch
 import random
 import numpy
 
-num_steps = 50
+num_steps = 100
 
-amplitude = random.randint(1, 10)
-frequency = random.randint(1, 5)
 
 for i in range(50):
+    amplitude = random.randint(1, 10)
+    frequency = random.randint(1, 5)
     traj = []
     time = 0.0
     for _ in range(num_steps + 1):

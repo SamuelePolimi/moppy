@@ -25,7 +25,12 @@ class SinusState(TrajectoryState):
         # print(f"value={self.value}, time={self.time}")
 
     def to_vector(self) -> torch.Tensor:
-        return self.value
+        ret = self.value
+        if len(ret) != self.get_dimensions() - self.get_time_dimension():
+            raise ValueError(
+                f"The length of the vector should be equal to the number of dimensions."
+                f"({len(ret)} != {self.get_dimensions() - self.get_time_dimension()})")
+        return ret
 
     @classmethod
     def from_vector_without_time(cls, vector: torch.Tensor | float, time: float = 0.) -> 'SinusState':

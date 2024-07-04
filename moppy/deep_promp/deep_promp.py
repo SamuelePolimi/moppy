@@ -157,3 +157,7 @@ class DeepProMP(MovementPrimitive):
 
     def validate(self):
         raise NotImplementedError()
+
+
+    def __str__(self):
+        return f"DeepProMP: {self.name} - encoder: {self.encoder} - decoder: {self.decoder}"

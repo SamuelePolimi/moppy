@@ -47,7 +47,7 @@ class DecoderDeepProMP(LatentDecoder):
         layers = []
         for i in range(len(self.neurons) - 1):
             if i == len(self.neurons) - 2:
-                layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), nn.Sigmoid()]
+                layers += [linear_layer(self.neurons[i], self.neurons[i + 1])]
             else:
                 layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()
@@ -57,7 +57,7 @@ class DecoderDeepProMP(LatentDecoder):
         using the decoder network. The latent variable z is concatenated with the time t"""
 
         if isinstance(time, float):
-            time = torch.tensor(time)
+            time = torch.tensor([time])
         nn_input = torch.cat((latent_variable, time), dim=0).float()
         return self.net(nn_input)
 
