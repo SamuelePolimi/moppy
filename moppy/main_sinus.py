@@ -17,9 +17,10 @@ def load_from_file_trajectory():
 
 
 def test_deep_pro_mp():
-    encoder = EncoderDeepProMP(3, [8, 7], SinusState)
-    decoder = DecoderDeepProMP(3, [7, 8], SinusState)
+    encoder = EncoderDeepProMP(1, [2, 2], SinusState)
+    decoder = DecoderDeepProMP(1, [2, 2], SinusState)
     deep_pro_mp = DeepProMP("deep_pro_mp", encoder, decoder)
+    print(deep_pro_mp)
     deep_pro_mp.train(load_from_file_trajectory())
 
 

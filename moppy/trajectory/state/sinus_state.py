@@ -22,6 +22,8 @@ class SinusState(TrajectoryState):
         else:
             self.time = torch.tensor(time, dtype=torch.float)
 
+        # print(f"value={self.value}, time={self.time}")
+
     def to_vector(self) -> torch.Tensor:
         return self.value
 
@@ -38,7 +40,7 @@ class SinusState(TrajectoryState):
     @classmethod
     def from_dict(cls, data: dict) -> 'SinusState':
         """Create a SinusTrajectoryState from a dictionary."""
-        return cls(data['value'], data['time'])
+        return cls(value=data['value'], time=data['time'])
 
     @classmethod
     def get_dimensions(cls) -> int:

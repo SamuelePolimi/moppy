@@ -58,7 +58,7 @@ class Trajectory(Generic[T]):
         ret = cls[trajectory_state_class]()
         for state in content:
             item = trajectory_state_class.from_dict(state)
-            cls.add_point(ret, item)
+            ret.add_point(item)
         return ret
 
     def __len__(self) -> int:

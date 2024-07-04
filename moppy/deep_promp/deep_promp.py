@@ -104,21 +104,20 @@ class DeepProMP(MovementPrimitive):
         # Optimizers
         optimizer = optim.Adam(list(self.encoder.net.parameters()) + list(self.decoder.net.parameters()), lr=0.001)
         losses_traj = []
-        for i in range(10):
-            for data in trajectories:
+        episodes = 10
+        for i in range(episodes):
+            for tr_i, data in enumerate(trajectories):
                 optimizer.zero_grad()  # Zero the gradients of the optimizer to avoid accumulation
                 mu, sigma = self.encoder(data)
                 latent_var_z = self.encoder.sample_latent_variable(mu, sigma)
 
                 decoded = []
                 for j in data.get_points():
-                    print("latent_var_z: ", latent_var_z)
                     decoded.append(self.decoder(latent_var_z, j.get_time()))
-                print("shape: ", decoded[0].shape)
                 decoded = torch.cat(decoded)
 
                 loss = calculate_elbo(decoded, data.to_vector(), mu, sigma)
-                print(loss)
+                print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
                 losses_traj.append(loss)
                 loss.backward()
                 optimizer.step()
