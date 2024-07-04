@@ -35,7 +35,7 @@ def calculate_elbo(y_pred, y_star, mu, sigma, beta=1.0):
 
     # Reconstruction loss (assuming Mean Squared Error)
     log_prob = nn.MSELoss()(y_pred, y_star)
-    losses.append(log_prob)
+    # losses.append(log_prob)
     # KL divergence between approximate posterior (q) and prior (p)
     kl = gauss_kl(mu_q=mu, std_q=sigma, scale=1.)
 
@@ -118,8 +118,8 @@ class DeepProMP(MovementPrimitive):
 
                 loss = calculate_elbo(decoded, data.to_vector(), mu, sigma)
                 print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
-                losses_traj.append(loss)
                 loss.backward()
+                # losses_traj.append(loss.detach().numpy())
                 optimizer.step()
 
         print("Training finished")
