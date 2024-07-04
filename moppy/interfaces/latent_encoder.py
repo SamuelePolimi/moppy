@@ -11,7 +11,7 @@ class LatentEncoder(ABC):
         """
         Encode a trajectory to a latent variable z, which is a vector of a fixed dimension, which is a hyperparameter.
         :param trajectory: a trajectory to encode
-        :return: the sampled latent variable z
+        :return: the sampled latent variable z as tupel of mu and sigma
         """
         pass
 
