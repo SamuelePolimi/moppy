@@ -10,7 +10,7 @@ time = 0.0
 amplitude = random.randint(1, 10)
 frequency = random.randint(1, 5)
 
-for i in range(10):
+for i in range(50):
     for _ in range(num_steps + 1):
         vec = {
                 'value': amplitude * numpy.sin(frequency * time),
