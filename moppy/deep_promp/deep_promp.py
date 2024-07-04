@@ -130,7 +130,7 @@ class DeepProMP(MovementPrimitive):
             # validation
             validation_loss = self.validate(validation_set)
             losses_validation.append(validation_loss)
-            print(f"Episode {i+1} validation loss = " + validation_loss)
+            print(f"Episode {i+1} validation loss = {validation_loss.item()}")
 
         print("Training finished")
         print("Plotting...", end='', flush=True)
