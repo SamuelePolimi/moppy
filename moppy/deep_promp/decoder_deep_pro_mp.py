@@ -16,7 +16,6 @@ class DecoderDeepProMP(LatentDecoder):
                  trajectory_state_class: Type[TrajectoryState] = JointConfiguration,
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super().__init__()
-        print("DecoderDeepProMP init")
 
         # Check if the trajectory state class is a subclass of TrajectoryState
         if trajectory_state_class not in TrajectoryState.__subclasses__():

@@ -19,7 +19,6 @@ class EncoderDeepProMP(LatentEncoder):
                  trajectory_state_class: Type[TrajectoryState] = JointConfiguration,
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
         super().__init__()
-        print("EncoderDeepProMP init")
 
         # Check if the trajectory state class is a subclass of TrajectoryState
         if trajectory_state_class not in TrajectoryState.__subclasses__():
@@ -140,8 +139,8 @@ class EncoderDeepProMP(LatentEncoder):
         ret: str = 'EncoderDeepProMP {'
         ret += '\n\t' + f'neurons: {self.neurons}'
         ret += '\n\t' + f'input_dimension: {self.input_dimension}'
-        ret += '\n\t' + f'latent_variable_dimension: {self.latent_variable_dimension}'
         ret += '\n\t' + f'hidden_neurons: {self.hidden_neurons}'
+        ret += '\n\t' + f'latent_variable_dimension: {self.latent_variable_dimension}'
         ret += '\n\t' + f'activation_function: {self.activation_function}'
         ret += '\n\t' + f'trajectory_state_class: {self.trajectory_state_class}'
         ret += '\n\t' + f'net: {str(self.net)}'

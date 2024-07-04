@@ -11,12 +11,12 @@ encoder.load_model('../deep_promp/output')
 
 decoder = DecoderDeepProMP(3, [10, 10, 10, 10], SinusState)
 decoder.load_model('../deep_promp/output')
-name = 'sin_49'
+name = 'sin_25'
 traj = Trajectory.load_points_from_file(f'./trajectories/{name}.pth', SinusState)
 
 mu, sigma = encoder.encode_to_latent_variable(traj)
-print(mu)
-print(sigma)
+print(f"mu: {mu}")
+print(f"sigma: {sigma}")
 Z = encoder.sample_latent_variable(mu, sigma)
 print(Z)
 Z = torch.normal(torch.zeros(3), torch.ones(3))

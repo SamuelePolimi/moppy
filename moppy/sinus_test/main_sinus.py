@@ -11,14 +11,14 @@ def load_from_file_trajectory():
     """Load the trajectories from the files"""
     tr = []
     for i in range(50):
-        tr.append(Trajectory.load_points_from_file("sinus_test/trajectories/sin_%s.pth" % i, SinusState))
+        tr.append(Trajectory.load_points_from_file("trajectories/sin_%s.pth" % i, SinusState))
 
     return tr
 
 
 def test_deep_pro_mp():
-    encoder = EncoderDeepProMP(3, [10, 10, 10, 10], SinusState)
-    decoder = DecoderDeepProMP(3, [10, 10, 10, 10], SinusState)
+    encoder = EncoderDeepProMP(2, [10, 10], SinusState)
+    decoder = DecoderDeepProMP(2, [10, 10], SinusState)
     deep_pro_mp = DeepProMP("deep_pro_mp", encoder, decoder)
     print(deep_pro_mp)
     deep_pro_mp.train(load_from_file_trajectory())

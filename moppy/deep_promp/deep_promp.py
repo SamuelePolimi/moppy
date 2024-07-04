@@ -29,7 +29,7 @@ def gauss_kl(mu_q, std_q, mu_p=None, std_p=None, scale=1.0):
     return distributions.kl_divergence(q_dist, p_dist)
 
 
-def calculate_elbo(y_pred, y_star, mu, sigma, beta=1.0):
+def calculate_elbo(y_pred, y_star, mu, sigma, beta=0.5):
     """Calculate the Evidence Lower Bound (ELBO) using the reconstruction loss and the KL divergence.
     The ELBO is the loss function used to train the DeepProMP."""
 
@@ -49,7 +49,6 @@ class DeepProMP(MovementPrimitive):
 
     def __init__(self, name: str, encoder: EncoderDeepProMP, decoder: DecoderDeepProMP, save_path: str = './deep_promp/output/'):
         super().__init__(name, encoder, decoder)
-        print("DeepProMP init")
 
         # Check if the encoder and decoder are instances/subclasses of EncoderDeepProMP and DecoderDeepProMP
         if not issubclass(type(encoder), EncoderDeepProMP):
@@ -102,11 +101,18 @@ class DeepProMP(MovementPrimitive):
         """Train the DeepProMP using the given trajectories. The training is done using the Evidence Lower Bound (ELBO).
         The ELBO is the loss function used to train the DeepProMP. The training is done using the Adam optimizer."""
         # Optimizers
+        training_set = trajectories[:(len(trajectories) * 9) // 10]
+        validation_set = trajectories[-len(trajectories) // 10:]
+        print("Total set: ", len(trajectories))
+        print(f"Training set: {len(training_set)}")
+        print(f"Validation set: {len(validation_set)}")
+
         optimizer = optim.Adam(list(self.encoder.net.parameters()) + list(self.decoder.net.parameters()), lr=0.001)
         losses_traj = []
-        episodes = 10
+        losses_validation = []
+        episodes = 100
         for i in range(episodes):
-            for tr_i, data in enumerate(trajectories):
+            for tr_i, data in enumerate(training_set):
                 optimizer.zero_grad()  # Zero the gradients of the optimizer to avoid accumulation
                 mu, sigma = self.encoder(data)
                 latent_var_z = self.encoder.sample_latent_variable(mu, sigma)
@@ -119,8 +125,12 @@ class DeepProMP(MovementPrimitive):
                 loss = calculate_elbo(decoded, data.to_vector(), mu, sigma)
                 print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
                 loss.backward()
-                # losses_traj.append(loss.detach().numpy())
+                losses_traj.append(loss.detach().numpy())
                 optimizer.step()
+            # validation
+            validation_loss = self.validate(validation_set)
+            losses_validation.append(validation_loss)
+            print(f"Episode {i+1} validation loss = " + validation_loss)
 
         print("Training finished")
         print("Plotting...", end='', flush=True)
@@ -134,7 +144,6 @@ class DeepProMP(MovementPrimitive):
         plt.grid(True)
 
         # Save the plot as an image file
-        #plt.savefig('tensor_values_plot.png')
         values = [t.item() for t in losses]
         # Plotting
         plt.plot(values)
@@ -146,6 +155,16 @@ class DeepProMP(MovementPrimitive):
         # Save the plot as an image file
         plt.savefig(self.save_path + 'msloss.png')
 
+        plt.close()
+        plt.plot(losses_validation)
+        plt.title('Validation Loss')
+        plt.xlabel('Index')
+        plt.ylabel('Value')
+        plt.grid(True)
+
+        # Save the plot as an image file
+        plt.savefig(self.save_path + 'validation_loss.png')
+
         print("finished")
         print("Saving models...", end='', flush=True)
         self.decoder.save_model(self.save_path)
@@ -155,9 +174,22 @@ class DeepProMP(MovementPrimitive):
     def test(self):
         raise NotImplementedError()
 
-    def validate(self):
-        raise NotImplementedError()
+    def validate(self, trajectories: List[Trajectory]):
+        loss = 0
+        for traj in trajectories:
+            mu, sigma = self.encoder(traj)
+            latent_var_z = self.encoder.sample_latent_variable(mu, sigma)
 
+            decoded = []
+            for j in traj.get_points():
+                decoded.append(self.decoder(latent_var_z, j.get_time()))
+            decoded = torch.cat(decoded)
+
+            loss += nn.MSELoss()(decoded, traj.to_vector()).detach().numpy()
+        return loss / len(trajectories)  # Average loss
 
     def __str__(self):
-        return f"DeepProMP: {self.name} - encoder: {self.encoder} - decoder: {self.decoder}"
+        return f"DeepProMP({self.name})" '{' + \
+            '\n' + f"encoder: {self.encoder}" + \
+            '\n' + f"decoder: {self.decoder}" + \
+            '\n' + '}'
