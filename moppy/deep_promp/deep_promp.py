@@ -29,7 +29,7 @@ def gauss_kl(mu_q, std_q, mu_p=None, std_p=None, scale=1.0):
     return distributions.kl_divergence(q_dist, p_dist)
 
 
-def calculate_elbo(y_pred, y_star, mu, sigma, beta=0.5):
+def calculate_elbo(y_pred, y_star, mu, sigma, beta=1.0):
     """Calculate the Evidence Lower Bound (ELBO) using the reconstruction loss and the KL divergence.
     The ELBO is the loss function used to train the DeepProMP."""
 

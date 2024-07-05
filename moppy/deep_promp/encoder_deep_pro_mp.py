@@ -99,7 +99,7 @@ class EncoderDeepProMP(LatentEncoder):
         # specified by mu and sigma.
 
         # 1. Calculate the standard deviation of the normal distribution.
-        #if percentage_of_standard_deviation is not None:
+        # if percentage_of_standard_deviation is not None:
         #    sigma = sigma * percentage_of_standard_deviation
 
         # 2. Sample each element of z from a normal distribution specified by mu and sigma.
