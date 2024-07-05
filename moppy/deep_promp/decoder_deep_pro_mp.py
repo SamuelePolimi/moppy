@@ -9,13 +9,13 @@ from moppy.trajectory.state.joint_configuration import JointConfiguration
 from moppy.trajectory.state.trajectory_state import TrajectoryState
 
 
-class DecoderDeepProMP(LatentDecoder):
+class DecoderDeepProMP(LatentDecoder, nn.Module):
     def __init__(self,
                  latent_variable_dimension: int,
                  hidden_neurons: List[int],
                  trajectory_state_class: Type[TrajectoryState] = JointConfiguration,
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
-        super().__init__()
+        nn.Module.__init__(self)
 
         # Check if the trajectory state class is a subclass of TrajectoryState
         if trajectory_state_class not in TrajectoryState.__subclasses__():
@@ -51,6 +51,16 @@ class DecoderDeepProMP(LatentDecoder):
                 layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()
 
+        # Initialize the weights and biases of the network
+        self.net.apply(self.__init_weights)
+
+    def __init_weights(self, m):
+        """Initialize the weights and biases of the network using Xavier initialization and a bias of 0.01"""
+        if isinstance(m, nn.Linear):
+            nn.init.xavier_uniform_(m.weight)
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
+
     def decode_from_latent_variable(self, latent_variable: torch.Tensor, time: torch.Tensor | float) -> torch.Tensor:
         """This is the complete procedure of decoding a latent variable z to a Tensor representing the trajectoryState
         using the decoder network. The latent variable z is concatenated with the time t"""
@@ -68,6 +78,9 @@ class DecoderDeepProMP(LatentDecoder):
         file_path = os.path.join(path, filename)
         self.net.load_state_dict(torch.load(file_path))
 
+    def forward(self, latent_variable: torch.Tensor, time: torch.Tensor | float):
+        return self.decode_from_latent_variable(latent_variable, time)
+
     def __str__(self):
         ret: str = "DecoderDeepProMP() {"
         ret += "\n\t" + f'neurons: {self.neurons}'
@@ -82,6 +95,3 @@ class DecoderDeepProMP(LatentDecoder):
 
     def __repr__(self):
         return f'DecoderDeepProMP(neurons={self.neurons})'
-
-    def __call__(self, *args, **kwargs):
-        return self.decode_from_latent_variable(*args, **kwargs)

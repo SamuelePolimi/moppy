@@ -11,14 +11,14 @@ from moppy.trajectory.state.trajectory_state import TrajectoryState
 from moppy.trajectory.trajectory import Trajectory, T
 
 
-class EncoderDeepProMP(LatentEncoder):
+class EncoderDeepProMP(LatentEncoder, nn.Module):
 
     def __init__(self,
                  latent_variable_dimension: int,
                  hidden_neurons: List[int],
                  trajectory_state_class: Type[TrajectoryState] = JointConfiguration,
                  activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
-        super().__init__()
+        nn.Module.__init__(self)
 
         # Check if the trajectory state class is a subclass of TrajectoryState
         if trajectory_state_class not in TrajectoryState.__subclasses__():
@@ -52,6 +52,16 @@ class EncoderDeepProMP(LatentEncoder):
             else:
                 layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
         self.net = nn.Sequential(*layers).float()
+
+        # Initialize the weights and biases of the network
+        self.net.apply(self.__init_weights)
+
+    def __init_weights(self, m):
+        """Initialize the weights and biases of the network using Xavier initialization and a bias of 0.01"""
+        if isinstance(m, nn.Linear):
+            nn.init.xavier_uniform_(m.weight)
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
 
     def encode_to_latent_variable(
             self,
@@ -135,6 +145,9 @@ class EncoderDeepProMP(LatentEncoder):
         file_path = os.path.join(path, filename)
         self.net.load_state_dict(torch.load(file_path))
 
+    def forward(self, trajectory: Trajectory) -> tuple[Tensor, Tensor]:
+        return self.encode_to_latent_variable(trajectory)
+
     def __str__(self):
         ret: str = 'EncoderDeepProMP {'
         ret += '\n\t' + f'neurons: {self.neurons}'
@@ -149,6 +162,3 @@ class EncoderDeepProMP(LatentEncoder):
 
     def __repr__(self):
         return f'EncoderDeepProMP(neurons={self.neurons})'
-
-    def __call__(self, *args, **kwargs):
-        return self.encode_to_latent_variable(*args, **kwargs)
