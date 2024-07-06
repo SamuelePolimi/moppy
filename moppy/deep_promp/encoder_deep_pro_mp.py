@@ -116,26 +116,22 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
         z_sampled = torch.normal(mu, sigma)
         return z_sampled
 
-    def bayesian_aggregation(self, mu_points: torch.Tensor, sigma_points: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def bayesian_aggregation(self, means: torch.Tensor, variances: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         # TODO verify if the sum is calculated correctly, dim = 0 should be correct
-        sum_mu_a_over_sigma_a_squared = torch.sum(mu_points / (sigma_points ** 2), dim=0)
-        sum_sigma_a_inverse = torch.sum(1 / (sigma_points ** 2), dim=0)
+        # Check if tensors have the same size
+        if not torch.all(torch.equal(means.size(), variances.size())):
+            raise ValueError("Means and variances tensors must have the same size.")
 
-        # Calculate sigma_z^2(A) without context variables
-        sigma_z_sq = 1 / (1 + sum_sigma_a_inverse)
+        # Calculate total precision (inverse of variance)
+        precisions = 1.0 / variances
 
-        # Adjust for context variables if needed
-        # This part is omitted since the assumption is about having only via-points (A)
+        # Calculate weighted mean based on precisions
+        combined_mean = torch.sum(precisions * means) / torch.sum(precisions)
 
-        # Calculate mu_z(A) using the formula without context variables
-        mu_z = sigma_z_sq * sum_mu_a_over_sigma_a_squared
+        # Calculate combined variance (harmonic mean of individual variances)
+        combined_variance = 1.0 / torch.mean(1.0 / variances)
 
-        if mu_z.shape != (self.latent_variable_dimension,):
-            raise ValueError("The shape of mu_z should be equal to the latent variable dimension.")
-        if sigma_z_sq.shape != mu_z.shape:
-            raise ValueError("The shape of sigma_z_sq should be equal to the latent variable dimension.")
-
-        return mu_z, sigma_z_sq
+        return combined_mean, combined_variance
 
     def save_model(self, path: str = '', filename: str = "encoder_deep_pro_mp.pth"):
         file_path = os.path.join(path, filename)

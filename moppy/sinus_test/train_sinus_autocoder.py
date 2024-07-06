@@ -174,5 +174,5 @@ def test_train_sinus_decoder():
 
 
 if __name__ == '__main__':
-    # test_train_sinus_encoder()
-    test_train_sinus_decoder()
+    test_train_sinus_encoder()
+    # test_train_sinus_decoder()
