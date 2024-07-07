@@ -57,26 +57,41 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
         self.net.apply(self.__init_weights)
 
     def __init_weights(self, m):
-        """Initialize the weights and biases of the network using Xavier initialization and a bias of 0.01"""
+        """Initialize the weights and biases of the network using Xavier initialization and a bias"""
         if isinstance(m, nn.Linear):
             nn.init.xavier_uniform_(m.weight)
             if m.bias is not None:
                 nn.init.zeros_(m.bias)
+                nn.init.constant_(m.bias, 0.05)
 
     def encode_to_latent_variable(
             self,
             trajectory: Trajectory
     ) -> tuple[Tensor, Tensor]:
+        """
+        Encodes a Trajectory into a mu and sigma (both have the same size of self.latent_variable_dimension).
+        1. Each point of the trajectory gets run throw the NN and the resulting nu and sigma gets saved.
+        2. bayesian_aggregation is then used on the mu's and sigma's and the resulting mu and sigma is returned.
+
+        Args:
+            trajectory (Trajectory): The Trajectory to encode. The used TrajectoryState class of the Points has to be the same as used in the Encoder.
+
+        Returns:
+            tuple[Tensor, Tensor]: The resulting mu and sigma. Both Tensor of size self.latent_variable_dimension.
+        """
+
+        # trajectory cannot be None or empty
+        if trajectory is None or len(trajectory.get_points()) == 0:
+            raise ValueError("Given Trajectory is ether None or does not contain any Points.")
+        # used TrajectoryState class for trajectory has to be the same as used in the Encoder
+        if not isinstance(trajectory.get_points()[0], self.trajectory_state_class):
+            raise ValueError("Cannot encode Trajectory  with a different TrajectoryState Type then the Encoder:\n"
+                             f"{type(trajectory.get_points()[0]).__name__}(trajectory) != {self.trajectory_state_class.__name__}(encoder)")
+
         traj_points: List[T] = trajectory.get_points()
 
-        # This is the complete procedure of encoding a trajectory to a latent variable z
-        # (including bayesian aggregation).
-
-        # 1. For each traj_point tuple (t_i, x_i) in traj_points,
-        # pass it through the encoder network and get the vectors mu_i and sigma_i.
-
-        mu_points = torch.empty((len(traj_points), self.latent_variable_dimension), dtype=torch.float64)
-        sigma_points = torch.empty((len(traj_points), self.latent_variable_dimension), dtype=torch.float64)
+        mu_points = torch.zeros((len(traj_points), self.latent_variable_dimension), dtype=torch.float64)
+        sigma_points = torch.zeros((len(traj_points), self.latent_variable_dimension), dtype=torch.float64)
 
         for i, x in enumerate(traj_points):
             x: T = x
@@ -104,7 +119,10 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
 
         return mu_z, sigma_z_sq
 
-    def sample_latent_variable(self, mu: torch.Tensor, sigma: torch.Tensor, percentage_of_standard_deviation=None) -> torch.Tensor:
+    def sample_latent_variable(self,
+                               mu: torch.Tensor,
+                               sigma: torch.Tensor,
+                               percentage_of_standard_deviation=None) -> torch.Tensor:
         # This is the complete procedure of sampling a latent variable z from a normal distribution
         # specified by mu and sigma.
 
@@ -116,7 +134,12 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
         z_sampled = torch.normal(mu, sigma)
         return z_sampled
 
-    def bayesian_aggregation(self, mu_points: torch.Tensor, sigma_points: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+    def bayesian_aggregation(self,
+                             mu_points: torch.Tensor,
+                             sigma_points: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        epsilon = 10e-10
+        mu_points += epsilon
+        sigma_points += epsilon
         # TODO verify if the sum is calculated correctly, dim = 0 should be correct
         sum_mu_a_over_sigma_a_squared = torch.sum(mu_points / (sigma_points ** 2), dim=0)
         sum_sigma_a_inverse = torch.sum(1 / (sigma_points ** 2), dim=0)
