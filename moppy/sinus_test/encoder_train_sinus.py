@@ -44,7 +44,7 @@ def test_train_sinus_encoder():
     trajectory_set = generate_trajectory_set(50)
     validation_set = random.sample(trajectory_set, 5)
     training_set = [item for item in trajectory_set if item not in validation_set]
-    iterations = 100
+    iterations = 500
     for i in range(iterations):
         print(f"Step {i:02}/{iterations} - Training ... ", end="", flush=True)
         for traj in training_set:

@@ -34,7 +34,8 @@ def calculate_elbo(y_pred, y_star, mu, sigma, beta=1.0):
     The ELBO is the loss function used to train the DeepProMP."""
 
     # Reconstruction loss (assuming Mean Squared Error)
-    log_prob = nn.MSELoss()(y_pred, y_star)
+    # log_prob = nn.MSELoss()(y_pred, y_star)
+    log_prob = torch.distributions.Normal(loc=mu, scale=sigma).log_prob(torch.tensor(y_star, requires_grad=True)).sum()
     # losses.append(log_prob)
     # KL divergence between approximate posterior (q) and prior (p)
     kl = gauss_kl(mu_q=mu, std_q=sigma, scale=1.)
@@ -125,8 +126,8 @@ class DeepProMP(MovementPrimitive):
                 loss = calculate_elbo(decoded, data.to_vector(), mu, sigma)
                 print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
                 loss.backward()
-                losses_traj.append(loss.detach().numpy())
                 optimizer.step()
+                losses_traj.append(loss.detach().numpy())
             # validation
             validation_loss = self.validate(validation_set)
             losses_validation.append(validation_loss)
