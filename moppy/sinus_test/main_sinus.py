@@ -1,3 +1,4 @@
+import argparse
 import torch.nn as nn
 
 from moppy.deep_promp.utils import set_seed
@@ -6,8 +7,6 @@ from moppy.deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
 from moppy.deep_promp.deep_promp import DeepProMP
 from moppy.trajectory.trajectory import Trajectory
 from moppy.trajectory.state.sinus_state import SinusState
-
-
 
 
 def load_from_file_trajectory():
@@ -19,14 +18,33 @@ def load_from_file_trajectory():
     return tr
 
 
-def test_deep_pro_mp():
+def test_deep_pro_mp(args):
     encoder = EncoderDeepProMP(2, [10, 20, 20, 10], SinusState)
     decoder = DecoderDeepProMP(2,  [10, 20, 20, 10], SinusState, nn.Tanh)
-    deep_pro_mp = DeepProMP("deep_pro_mp", encoder, decoder)
+    deep_pro_mp = DeepProMP(name="sinus_main",
+                            encoder=encoder,
+                            decoder=decoder,
+                            learning_rate=args.learning_rate,
+                            epochs=args.epochs,
+                            beta=args.beta,
+                            save_path=args.save_path)
     print(deep_pro_mp)
     deep_pro_mp.train(load_from_file_trajectory())
 
 
 if __name__ == '__main__':
-    set_seed(0)
-    test_deep_pro_mp()
+    parser = argparse.ArgumentParser(description="parse args")
+    parser.add_argument("--rnd_seed", type=int, help="random seed for experiment.")
+    parser.add_argument("--learning_rate", default=0.01, type=float, help="lerning_rate used by the adam optimizer.")
+    parser.add_argument("--epochs", default=10, type=int, help="The amout of epochs used in the training.")
+    parser.add_argument("--beta", default=1, type=float, help="The kl-divergence ratio.")
+    parser.add_argument("--save_path", default='./deep_promp/output/', type=str, help="The folder moppy will save your files.")
+
+    args = parser.parse_args()
+
+    if args.rnd_seed is not None:
+        set_seed(args.rnd_seed)
+    else:
+        set_seed(0)
+
+    test_deep_pro_mp(args)
