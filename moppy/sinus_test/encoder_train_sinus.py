@@ -11,6 +11,18 @@ from matplotlib import pyplot as plt
 from moppy import SinusState, Trajectory, EncoderDeepProMP
 
 
+def set_seed(seed):
+    random.seed(seed)
+    numpy.random.seed(seed)
+    torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
+
+
+set_seed(0)
+
 points_per_trajectory = 100
 img_folder = 'img/'
 
@@ -39,12 +51,12 @@ def get_sin_trajectory(amplitude, frequency):
 def test_train_sinus_encoder():
 
     encoder = EncoderDeepProMP(2, [10, 20, 20, 10], SinusState)
-    optimizer = optim.Adam(list(encoder.net.parameters()), lr=0.001)
+    optimizer = optim.Adam(list(encoder.net.parameters()), lr=0.005)
     losses = []
     trajectory_set = generate_trajectory_set(50)
     validation_set = random.sample(trajectory_set, 5)
     training_set = [item for item in trajectory_set if item not in validation_set]
-    iterations = 500
+    iterations = 10
     for i in range(iterations):
         print(f"Step {i:02}/{iterations} - Training ... ", end="", flush=True)
         for traj in training_set:
@@ -54,12 +66,13 @@ def test_train_sinus_encoder():
             frequency = traj['frequency']
             traj = traj['traj']
             mu, sigma = encoder.encode_to_latent_variable(traj)
-            # print(mu, sigma)
-            # Z = encoder.sample_latent_variable(mu, sigma).float() This is just a sampling procedure. You can't backpropagate from it.
 
-            log_likelihood = torch.distributions.Normal(loc=mu, scale=sigma).log_prob(torch.tensor([amplitude, frequency], requires_grad=True)).sum()
+            log_likelihood = torch.distributions.Normal(loc=mu, scale=torch.ones_like(sigma))\
+                .log_prob(torch.tensor([amplitude, frequency])).sum()
             loss = -log_likelihood
-            #loss = nn.MSELoss()(torch.tensor([amplitude, frequency], requires_grad=True), mu)
+            # This would be equivalent. I have removed the contribution of sigma, since it collapses to a deterministic
+            # function in absence of a proper regularization
+            # loss = nn.MSELoss()(torch.tensor([amplitude + 0.0, frequency + 0.0]).double(), mu)
             loss.backward()
             optimizer.step()
 
@@ -75,7 +88,7 @@ def test_train_sinus_encoder():
             # print(f"Mu: {mu} - Sigma: {sigma}")
             Z = encoder.sample_latent_variable(mu, sigma).float()
 
-            loss = nn.MSELoss()(torch.tensor([amplitude + 0.0, frequency + 0.0]).float(), Z)
+            loss = nn.MSELoss()(torch.tensor([amplitude + 0.0, frequency + 0.0]).float(), mu)
             validation_losses.append(loss.item())
         losses.append(sum(validation_losses) / len(validation_losses))
         print("Done - Validation loss: ", losses[-1])
