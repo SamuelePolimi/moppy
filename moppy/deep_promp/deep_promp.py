@@ -6,6 +6,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.distributions as distributions
 from matplotlib import pyplot as plt
+import time
 
 from moppy.deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from moppy.deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
@@ -17,16 +18,10 @@ from moppy.trajectory.trajectory import Trajectory
 losses = []
 
 
-def gauss_kl(mu_q, std_q, mu_p=None, std_p=None, scale=1.0):
-    mu_p = torch.zeros_like(mu_q) if mu_p is None else mu_p
-    std_p = torch.ones_like(std_q) * scale if std_p is None else std_p
+def gauss_kl(mu_q, std_q):
+    """Calculate the Kullback-Leibler (KL) divergence between a Gaussian distribution and a standard Gaussian distribution."""
 
-    # independent treats them as multivariate Normals
-    indep = distributions.Independent
-    q_dist = indep(distributions.Normal(mu_q, std_q), 1)
-    p_dist = indep(distributions.Normal(mu_p, std_p), 1)
-
-    return distributions.kl_divergence(q_dist, p_dist)
+    return torch.mean(-torch.log(std_q) + (std_q ** 2 + mu_q ** 2) / 2 - 0.5)
 
 
 def calculate_elbo(y_pred, y_star, mu, sigma, beta=1.0):
@@ -34,15 +29,16 @@ def calculate_elbo(y_pred, y_star, mu, sigma, beta=1.0):
     The ELBO is the loss function used to train the DeepProMP."""
 
     # Reconstruction loss (assuming Mean Squared Error)
-    log_prob = nn.MSELoss()(y_pred, y_star)
+    mse = nn.MSELoss()(y_pred, y_star)
     # log_prob = torch.distributions.Normal(loc=mu, scale=sigma).log_prob(torch.tensor(y_star, requires_grad=True)).sum()
     # losses.append(log_prob)
     # KL divergence between approximate posterior (q) and prior (p)
-    kl = gauss_kl(mu_q=mu, std_q=sigma, scale=1.)
+    kl = gauss_kl(mu_q=mu, std_q=sigma)
 
+    # print("mse %s, kl %s" % (mse, kl))
     # Combine terms with beta weighting
-    elbo = log_prob + kl * beta
-    return elbo
+    elbo = mse + kl * beta
+    return elbo, mse, kl
 
 
 class DeepProMP(MovementPrimitive):
@@ -108,11 +104,19 @@ class DeepProMP(MovementPrimitive):
         print(f"Training set: {len(training_set)}")
         print(f"Validation set: {len(validation_set)}")
 
-        optimizer = optim.Adam(list(self.encoder.net.parameters()) + list(self.decoder.net.parameters()), lr=0.001)
+        optimizer = optim.Adam(list(self.encoder.net.parameters()) + list(self.decoder.net.parameters()), lr=0.005)
         losses_traj = []
+        kl_traj = []
+        mse_traj = []
         losses_validation = []
-        episodes = 100
-        for i in range(episodes):
+        epochs = 100
+
+
+        for i in range(epochs):
+            start_time = time.time()
+            mse_tot = 0
+            kl_tot = 0
+            loss_tot = 0
             for tr_i, data in enumerate(training_set):
                 optimizer.zero_grad()  # Zero the gradients of the optimizer to avoid accumulation
                 mu, sigma = self.encoder(data)
@@ -123,15 +127,24 @@ class DeepProMP(MovementPrimitive):
                     decoded.append(self.decoder(latent_var_z, j.get_time()))
                 decoded = torch.cat(decoded)
 
-                loss = calculate_elbo(decoded, data.to_vector(), mu, sigma)
-                print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
+                loss, mse, kl = calculate_elbo(decoded, data.to_vector(), mu, sigma, beta=0.01)
+                # print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
                 loss.backward()
                 optimizer.step()
-                losses_traj.append(loss.detach().numpy())
+                mse_tot += mse.detach().numpy()
+                kl_tot += kl.detach().numpy()
+                loss_tot += loss.detach().numpy()
+            losses_traj.append(mse_tot / len(training_set))
+            kl_traj.append(kl_tot / len(training_set))
+            mse_traj.append(mse_tot / len(training_set))
             # validation
             validation_loss = self.validate(validation_set)
             losses_validation.append(validation_loss)
-            print(f"Episode {i+1} validation loss = {validation_loss.item()}")
+            duration = time.time() - start_time
+            print(f"Epoch {i+1}/{epochs} ({duration}s): validation loss = {validation_loss.item()}, train_loss = "
+                  f"{losses_traj[-1].item()}"
+                  f", mse = {mse_traj[-1].item()},"
+                  f" kl = {kl_traj[-1].item()}")
 
         print("Training finished")
         print("Plotting...", end='', flush=True)

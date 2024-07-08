@@ -1,6 +1,8 @@
 from typing import List, Union, Type
 
 import os
+
+import numpy as np
 import torch
 import torch.nn as nn
 from torch import Tensor
@@ -131,7 +133,8 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
         #    sigma = sigma * percentage_of_standard_deviation
 
         # 2. Sample each element of z from a normal distribution specified by mu and sigma.
-        z_sampled = torch.normal(mu, sigma)
+        z_sampled = torch.normal(torch.zeros_like(mu), torch.ones_like(sigma))
+        z_sampled = z_sampled * sigma + mu
         return z_sampled
 
     def bayesian_aggregation(self,
