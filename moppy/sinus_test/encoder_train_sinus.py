@@ -55,9 +55,11 @@ def test_train_sinus_encoder():
             traj = traj['traj']
             mu, sigma = encoder.encode_to_latent_variable(traj)
             # print(mu, sigma)
-            Z = encoder.sample_latent_variable(mu, sigma).float()
+            # Z = encoder.sample_latent_variable(mu, sigma).float() This is just a sampling procedure. You can't backpropagate from it.
 
-            loss = nn.MSELoss()(torch.tensor([amplitude, frequency], requires_grad=True), Z)
+            log_likelihood = torch.distributions.Normal(loc=mu, scale=sigma).log_prob(torch.tensor([amplitude, frequency], requires_grad=True)).sum()
+            loss = -log_likelihood
+            #loss = nn.MSELoss()(torch.tensor([amplitude, frequency], requires_grad=True), mu)
             loss.backward()
             optimizer.step()
 
