@@ -36,6 +36,10 @@ class Trajectory(Generic[T]):
         """Return the trajectory as a list of tuples."""
         return self.trajectory
 
+    def get_times(self) -> List[float]:
+        """Return the times of the trajectory."""
+        return [state.get_time() for state in self.trajectory]
+
     def to_vector(self) -> torch.Tensor:
         """Return the trajectory as a tensor. The tensor is a concatenation of the trajectory states."""
         return torch.cat([state.to_vector() for state in self.trajectory])

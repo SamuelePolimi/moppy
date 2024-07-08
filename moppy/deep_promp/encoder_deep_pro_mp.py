@@ -133,9 +133,21 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
         #    sigma = sigma * percentage_of_standard_deviation
 
         # 2. Sample each element of z from a normal distribution specified by mu and sigma.
+        # TODO: matyas: implement the "percentage_of_standard_deviation" feature
         z_sampled = torch.normal(torch.zeros_like(mu), torch.ones_like(sigma))
         z_sampled = z_sampled * sigma + mu
         return z_sampled
+
+    def sample_latent_variables(self,
+                               mu: torch.Tensor,
+                               sigma: torch.Tensor,
+                               size:int=1) -> torch.Tensor:
+        """Sample n=size latent variables from the given mu and sigma tensors."""
+        dist = torch.distributions.Normal(torch.zeros_like(mu), torch.ones_like(sigma))
+        samples = dist.sample((size,))
+        z_sampled = samples * sigma + mu
+        return z_sampled
+
 
     def bayesian_aggregation(self,
                              mu_points: torch.Tensor,

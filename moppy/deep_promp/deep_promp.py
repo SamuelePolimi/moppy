@@ -111,7 +111,6 @@ class DeepProMP(MovementPrimitive):
         losses_validation = []
         epochs = 100
 
-
         for i in range(epochs):
             start_time = time.time()
             mse_tot = 0
@@ -120,14 +119,15 @@ class DeepProMP(MovementPrimitive):
             for tr_i, data in enumerate(training_set):
                 optimizer.zero_grad()  # Zero the gradients of the optimizer to avoid accumulation
                 mu, sigma = self.encoder(data)
-                latent_var_z = self.encoder.sample_latent_variable(mu, sigma)
+                # latent_var_z = self.encoder.sample_latent_variable(mu, sigma)
 
-                decoded = []
-                for j in data.get_points():
-                    decoded.append(self.decoder(latent_var_z, j.get_time()))
-                decoded = torch.cat(decoded)
+                latent_var_z = self.encoder.sample_latent_variables(mu, sigma, len(data))
 
-                loss, mse, kl = calculate_elbo(decoded, data.to_vector(), mu, sigma, beta=0.01)
+                times = torch.tensor(data.get_times()).reshape(-1, 1)
+
+                decoded = self.decoder(latent_var_z, times)
+
+                loss, mse, kl = calculate_elbo(decoded, data.to_vector().reshape(-1, 1), mu, sigma, beta=0.01)
                 # print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
                 loss.backward()
                 optimizer.step()

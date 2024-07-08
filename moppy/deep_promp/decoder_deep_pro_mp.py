@@ -67,7 +67,7 @@ class DecoderDeepProMP(LatentDecoder, nn.Module):
 
         if isinstance(time, float):
             time = torch.tensor([time])
-        nn_input = torch.cat((latent_variable, time), dim=0).float()
+        nn_input = torch.cat((latent_variable, time), dim=-1).float()
         return self.net(nn_input)
 
     def save_model(self, path: str = '', filename: str = "decoder_deep_pro_mp.pth"):
