@@ -1,7 +1,7 @@
 # THIS IS JUST A TEST CLASS WHAT IT WOULD TAKE TO MAKE A CUSTOM DATASET CLASS FOR A TRAINER
 
 import glob
-import numpy as np
+import torch
 from torch.utils.data import Dataset
 
 from moppy.trajectory.state.joint_configuration import JointConfiguration
@@ -27,17 +27,14 @@ class CustomDataset(Dataset):
         max_len = max([len(traj) for traj in trajectories])
         self.traj_len = max_len
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.data)
 
     def __getitem__(self, idx):
         traj_path = self.data[idx]
         traj = Trajectory.load_points_from_file(traj_path, JointConfiguration)
-        ret = []
-        for point in traj.get_points():
-            ret.append(point.to_vector())
-        traj_len = len(ret)
-        while len(ret) < self.traj_len:
-            ret.append(np.zeros_like(ret[0]))
-        return ret, traj_len
+        ret = torch.zeros(self.traj_len, len(traj.get_points()[0].to_vector()))
+        for i, point in enumerate(traj.get_points()):
+            ret[i] = point.to_vector()
 
+        return ret, len(traj.get_points())
