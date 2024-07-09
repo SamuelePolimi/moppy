@@ -1,3 +1,5 @@
+
+import torch.nn as nn
 from matplotlib import pyplot as plt
 import numpy
 from moppy.deep_promp.decoder_deep_pro_mp import DecoderDeepProMP

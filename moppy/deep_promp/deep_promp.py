@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import time
+import math
 
 from matplotlib import pyplot as plt
 
@@ -88,7 +89,13 @@ class DeepProMP(MovementPrimitive):
         self.epochs = epochs
         self.beta = beta
 
-    def train(self, trajectories: List[Trajectory]) -> None:
+    @staticmethod
+    def kl_annealing_scheduler(current_epoch, n_cycles=4, max_epoch=1000, saturation_point=0.5):
+        """KL annealing scheduler"""
+        tau = ((current_epoch - 1) % (math.ceil(max_epoch / n_cycles))) / (math.ceil(max_epoch / n_cycles))
+        return tau/saturation_point if tau < saturation_point else 1
+
+    def train(self, trajectories: List[Trajectory], kl_annealing=True) -> None:
         """Train the DeepProMP using the given trajectories. The training is done using the Evidence Lower Bound (ELBO).
         The ELBO is the loss function used to train the DeepProMP. The training is done using the Adam optimizer."""
         # Optimizers
@@ -104,6 +111,7 @@ class DeepProMP(MovementPrimitive):
         kl_traj = []
         mse_traj = []
         losses_validation = []
+        elbo_loss_traj = []
         epochs = self.epochs
 
         for i in range(epochs):
@@ -122,6 +130,7 @@ class DeepProMP(MovementPrimitive):
 
                 decoded = self.decoder(latent_var_z, times)
 
+                beta = DeepProMP.kl_annealing_scheduler(i+1, n_cycles=4, max_epoch=epochs, saturation_point=0.5)
                 loss, mse, kl = calculate_elbo(decoded, data.to_vector().reshape(-1, 1), mu, sigma, self.beta)
                 # print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
                 loss.backward()
@@ -132,6 +141,7 @@ class DeepProMP(MovementPrimitive):
             losses_traj.append(mse_tot / len(training_set))
             kl_traj.append(kl_tot / len(training_set))
             mse_traj.append(mse_tot / len(training_set))
+            elbo_loss_traj.append(loss_tot / len(training_set))
             # validation
             validation_loss = self.validate(validation_set)
             losses_validation.append(validation_loss)
@@ -153,6 +163,9 @@ class DeepProMP(MovementPrimitive):
         file_path = os.path.join(self.save_path, 'kl.pth')
         torch.save(kl_traj, file_path)
 
+        file_path = os.path.join(self.save_path, 'elbo_loss.pth')
+        torch.save(elbo_loss_traj, file_path)
+
         print("Training finished")
         print("Plotting...", end='', flush=True)
 
@@ -160,11 +173,13 @@ class DeepProMP(MovementPrimitive):
         values_losses_validation = [t.item() for t in losses_validation]
         values_mse_traj = [t.item() for t in mse_traj]
         values_kl_traj = [t.item() for t in kl_traj]
+        values_elbo_loss_traj = [t.item() for t in elbo_loss_traj]
 
         plot_values(values=[values_losses_traj], path=self.save_path, file_name='train_loss.png', title="train_loss")
         plot_values(values=[values_losses_validation], path=self.save_path, file_name='validation_loss.png', title='validation_loss')
         plot_values(values=[values_kl_traj], path=self.save_path, file_name='kl.png', title="kl")
         plot_values(values=[values_mse_traj], path=self.save_path, file_name='msloss.png', title="msloss")
+        plot_values(values=[values_elbo_loss_traj], path=self.save_path, file_name='elbo_loss.png', title="elbo_loss")
 
         print("finished")
         print("Saving models...", end='', flush=True)
