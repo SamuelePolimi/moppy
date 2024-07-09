@@ -1,3 +1,5 @@
+
+import torch.nn as nn
 from matplotlib import pyplot as plt
 from moppy.deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from moppy.deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
@@ -6,11 +8,11 @@ from moppy.trajectory.trajectory import Trajectory
 
 import torch
 
-encoder = EncoderDeepProMP(3, [10, 10, 10, 10], SinusState)
-encoder.load_model('../deep_promp/output')
+encoder = EncoderDeepProMP(2, [10, 20, 20, 10], SinusState)
+encoder.load_model('./output/seed_6064/lr_2E-3/beta_5E-2')
 
-decoder = DecoderDeepProMP(3, [10, 10, 10, 10], SinusState)
-decoder.load_model('../deep_promp/output')
+decoder = DecoderDeepProMP(2, [10, 20, 20, 10], SinusState,  nn.Tanh)
+decoder.load_model('./output/seed_6064/lr_2E-3/beta_5E-2')
 name = 'sin_25'
 traj = Trajectory.load_points_from_file(f'./trajectories/{name}.pth', SinusState)
 
