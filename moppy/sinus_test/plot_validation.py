@@ -11,20 +11,20 @@ class DataPoint():
     validation: List[float]
 
     def __init__(self, lr, beta, validation_val) -> None:
-      self.lr = lr
-      self.beta = beta
-      self.validation = [validation_val]
+        self.lr = lr
+        self.beta = beta
+        self.validation = [validation_val]
 
     def get_mean(self):
         return np.mean(self.validation)
 
 
 def extract_values_from_path(filepath):
-  values = {}
-  for part in filepath.split("/")[2:-1]:  # Skip leading "./output"
-    key, value = part.split("_")
-    values[key] = float(value) if 'E' in value else int(value)
-  return values
+    values = {}
+    for part in filepath.split("/")[2:-1]:  # Skip leading "./output"
+        key, value = part.split("_")
+        values[key] = float(value) if 'E' in value else int(value)
+    return values
 
 # Example usage
 files = glob.glob("./output/seed_12/*/*/validation_loss.pth")
@@ -57,9 +57,9 @@ for i, f in enumerate(files):
     points[i].validation.append(validation_value)
 
 # Extract data for plotting
-x = [p.lr for p in points]
-y = [p.beta for p in points]
-z = [p.get_mean() for p in points]
+x = np.array([p.lr for p in points])
+y = np.array([p.beta for p in points])
+z = np.array([p.get_mean() for p in points])
 
 # creating figures 
 fig = plt.figure(figsize=(10, 10)) 
@@ -69,12 +69,13 @@ ax = fig.add_subplot(111, projection='3d')
 #img = ax.scatter(x, y, z, marker='s', s=200, color='green') 
 
 # adding title and labels 
-ax.set_title("3D Heatmap") 
-ax.set_xlabel('lr') 
-ax.set_ylabel('beta') 
-ax.set_zlabel('validation') 
-ax.plot_trisurf(x, y, z, color="red", alpha=0.9)
+ax.set_title("3D Heatmap")
+ax.set_xlabel('lr')
+ax.set_ylabel('beta')
+ax.set_zlabel('validation')
+surf = ax.plot_trisurf(x, y, z, cmap=cm.coolwarm, linewidth=0)
+fig.colorbar(surf)
 
 # displaying plot 
-plt.show() 
+plt.show()
 fig.savefig(f'./validation.png')
