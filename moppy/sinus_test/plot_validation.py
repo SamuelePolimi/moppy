@@ -25,6 +25,13 @@ def extract_values_from_path(filepath):
         values[key] = float(value) if 'E' in value else int(value)
     return values
 
+def normalize(x, y):
+    for i in range(7):
+        for j in range(6):
+            x[i*6 + j] = i
+            y[i*6 + j] = j
+
+
 def load_values(folder: str, points: list[DataPoint]):
     files = glob.glob(folder)
     if not points:
@@ -53,11 +60,15 @@ points: list[DataPoint] = None
 for s in seeds:
     points = load_values("./output/seed_" + str(s) + "/*/*/validation_loss.pth", points)
 
+# Sort for normalisation
+points.sort(key=lambda p: 1000000 * p.lr + p.beta)
 
 # Extract data for plotting
 x = np.array([p.lr for p in points])
 y = np.array([p.beta for p in points])
 z = np.array([p.get_mean() for p in points])
+
+# normalize(x, y)
 
 # creating figures 
 fig = plt.figure(figsize=(10, 10)) 
@@ -76,4 +87,4 @@ fig.colorbar(surf)
 
 # displaying plot 
 plt.show()
-fig.savefig(f'./validation.png')
+# fig.savefig(f'./validation.png')
