@@ -36,7 +36,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="parse args")
     parser.add_argument("--rnd_seed", type=int, help="random seed for experiment.")
     parser.add_argument("--learning_rate", default=0.01, type=float, help="lerning_rate used by the adam optimizer.")
-    parser.add_argument("--epochs", default=10, type=int, help="The amout of epochs used in the training.")
+    parser.add_argument("--epochs", default=1000, type=int, help="The amout of epochs used in the training.")
     parser.add_argument("--beta", default=1, type=float, help="The kl-divergence ratio.")
     parser.add_argument("--save_path", default='./deep_promp/output/', type=str, help="The folder moppy will save your files.")
 
