@@ -27,7 +27,7 @@ def get_sin_trajectory(amplitude, frequency):
         time += 1/100
     return traj
 
-traj = get_sin_trajectory(1, 5)
+traj = get_sin_trajectory(1, 25)
 
 mu, sigma = encoder.encode_to_latent_variable(traj)
 print(f"mu: {mu}")
@@ -39,10 +39,10 @@ print(Z)
 steps = len(traj.get_points())
 time = 0.0
 out_traj = Trajectory()
-for i in range(steps):
+for i in range(steps*10):
     value = decoder.decode_from_latent_variable(Z, time)
-    out_traj.add_point(SinusState(value, traj.get_points()[i].get_time()))
-    time += 1/steps
+    out_traj.add_point(SinusState(value, time))
+    time += 1/(steps*10)
 
 time_vector = torch.tensor([p.get_time()[0] for p in traj.get_points()])
 value_vector = torch.tensor([p.value.item() for p in traj.get_points()])

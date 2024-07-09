@@ -1,53 +1,80 @@
 import glob
+from typing import List
 import torch
 from matplotlib import pyplot as plt
 import numpy as np
 from pylab import *
 
-files = glob.glob("./output/*/*/*/validation_loss.pth")
-print(len(files))
+class DataPoint():
+    lr: float
+    beta: float
+    validation: List[float]
 
-lowest=[]
+    def __init__(self, lr, beta, validation_val) -> None:
+      self.lr = lr
+      self.beta = beta
+      self.validation = [validation_val]
+
+    def get_mean(self):
+        return np.mean(self.validation)
+
+
+def extract_values_from_path(filepath):
+  values = {}
+  for part in filepath.split("/")[2:-1]:  # Skip leading "./output"
+    key, value = part.split("_")
+    values[key] = float(value) if 'E' in value else int(value)
+  return values
+
+# Example usage
+files = glob.glob("./output/seed_12/*/*/validation_loss.pth")
+points: List[DataPoint] = []
 for f in files:
-    arr = torch.load(f)
-    lowest.append((arr[-1], f))
+    extracted_values = extract_values_from_path(f) # Output: {'seed': 329, 'lr': 0.002, 'beta': 0.0002}
+    validation_value = torch.load(f)[-1]
 
-minl = min([v[0] for v in lowest])
-for i in lowest:
-    if i[0] == minl:
-        print(i)
-exit()
-np_lowest = np.array(lowest)
-data = np_lowest.reshape(5, 7, 6)
+    new_point = DataPoint(extracted_values['lr'], extracted_values['beta'], validation_value)
+    points.append(new_point)
 
-# print(data)
+files = glob.glob("./output/seed_220/*/*/validation_loss.pth")
+for i, f in enumerate(files):
+    validation_value = torch.load(f)[-1]
+    points[i].validation.append(validation_value)
 
-data = np.mean(data, axis=2)
+files = glob.glob("./output/seed_329/*/*/validation_loss.pth")
+for i, f in enumerate(files):
+    validation_value = torch.load(f)[-1]
+    points[i].validation.append(validation_value)
+
+files = glob.glob("./output/seed_2304/*/*/validation_loss.pth")
+for i, f in enumerate(files):
+    validation_value = torch.load(f)[-1]
+    points[i].validation.append(validation_value)
+
+files = glob.glob("./output/seed_6064/*/*/validation_loss.pth")
+for i, f in enumerate(files):
+    validation_value = torch.load(f)[-1]
+    points[i].validation.append(validation_value)
 
 # Extract data for plotting
-x = data[:, 0]
-y = data[:, 1]
-z = data[:, 2]
+x = [p.lr for p in points]
+y = [p.beta for p in points]
+z = [p.get_mean() for p in points]
 
 # creating figures 
 fig = plt.figure(figsize=(10, 10)) 
 ax = fig.add_subplot(111, projection='3d') 
   
-# setting color bar 
-color_map = cm.ScalarMappable(cmap=cm.Greens_r) 
-color_map.set_array(np_lowest) 
-  
 # creating the heatmap 
-img = ax.scatter(x, y, z, marker='s', 
-                 s=200, color='green') 
-plt.colorbar(color_map) 
-  
+#img = ax.scatter(x, y, z, marker='s', s=200, color='green') 
+
 # adding title and labels 
 ax.set_title("3D Heatmap") 
-ax.set_xlabel('X-axis') 
-ax.set_ylabel('Y-axis') 
-ax.set_zlabel('Z-axis') 
-  
+ax.set_xlabel('lr') 
+ax.set_ylabel('beta') 
+ax.set_zlabel('validation') 
+ax.plot_trisurf(x, y, z, color="red", alpha=0.9)
+
 # displaying plot 
 plt.show() 
 fig.savefig(f'./validation.png')
