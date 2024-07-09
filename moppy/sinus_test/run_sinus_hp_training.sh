@@ -4,7 +4,7 @@ BETAS=(1E-0 5E-1 25E-2 1E-2 5E-2 2E-2 1E-2)
 LATENT_VAR=(2 3 4 5)
 ACTIVATION_FUNCS=("tanh" "relu", "sigmoid")
 
-EPOCHS=1000
+EPOCHS=2000
 
 for ld in ${LATENT_VAR[@]}
 do
@@ -18,7 +18,7 @@ do
                 do
                     JOB_NAME="deep_pro_mp_seed_${seed}_beta_${beta}_lr_${lr}_ld_${ld}_af_${af}"
                     SAVE_FOLDER="./output/lr_${lr}/beta_${beta}/ld_${ld}/af_${af}/seed_${seed}"
-                    params="--rnd_seed $seed --learning_rate $lr --beta $beta --save_path $SAVE_FOLDER --latent_dim $ld --activation_var $af"
+                    params="--rnd_seed $seed --learning_rate $lr --beta $beta --save_path $SAVE_FOLDER --latent_var $ld --activation_func $af --epochs $EPOCHS"
                     echo "$params"
                     echo "$JOB_NAME"
                     # python main_sinus.py $params

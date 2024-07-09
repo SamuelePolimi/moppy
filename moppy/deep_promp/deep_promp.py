@@ -127,11 +127,9 @@ class DeepProMP(MovementPrimitive):
                 latent_var_z = self.encoder.sample_latent_variables(mu, sigma, len(data))
 
                 times = torch.tensor(data.get_times()).reshape(-1, 1)
-
                 decoded = self.decoder(latent_var_z, times)
-
                 beta = DeepProMP.kl_annealing_scheduler(i+1, n_cycles=4, max_epoch=epochs, saturation_point=0.5)
-                loss, mse, kl = calculate_elbo(decoded, data.to_vector().reshape(-1, 1), mu, sigma, self.beta)
+                loss, mse, kl = calculate_elbo(decoded.reshape(-1, 1), data.to_vector().reshape(-1, 1), mu, sigma, beta)
                 # print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
                 loss.backward()
                 optimizer.step()
