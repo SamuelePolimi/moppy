@@ -1,5 +1,4 @@
 import glob
-from typing import List
 import torch
 from matplotlib import pyplot as plt
 import numpy as np
@@ -8,7 +7,7 @@ from pylab import *
 class DataPoint():
     lr: float
     beta: float
-    validation: List[float]
+    validation: list[float]
 
     def __init__(self, lr, beta, validation_val) -> None:
         self.lr = lr
@@ -26,35 +25,34 @@ def extract_values_from_path(filepath):
         values[key] = float(value) if 'E' in value else int(value)
     return values
 
-# Example usage
-files = glob.glob("./output/seed_12/*/*/validation_loss.pth")
-points: List[DataPoint] = []
-for f in files:
-    extracted_values = extract_values_from_path(f) # Output: {'seed': 329, 'lr': 0.002, 'beta': 0.0002}
-    validation_value = torch.load(f)[-1]
+def load_values(folder: str, points: list[DataPoint]):
+    files = glob.glob(folder)
+    if not points:
+        # Create new point list and populate
+        points: list[DataPoint] = []
+        for f in files:
+            # Output: {'seed': 329, 'lr': 0.002, 'beta': 0.0002}
+            extracted_values = extract_values_from_path(f) 
+            validation_value = torch.load(f)[-1]
+            # validation_value = min(torch.load(f))
 
-    new_point = DataPoint(extracted_values['lr'], extracted_values['beta'], validation_value)
-    points.append(new_point)
+            new_point = DataPoint(extracted_values['lr'], extracted_values['beta'], validation_value)
+            points.append(new_point)
+    else:
+        # Add validation value to objects
+        for i, f in enumerate(files):
+            validation_value = torch.load(f)[-1]
+            # validation_value = min(torch.load(f))
+            points[i].validation.append(validation_value)
 
-files = glob.glob("./output/seed_220/*/*/validation_loss.pth")
-for i, f in enumerate(files):
-    validation_value = torch.load(f)[-1]
-    points[i].validation.append(validation_value)
+    return points
 
-files = glob.glob("./output/seed_329/*/*/validation_loss.pth")
-for i, f in enumerate(files):
-    validation_value = torch.load(f)[-1]
-    points[i].validation.append(validation_value)
 
-files = glob.glob("./output/seed_2304/*/*/validation_loss.pth")
-for i, f in enumerate(files):
-    validation_value = torch.load(f)[-1]
-    points[i].validation.append(validation_value)
+seeds = [12, 220, 329, 2304, 6064]
+points: list[DataPoint] = None
+for s in seeds:
+    points = load_values("./output/seed_" + str(s) + "/*/*/validation_loss.pth", points)
 
-files = glob.glob("./output/seed_6064/*/*/validation_loss.pth")
-for i, f in enumerate(files):
-    validation_value = torch.load(f)[-1]
-    points[i].validation.append(validation_value)
 
 # Extract data for plotting
 x = np.array([p.lr for p in points])
@@ -73,7 +71,7 @@ ax.set_title("3D Heatmap")
 ax.set_xlabel('lr')
 ax.set_ylabel('beta')
 ax.set_zlabel('validation')
-surf = ax.plot_trisurf(x, y, z, cmap=cm.coolwarm, linewidth=0)
+surf = ax.plot_trisurf(x, y, z, cmap=cm.coolwarm, linewidth=10)
 fig.colorbar(surf)
 
 # displaying plot 
