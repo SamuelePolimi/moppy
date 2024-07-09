@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+import numpy
 from moppy.deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from moppy.deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
 from moppy.trajectory.state.sinus_state import SinusState
@@ -6,13 +7,25 @@ from moppy.trajectory.trajectory import Trajectory
 
 import torch
 
-encoder = EncoderDeepProMP(3, [10, 10, 10, 10], SinusState)
-encoder.load_model('../deep_promp/output')
+encoder = EncoderDeepProMP(2, [10, 20, 20, 10], SinusState)
+encoder.load_model('./output/seed_329/lr_2E-3/beta_5E-2/')
 
-decoder = DecoderDeepProMP(3, [10, 10, 10, 10], SinusState)
-decoder.load_model('../deep_promp/output')
+decoder = DecoderDeepProMP(2, [10, 20, 20, 10], SinusState, torch.nn.Tanh)
+decoder.load_model('./output/seed_329/lr_2E-3/beta_5E-2/')
 name = 'sin_25'
-traj = Trajectory.load_points_from_file(f'./trajectories/{name}.pth', SinusState)
+# traj = Trajectory.load_points_from_file(f'./trajectories/{name}.pth', SinusState)
+
+def get_sin_trajectory(amplitude, frequency):
+    """Generate a sinusoidal trajectory, given the amplitude and frequency, and return it as a Trajectory object."""
+    traj = Trajectory()
+    time = 0.0
+    for _ in range(100 + 1):
+        sin_val = amplitude * numpy.sin(frequency * time * 2 * numpy.pi)
+        traj.add_point(SinusState(value=sin_val, time=time))
+        time += 1/100
+    return traj
+
+traj = get_sin_trajectory(1, 5)
 
 mu, sigma = encoder.encode_to_latent_variable(traj)
 print(f"mu: {mu}")
