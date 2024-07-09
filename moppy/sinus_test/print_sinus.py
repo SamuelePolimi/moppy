@@ -1,6 +1,7 @@
 
 import torch.nn as nn
 from matplotlib import pyplot as plt
+import numpy
 from moppy.deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
 from moppy.deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
 from moppy.trajectory.state.sinus_state import SinusState
@@ -9,12 +10,24 @@ from moppy.trajectory.trajectory import Trajectory
 import torch
 
 encoder = EncoderDeepProMP(2, [10, 20, 20, 10], SinusState)
-encoder.load_model('./output/seed_6064/lr_2E-3/beta_5E-2')
+encoder.load_model('./output/seed_329/lr_2E-3/beta_5E-2/')
 
-decoder = DecoderDeepProMP(2, [10, 20, 20, 10], SinusState,  nn.Tanh)
-decoder.load_model('./output/seed_6064/lr_2E-3/beta_5E-2')
+decoder = DecoderDeepProMP(2, [10, 20, 20, 10], SinusState, torch.nn.Tanh)
+decoder.load_model('./output/seed_329/lr_2E-3/beta_5E-2/')
 name = 'sin_25'
-traj = Trajectory.load_points_from_file(f'./trajectories/{name}.pth', SinusState)
+# traj = Trajectory.load_points_from_file(f'./trajectories/{name}.pth', SinusState)
+
+def get_sin_trajectory(amplitude, frequency):
+    """Generate a sinusoidal trajectory, given the amplitude and frequency, and return it as a Trajectory object."""
+    traj = Trajectory()
+    time = 0.0
+    for _ in range(100 + 1):
+        sin_val = amplitude * numpy.sin(frequency * time * 2 * numpy.pi)
+        traj.add_point(SinusState(value=sin_val, time=time))
+        time += 1/100
+    return traj
+
+traj = get_sin_trajectory(1, 25)
 
 mu, sigma = encoder.encode_to_latent_variable(traj)
 print(f"mu: {mu}")
@@ -26,10 +39,10 @@ print(Z)
 steps = len(traj.get_points())
 time = 0.0
 out_traj = Trajectory()
-for i in range(steps):
+for i in range(steps*10):
     value = decoder.decode_from_latent_variable(Z, time)
-    out_traj.add_point(SinusState(value, traj.get_points()[i].get_time()))
-    time += 1/steps
+    out_traj.add_point(SinusState(value, time))
+    time += 1/(steps*10)
 
 time_vector = torch.tensor([p.get_time()[0] for p in traj.get_points()])
 value_vector = torch.tensor([p.value.item() for p in traj.get_points()])
