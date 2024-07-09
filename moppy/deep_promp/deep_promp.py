@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import time
+import math
 
 from matplotlib import pyplot as plt
 
@@ -88,7 +89,13 @@ class DeepProMP(MovementPrimitive):
         self.epochs = epochs
         self.beta = beta
 
-    def train(self, trajectories: List[Trajectory]) -> None:
+    @staticmethod
+    def kl_annealing_scheduler(current_epoch, n_cycles=4, max_epoch=1000, saturation_point=0.5):
+        """KL annealing scheduler"""
+        tau = ((current_epoch - 1) % (math.ceil(max_epoch / n_cycles))) / (math.ceil(max_epoch / n_cycles))
+        return tau/saturation_point if tau < saturation_point else 1
+
+    def train(self, trajectories: List[Trajectory], kl_annealing=True) -> None:
         """Train the DeepProMP using the given trajectories. The training is done using the Evidence Lower Bound (ELBO).
         The ELBO is the loss function used to train the DeepProMP. The training is done using the Adam optimizer."""
         # Optimizers
@@ -122,7 +129,8 @@ class DeepProMP(MovementPrimitive):
 
                 decoded = self.decoder(latent_var_z, times)
 
-                loss, mse, kl = calculate_elbo(decoded, data.to_vector().reshape(-1, 1), mu, sigma, self.beta)
+                beta = DeepProMP.kl_annealing_scheduler(i+1, n_cycles=4, max_epoch=epochs, saturation_point=0.5)
+                loss, mse, kl = calculate_elbo(decoded, data.to_vector().reshape(-1, 1), mu, sigma, beta)
                 # print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
                 loss.backward()
                 optimizer.step()
