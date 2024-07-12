@@ -1,8 +1,6 @@
 from typing import List, Union, Type
 
 import os
-
-import numpy as np
 import torch
 import torch.nn as nn
 from torch import Tensor
@@ -139,15 +137,14 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
         return z_sampled
 
     def sample_latent_variables(self,
-                               mu: torch.Tensor,
-                               sigma: torch.Tensor,
-                               size:int=1) -> torch.Tensor:
+                                mu: torch.Tensor,
+                                sigma: torch.Tensor,
+                                size: int = 1) -> torch.Tensor:
         """Sample n=size latent variables from the given mu and sigma tensors."""
         dist = torch.distributions.Normal(torch.zeros_like(mu), torch.ones_like(sigma))
         samples = dist.sample((size,))
         z_sampled = samples * sigma + mu
         return z_sampled
-
 
     def bayesian_aggregation(self,
                              mu_points: torch.Tensor,
