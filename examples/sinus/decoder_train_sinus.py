@@ -8,7 +8,9 @@ import torch.nn as nn
 from typing import List
 from matplotlib import pyplot as plt
 
-from moppy import SinusState, Trajectory, DecoderDeepProMP
+from moppy.trajectory.state import SinusState
+from moppy.trajectory import Trajectory
+from moppy.deep_promp import DecoderDeepProMP
 
 
 num_steps = 100

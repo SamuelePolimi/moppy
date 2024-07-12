@@ -1,13 +1,11 @@
-
-import torch.nn as nn
-from matplotlib import pyplot as plt
-import numpy
-from moppy.deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
-from moppy.deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
-from moppy.trajectory.state.sinus_state import SinusState
-from moppy.trajectory.trajectory import Trajectory
-
 import torch
+import numpy
+from matplotlib import pyplot as plt
+
+from moppy.deep_promp import DecoderDeepProMP, EncoderDeepProMP
+from moppy.trajectory.state import SinusState
+from moppy.trajectory import Trajectory
+
 
 encoder = EncoderDeepProMP(2, [10, 20, 20, 10], SinusState)
 encoder.load_model('./output/seed_329/lr_2E-3/beta_5E-2/')
@@ -16,6 +14,7 @@ decoder = DecoderDeepProMP(2, [10, 20, 20, 10], SinusState, torch.nn.Tanh)
 decoder.load_model('./output/seed_329/lr_2E-3/beta_5E-2/')
 name = 'sin_25'
 # traj = Trajectory.load_points_from_file(f'./trajectories/{name}.pth', SinusState)
+
 
 def get_sin_trajectory(amplitude, frequency):
     """Generate a sinusoidal trajectory, given the amplitude and frequency, and return it as a Trajectory object."""
@@ -26,6 +25,7 @@ def get_sin_trajectory(amplitude, frequency):
         traj.add_point(SinusState(value=sin_val, time=time))
         time += 1/100
     return traj
+
 
 traj = get_sin_trajectory(1, 25)
 

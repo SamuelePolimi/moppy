@@ -1,21 +1,19 @@
-from typing import Union
-
 import argparse
+from typing import Union
 import torch.nn as nn
 
+from moppy.deep_promp import DecoderDeepProMP, EncoderDeepProMP, DeepProMP
+from moppy.trajectory import Trajectory
+from moppy.trajectory.state import JointConfiguration
 from moppy.deep_promp.utils import set_seed
-from moppy.deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
-from moppy.deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
-from moppy.deep_promp.deep_promp import DeepProMP
-from moppy.trajectory.trajectory import Trajectory
-from moppy.trajectory.state.sinus_state import SinusState
 
 
 def load_from_file_trajectory():
     """Load the trajectories from the files"""
     tr = []
     for i in range(50):
-        tr.append(Trajectory.load_points_from_file("trajectories/sin_%s.pth" % i, SinusState))
+        tr.append(Trajectory.load_points_from_file("trajectories/ReachTarget/ReachTarget_trajectory_%s.pth" % i,
+                                                   JointConfiguration))
 
     return tr
 
@@ -32,17 +30,15 @@ def get_activation_function(ac_str: str) -> Union[nn.ReLU, nn.Sigmoid, nn.Tanh]:
 
 
 def test_deep_pro_mp(args):
-
     encoder = EncoderDeepProMP(latent_variable_dimension=args.latent_var,
-                               hidden_neurons=[10, 20, 30, 20, 10],
-                               trajectory_state_class=SinusState,
-                               activation_function=get_activation_function(args.activation_func))
-    decoder = DecoderDeepProMP(latent_variable_dimension=args.latent_var,
-                               hidden_neurons=[10, 20, 30, 20, 10],
-                               trajectory_state_class=SinusState,
-                               activation_function=get_activation_function(args.activation_func))
+                               hidden_neurons=[128, 128],
+                               activation_function=get_activation_function(args.activation_func),)
 
-    deep_pro_mp = DeepProMP(name="sinus_main",
+    decoder = DecoderDeepProMP(latent_variable_dimension=args.latent_var,
+                               hidden_neurons=[128, 128],
+                               activation_function=get_activation_function(args.activation_func),)
+
+    deep_pro_mp = DeepProMP(name="7_joint_reach_target",
                             encoder=encoder,
                             decoder=decoder,
                             learning_rate=args.learning_rate,
@@ -62,7 +58,6 @@ if __name__ == '__main__':
     parser.add_argument("--save_path", default='./deep_promp/output/', type=str, help="The folder moppy will save your files.")
     parser.add_argument("--latent_var", default='3', type=int, help="The size of the latent var.")
     parser.add_argument("--activation_func", default='relu', type=str, help="The activation function used in the network.")
-
     args = parser.parse_args()
 
     if args.rnd_seed is not None:

@@ -4,6 +4,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 from pylab import *
 
+
 class DataPoint():
     lr: float
     beta: float
@@ -25,6 +26,7 @@ def extract_values_from_path(filepath):
         values[key] = float(value) if 'E' in value else int(value)
     return values
 
+
 def normalize(x, y):
     for i in range(7):
         for j in range(6):
@@ -39,7 +41,7 @@ def load_values(folder: str, points: list[DataPoint]):
         points: list[DataPoint] = []
         for f in files:
             # Output: {'seed': 329, 'lr': 0.002, 'beta': 0.0002}
-            extracted_values = extract_values_from_path(f) 
+            extracted_values = extract_values_from_path(f)
             validation_value = torch.load(f)[-1]
             # validation_value = min(torch.load(f))
 
@@ -70,12 +72,12 @@ z = np.array([p.get_mean() for p in points])
 
 # normalize(x, y)
 
-# creating figures 
-fig = plt.figure(figsize=(10, 10)) 
-ax = fig.add_subplot(111, projection='3d') 
-  
-# creating the heatmap 
-#img = ax.scatter(x, y, z, marker='s', s=200, color='green') 
+# creating figures
+fig = plt.figure(figsize=(10, 10))
+ax = fig.add_subplot(111, projection='3d')
+
+# creating the heatmap
+# img = ax.scatter(x, y, z, marker='s', s=200, color='green') 
 
 # adding title and labels 
 ax.set_title("3D Heatmap")

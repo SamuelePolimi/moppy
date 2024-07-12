@@ -9,10 +9,9 @@ import math
 
 from matplotlib import pyplot as plt
 
-from moppy.deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
-from moppy.deep_promp.encoder_deep_pro_mp import EncoderDeepProMP
-from moppy.interfaces.movement_primitive import MovementPrimitive
-from moppy.trajectory.trajectory import Trajectory
+from . import DecoderDeepProMP, EncoderDeepProMP
+from moppy.interfaces import MovementPrimitive
+from moppy.trajectory import Trajectory
 
 
 class DeepProMP(MovementPrimitive):

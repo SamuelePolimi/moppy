@@ -1,7 +1,7 @@
 
 
 import torch
-from moppy.trajectory.state.trajectory_state import TrajectoryState
+from . import TrajectoryState
 
 
 class SinusState(TrajectoryState):

@@ -4,11 +4,11 @@ import glob
 import torch
 from torch.utils.data import Dataset
 
-from moppy.trajectory.state.joint_configuration import JointConfiguration
-from moppy.trajectory.trajectory import Trajectory
+from .state import JointConfiguration
+from . import Trajectory
 
 
-class CustomDataset(Dataset):
+class TrajectoryDataset(Dataset):
     def __init__(self, folder_path: str = 'deep_promp/ReachTarget'):
         self.imgs_path = folder_path
         file_list = glob.glob(self.imgs_path + "*")

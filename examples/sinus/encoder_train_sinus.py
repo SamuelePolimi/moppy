@@ -8,7 +8,9 @@ import torch.nn as nn
 from typing import List
 from matplotlib import pyplot as plt
 
-from moppy import SinusState, Trajectory, EncoderDeepProMP
+from moppy.trajectory.state import SinusState
+from moppy.deep_promp import EncoderDeepProMP
+from moppy.trajectory import Trajectory
 
 
 def set_seed(seed):

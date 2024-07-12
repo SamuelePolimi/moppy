@@ -22,7 +22,7 @@ do
                     echo "$params"
                     echo "$JOB_NAME"
                     # python main_sinus.py $params
-                    sbatch --job-name="$JOB_NAME" --output="./out/$JOB_NAME.out" run_sinus_main.sh "$params"
+                    sbatch --job-name="$JOB_NAME" --output="./out/$JOB_NAME.out" ../../examples/sinus_test/main_sinus.py "$params"
                 done
             done    
         done 
