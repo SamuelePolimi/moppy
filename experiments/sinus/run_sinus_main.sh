@@ -13,5 +13,5 @@ echo "Configurations for job:"
 echo $1
 
 echo "Start:"
-python main_sinus.py $1
+python ../../examples/sinus_test/main_sinus.py $1
 echo "Finish"
