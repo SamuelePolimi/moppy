@@ -1,16 +1,13 @@
 from typing import List, Union, Type
 
 import os
-
-import numpy as np
 import torch
 import torch.nn as nn
 from torch import Tensor
 
-from moppy.interfaces.latent_encoder import LatentEncoder
-from moppy.trajectory.state.joint_configuration import JointConfiguration
-from moppy.trajectory.state.trajectory_state import TrajectoryState
-from moppy.trajectory.trajectory import Trajectory, T
+from moppy.interfaces import LatentEncoder
+from moppy.trajectory.state import JointConfiguration, TrajectoryState
+from moppy.trajectory import Trajectory, T
 
 
 class EncoderDeepProMP(LatentEncoder, nn.Module):
@@ -139,15 +136,14 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
         return z_sampled
 
     def sample_latent_variables(self,
-                               mu: torch.Tensor,
-                               sigma: torch.Tensor,
-                               size:int=1) -> torch.Tensor:
+                                mu: torch.Tensor,
+                                sigma: torch.Tensor,
+                                size: int = 1) -> torch.Tensor:
         """Sample n=size latent variables from the given mu and sigma tensors."""
         dist = torch.distributions.Normal(torch.zeros_like(mu), torch.ones_like(sigma))
         samples = dist.sample((size,))
         z_sampled = samples * sigma + mu
         return z_sampled
-
 
     def bayesian_aggregation(self,
                              mu_points: torch.Tensor,
