@@ -22,10 +22,13 @@ class JointConfiguration(TrajectoryState):
             self.time = torch.tensor([time]).float()
         elif isinstance(time, np.ndarray):
             self.time = torch.from_numpy(time).float()
-        elif not isinstance(time, torch.Tensor):
-            self.time = torch.tensor(time, dtype=torch.float)
+        elif isinstance(time, torch.Tensor):
+            if time.dim() == 0:
+                self.time = time.unsqueeze(0)
+            else:
+                self.time = time
         else:
-            self.time = time
+            self.time = torch.tensor(time, dtype=torch.float)
 
         if isinstance(joint_positions, np.ndarray):
             self.joint_positions = torch.from_numpy(joint_positions).float()

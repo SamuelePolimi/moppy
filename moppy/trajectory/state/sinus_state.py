@@ -10,7 +10,9 @@ class SinusState(TrajectoryState):
         super().__init__()
         if isinstance(value, float):
             self.value = torch.tensor([value]).float()
-        elif isinstance(value, torch.Tensor):
+        elif isinstance(value, torch.Tensor) and value.dim() == 0:
+            self.value = value.unsqueeze(0)
+        elif isinstance(value, torch.Tensor) and value.dim() == 1:
             self.value = value
         else:
             self.value = torch.tensor(value, dtype=torch.float)
@@ -18,7 +20,10 @@ class SinusState(TrajectoryState):
         if isinstance(time, float):
             self.time = torch.tensor([time]).float()
         elif isinstance(time, torch.Tensor):
-            self.time = time
+            if time.dim() == 0:
+                self.time = time.unsqueeze(0)
+            else:
+                self.time = time
         else:
             self.time = torch.tensor(time, dtype=torch.float)
 
