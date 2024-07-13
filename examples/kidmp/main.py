@@ -39,12 +39,12 @@ def get_activation_function(ac_str: str) -> Union[nn.ReLU, nn.Sigmoid, nn.Tanh]:
 
 def init_mp(args):
     encoder = EncoderDeepProMP(latent_variable_dimension=args.latent_var,
-                               hidden_neurons=[128, 128],
+                               hidden_neurons=[256, 256, 128],
                                trajectory_state_class=EndEffectorPose,
                                activation_function=get_activation_function(args.activation_func), )
 
     decoder = DecoderDeepProMP(latent_variable_dimension=args.latent_var,
-                               hidden_neurons=[128, 128],
+                               hidden_neurons=[256, 256, 128],
                                trajectory_state_class=EndEffectorPose,
                                activation_function=get_activation_function(args.activation_func), )
 
@@ -64,37 +64,41 @@ def init_mp(args):
 
 def test_model(mp):
     trajectories = load_trajectories()
-    # get random trajectory
-    trajectory = trajectories[-1]
+    index = 0
+    for trajectory in trajectories:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+        for point in trajectory.get_points():
+            pos = point.position
+            ax.scatter(pos[0], pos[1], pos[2], color='b')
 
-    for point in trajectory.get_points():
-        pos = point.position
-        ax.scatter(pos[0], pos[1], pos[2], color='b')
+        mu, sigma = mp.encoder.encode_to_latent_variable(trajectory)
+        print(f"{mu} +- {sigma}")
+        z = mp.encoder.sample_latent_variable(mu, sigma)
 
-    mu, sigma = mp.encoder.encode_to_latent_variable(trajectory)
-    z = mp.encoder.sample_latent_variable(mu, sigma)
+        step = 1.0 / len(trajectory.get_points())
 
-    step = 1.0 / len(trajectory.get_points())
+        time = 0.0
 
-    time = 0.0
+        while time < 1.0:
+            value = mp.decoder.decode_from_latent_variable(z, time).detach().numpy()
+            ax.scatter(value[0], value[1], value[2], color='r')
+            time += step
 
-    while time < 1.0:
-        value = mp.decoder.decode_from_latent_variable(z, time).detach().numpy()
-        ax.scatter(value[0], value[1], value[2], color='r')
-        time += step
-
-    plt.savefig("output.png")
+        #plt.show()
+        #input()
+        plt.savefig("comparisons/output" + str(index) + ".png")
+        plt.close()
+        index += 1
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="parse args")
     parser.add_argument("--rnd_seed", type=int, help="random seed for experiment.")
     parser.add_argument("--learning_rate", default=0.01, type=float, help="learning_rate used by the adam optimizer.")
-    parser.add_argument("--epochs", default=200, type=int, help="The amount of epochs used in the training.")
-    parser.add_argument("--beta", default=1, type=float, help="The kl-divergence ratio.")
+    parser.add_argument("--epochs", default=500, type=int, help="The amount of epochs used in the training.")
+    parser.add_argument("--beta", default=0.0025, type=float, help="The kl-divergence ratio.")
     parser.add_argument("--save_path", default='./deep_promp/output/', type=str,
                         help="The folder moppy will save your files.")
     parser.add_argument("--latent_var", default='4', type=int, help="The size of the latent var.")
@@ -114,4 +118,4 @@ if __name__ == '__main__':
     if args.test_model:
         test_model(mp)
     else:
-        mp.train(load_trajectories())
+        mp.train(load_trajectories(), kl_annealing=True)
