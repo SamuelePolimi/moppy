@@ -16,7 +16,7 @@ class TrajectoryState(ABC):
             raise ValueError("Implement the get_dimensions and get_time_dimension methods of the subclass correctly.")
 
     @abstractmethod
-    def to_vector(self) -> torch.Tensor:
+    def to_vector_without_time(self) -> torch.Tensor:
         """Convert the state into a numpy array without time.
         The array should be of shape (n,) where n is the dimension of the state."""
         raise NotImplementedError("This method should be implemented by the subclass.")
@@ -27,7 +27,7 @@ class TrajectoryState(ABC):
         raise NotImplementedError("This method must be implemented by the subclass.")
 
     def to_vector_time(self) -> torch.Tensor:
-        return torch.cat((self.to_vector(), self.get_time()), dim=0).float()
+        return torch.cat((self.to_vector_without_time(), self.get_time()), dim=0).float()
 
     @classmethod
     @abstractmethod
