@@ -49,3 +49,20 @@ class Pose(TrajectoryState):
 
     def to_vector_without_time(self) -> torch.Tensor:
         return torch.cat((self.position, self.orientation)).float()
+
+    def get_time(self) -> torch.Tensor:
+        return self.time
+
+    @classmethod
+    def get_dimensions(cls) -> int:
+        return 7
+
+    @classmethod
+    def get_time_dimension(cls) -> int:
+        return 1
+
+    def __str__(self):
+        return self.__repr__()
+
+    def __repr__(self):
+        return f"Pose(position={self.position}, orientation={self.orientation}, time={self.time})"
