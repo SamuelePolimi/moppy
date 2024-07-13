@@ -145,9 +145,9 @@ class DeepProMP(MovementPrimitive):
             losses_validation.append(validation_loss)
             duration = time.time() - start_time
             print(f"Epoch {i+1:3}/{epochs} ({duration}s): validation loss = {validation_loss.item()}, train_loss = "
-                  f"{losses_traj[-1].item()}"
-                  f", mse = {mse_traj[-1].item()},"
-                  f" kl = {kl_traj[-1].item()}")
+                f"{losses_traj[-1].item()}"
+                f", mse = {mse_traj[-1].item()},"
+                f" kl = {kl_traj[-1].item()}")
 
         file_path = os.path.join(self.save_path, 'validation_loss.pth')
         torch.save(losses_validation, file_path)

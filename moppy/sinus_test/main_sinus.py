@@ -52,8 +52,10 @@ def test_deep_pro_mp(args):
     print(deep_pro_mp)
     deep_pro_mp.train(load_from_file_trajectory())
 
+print("Start")
 
 if __name__ == '__main__':
+    print("INIT")
     parser = argparse.ArgumentParser(description="parse args")
     parser.add_argument("--rnd_seed", type=int, help="random seed for experiment.")
     parser.add_argument("--learning_rate", default=0.01, type=float, help="lerning_rate used by the adam optimizer.")
