@@ -22,7 +22,7 @@ class TrajectoryDataset(Dataset):
             traj = Trajectory.load_points_from_file(traj_path, JointConfiguration)
             ret = []
             for point in traj.get_points():
-                ret.append(point.to_vector())
+                ret.append(point.to_vector_without_time())
             trajectories.append(ret)
         max_len = max([len(traj) for traj in trajectories])
         self.traj_len = max_len
@@ -33,8 +33,8 @@ class TrajectoryDataset(Dataset):
     def __getitem__(self, idx):
         traj_path = self.data[idx]
         traj = Trajectory.load_points_from_file(traj_path, JointConfiguration)
-        ret = torch.zeros(self.traj_len, len(traj.get_points()[0].to_vector()))
+        ret = torch.zeros(self.traj_len, len(traj.get_points()[0].to_vector_without_time()))
         for i, point in enumerate(traj.get_points()):
-            ret[i] = point.to_vector()
+            ret[i] = point.to_vector_without_time()
 
         return ret, len(traj.get_points())

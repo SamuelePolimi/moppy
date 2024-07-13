@@ -42,7 +42,7 @@ class Trajectory(Generic[T]):
 
     def to_vector(self) -> torch.Tensor:
         """Return the trajectory as a tensor. The tensor is a concatenation of the trajectory states."""
-        return torch.cat([state.to_vector() for state in self.trajectory])
+        return torch.cat([state.to_vector_without_time() for state in self.trajectory])
 
     @classmethod
     def load_points_from_file(cls, file_path: str, trajectory_state_class: Type[T]):

@@ -63,7 +63,7 @@ class JointConfiguration(TrajectoryState):
                 f"({len(vector)} != {cls.get_dimensions()})")
         return cls(vector[:-2], vector[-2], vector[-1])
 
-    def to_vector(self) -> torch.Tensor:
+    def to_vector_without_time(self) -> torch.Tensor:
         """Convert the state into a numpy array. So it can be used in a neural network."""
         # ret = np.concatenate((self.joint_positions, [self.gripper_open], [self.time]), dtype=np.float32)
         ret = torch.cat(
