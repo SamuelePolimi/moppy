@@ -27,7 +27,7 @@ def get_sin_trajectory(amplitude, frequency):
     return traj
 
 
-traj = get_sin_trajectory(1, 25)
+traj = get_sin_trajectory(1, 3)
 
 mu, sigma = encoder.encode_to_latent_variable(traj)
 print(f"mu: {mu}")
