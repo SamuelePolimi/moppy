@@ -133,6 +133,8 @@ class DeepProMP(MovementPrimitive):
                 decoded = self.decoder(latent_var_z, times)
                 if kl_annealing:
                     beta = DeepProMP.kl_annealing_scheduler(i+1, n_cycles=4, max_epoch=self.epochs, saturation_point=0.5)
+                else:
+                    beta = self.beta
                 loss, mse, kl = DeepProMP.calculate_elbo(decoded.reshape(-1, 1), data.to_vector().reshape(-1, 1), mu, sigma, beta)
                 # print(f"{i + 1}/{episodes} - {tr_i + 1}/{len(trajectories)} = {loss.item()}")
                 loss.backward()

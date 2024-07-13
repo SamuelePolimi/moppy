@@ -11,7 +11,8 @@ class EndEffectorPose(TrajectoryState):
                  time: torch.Tensor | float) -> None:
         super().__init__()
         if len(position) != 3 or len(orientation) != 4:
-            raise ValueError("Position should be a 3D vector and orientation should be a quaternion.")
+            raise ValueError("Position should be a 3D vector and orientation should be a quaternion. Given: "
+                             f"position={position}, orientation={orientation}")
 
         if not torch.is_tensor(position):
             self.position = torch.tensor(position, dtype=torch.float)
@@ -34,7 +35,7 @@ class EndEffectorPose(TrajectoryState):
             raise ValueError(
                 f"The length of the vector should be equal to the number of dimensions."
                 f"({len(vector)} != {cls.get_dimensions() - cls.get_time_dimension()})")
-        return cls(vector[:-1], vector[-1], time)
+        return cls(vector[0:3], vector[3:], time)
 
     @classmethod
     def from_vector(cls, vector: torch.Tensor) -> 'EndEffectorPose':
@@ -42,7 +43,7 @@ class EndEffectorPose(TrajectoryState):
             raise ValueError(
                 f"The length of the vector should be equal to the number of dimensions."
                 f"({len(vector)} != {cls.get_dimensions()})")
-        return cls(vector[:-1], vector[-1], vector[-2])
+        return cls(vector[0:3], vector[3:7], vector[7])
 
     @classmethod
     def from_dict(cls, data: dict) -> 'EndEffectorPose':
