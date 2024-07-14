@@ -28,6 +28,7 @@ class DecoderDeepProMP(LatentDecoder, nn.Module):
         self.hidden_neurons = hidden_neurons
         self.latent_variable_dimension = latent_variable_dimension
         self.activation_function = activation_function
+        self.activation_function_params = activation_function_params
         self.trajectory_state_class = trajectory_state_class
 
         # create the neurons list, which is the list of the number of neurons in each layer of the network
@@ -41,16 +42,19 @@ class DecoderDeepProMP(LatentDecoder, nn.Module):
         if not all(neuron > 0 for neuron in self.neurons):
             raise ValueError("All elements of neurons must be greater than 0. Got '%s'" % self.neurons)
 
-        layers = []
-        for i in range(len(self.neurons) - 2):
-            layers += [nn.Linear(self.neurons[i], self.neurons[i + 1]),
-                       self.activation_function(**activation_function_params)]
-        layers += [nn.Linear(self.neurons[-2], self.neurons[-1])]
-
+        layers = self.create_layers()
         self.net = nn.Sequential(*layers).float()
 
         # Initialize the weights and biases of the network
         self.net.apply(self.__init_weights)
+
+    def create_layers(self):
+        layers = []
+        for i in range(len(self.neurons) - 2):
+            layers += [nn.Linear(self.neurons[i], self.neurons[i + 1]),
+                       self.activation_function(**self.activation_function_params)]
+        layers += [nn.Linear(self.neurons[-2], self.neurons[-1])]
+        return layers
 
     def __init_weights(self, m):
         """Initialize the weights and biases of the network using Xavier initialization and a bias of 0.01"""
