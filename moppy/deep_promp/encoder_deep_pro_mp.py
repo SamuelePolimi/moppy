@@ -16,7 +16,8 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
                  latent_variable_dimension: int,
                  hidden_neurons: List[int],
                  trajectory_state_class: Type[TrajectoryState] = JointConfiguration,
-                 activation_function: Union[nn.Tanh, nn.ReLU, nn.Sigmoid] = nn.ReLU):
+                 activation_function: Type[nn.Module] = nn.ReLU,
+                 activation_function_params: dict = {}):
         nn.Module.__init__(self)
 
         # Check if the trajectory state class is a subclass of TrajectoryState
@@ -42,14 +43,12 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
         if not all(neuron > 0 for neuron in self.neurons):
             raise ValueError("All elements of neurons must be greater than 0. Got '%s'" % self.neurons)
 
-        # create the network
-        linear_layer = nn.Linear
         layers = []
-        for i in range(len(self.neurons) - 1):
-            if i == len(self.neurons) - 2:
-                layers += [linear_layer(self.neurons[i], self.neurons[i + 1])]
-            else:
-                layers += [linear_layer(self.neurons[i], self.neurons[i + 1]), self.activation_function()]
+        for i in range(len(self.neurons) - 2):
+            layers += [nn.Linear(self.neurons[i], self.neurons[i + 1]),
+                       self.activation_function(**activation_function_params)]
+        layers += [nn.Linear(self.neurons[-2], self.neurons[-1])]
+
         self.net = nn.Sequential(*layers).float()
 
         # Initialize the weights and biases of the network
