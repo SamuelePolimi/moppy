@@ -71,6 +71,11 @@ class Trajectory(Generic[T]):
     def __getitem__(self, i) -> T:
         return self.trajectory[i]
 
+    def verify_trajectory_state_class(self, trajectory_state_class):
+        # check for first point if the trajectory state class is the same
+        if len(self) > 0 and not isinstance(self.trajectory[0], trajectory_state_class):
+            raise ValueError("The trajectory state class of the trajectory points must be the same as the given trajectory state class.")
+
 
 def normalize(data: List[float]) -> List[float]:
     min_value = min(data)
