@@ -32,7 +32,7 @@ jobs:
 
       - uses: actions/cache@v3
         with:
-          path: '~/.conda'
+          path: ~/.conda
           key: ${{ runner.os }}-conda-${{ hashFiles('conda/environment.yml') }}-${{ env.CACHE_NUMBER }}
         id: cache
 
