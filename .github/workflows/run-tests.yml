@@ -29,11 +29,18 @@ jobs:
             miniforge-version: latest
             activate-environment: my-env
             use-mamba: true
+          
+      # Step 2: Identify Conda environment directory
+      - name: Establish Conda environment directory
+        id: conda_env
+        run: |
+          conda info --json | jq -r '"::set-output name=dir::\(.envs_dirs[0])"'
+
 
       - uses: actions/cache@v3
         id: cache
         with:
-          path: ~/.conda
+          path:  ${{ steps.conda_env.outputs.dir }}
           key: ${{ runner.os }}-conda-${{ hashFiles('conda/environment.yml') }}-${{ env.CACHE_NUMBER }}
           restore-keys: |
             ${{ runner.OS }}-conda-
