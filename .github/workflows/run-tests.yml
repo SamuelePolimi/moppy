@@ -35,6 +35,9 @@ jobs:
         with:
           path: ~/.conda
           key: ${{ runner.os }}-conda-${{ hashFiles('conda/environment.yml') }}-${{ env.CACHE_NUMBER }}
+          restore-keys: |
+            ${{ runner.OS }}-conda-
+
 
       - if: steps.cache.outputs.cache-hit != 'true'
         name: Update environment
