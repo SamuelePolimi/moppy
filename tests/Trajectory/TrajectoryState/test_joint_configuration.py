@@ -28,6 +28,7 @@ class TestJointConfiguration:
         with pytest.raises(ValueError):
             # to many values
             JointConfiguration.from_vector_without_time(torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 1.0, 0.0]))
+        with pytest.raises(ValueError):
             # to few values
             JointConfiguration.from_vector_without_time(torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0]))
 
@@ -42,6 +43,7 @@ class TestJointConfiguration:
         with pytest.raises(ValueError):
             # to many values
             JointConfiguration.from_vector(torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 1.0, 0.0, 0.0]))
+        with pytest.raises(ValueError):
             # to few values
             JointConfiguration.from_vector(torch.tensor([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 1.0]))
 
@@ -55,7 +57,9 @@ class TestJointConfiguration:
         # test exceptional usage
         with pytest.raises(KeyError):
             JointConfiguration.from_dict({'joint_positions': [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0], 'gripper_open': 1.0})
+        with pytest.raises(KeyError):
             JointConfiguration.from_dict({'joint_positions': [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0], 'time': 0.0})
+        with pytest.raises(KeyError):
             JointConfiguration.from_dict({'gripper_open': 1.0, 'time': 0.0})
 
     def test_get_dimensions(self):

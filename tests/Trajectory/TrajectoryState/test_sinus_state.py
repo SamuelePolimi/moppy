@@ -25,6 +25,7 @@ class TestSinusState:
         with pytest.raises(ValueError):
             # to many values
             SinusState.from_vector_without_time(torch.tensor([1.0, 0.0]))
+        with pytest.raises(ValueError):
             # to few values
             SinusState.from_vector_without_time(torch.tensor([1.0, 0.0, 0.0]))
 
@@ -38,6 +39,7 @@ class TestSinusState:
         with pytest.raises(ValueError):
             # to many values
             SinusState.from_vector(torch.tensor([1.0, 0.0, 0.0]))
+        with pytest.raises(ValueError):
             # to few values
             SinusState.from_vector(torch.tensor([1.0]))
 
@@ -50,6 +52,7 @@ class TestSinusState:
         # test exceptional usage
         with pytest.raises(KeyError):
             SinusState.from_dict({'value': 1.0})
+        with pytest.raises(KeyError):
             SinusState.from_dict({'time': 0.0})
 
     def test_get_dimensions(self):
