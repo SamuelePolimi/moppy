@@ -48,6 +48,10 @@ jobs:
         run: mamba env update -n my-env -f conda/environment.yml
         if: steps.cache.outputs.cache-hit != 'true'
 
+      - name: install moppy
+        shell: bash -l {0}
+        run: pip install -e .
+
       - name: Run tests
         shell: bash -l {0}
         run: pytest
