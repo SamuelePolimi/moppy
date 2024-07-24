@@ -116,7 +116,7 @@ class TestTrajectory:
         assert traj.get_points()[0].get_time() == 0.0
         assert traj.get_points()[-1].get_time() == 1.0
 
-        # Test exceptional usage
+        # Test exceptional usage (wrong file path)
         with pytest.raises(ValueError):
             Trajectory.load_points_from_file("not_a_file", SinusState)
             Trajectory.load_points_from_file(get_absolute_path("./test_sin_traj.pth"), JointConfiguration)
