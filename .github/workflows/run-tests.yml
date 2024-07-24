@@ -1,9 +1,11 @@
 name: moppy-test-ci
 
 on:
+  workflow_dispatch:
+
   push:
     branches:
-      - '*'
+      - 'main'
 
   pull_request:
     branches:
@@ -35,13 +37,10 @@ jobs:
             activate-environment: my-env
             use-mamba: true
 
-      - name: Set cache date
-        run: echo "DATE=$(date +'%Y%m')" >> $GITHUB_ENV
-
       - uses: actions/cache@v2
         with:
           path: ${{ matrix.prefix }}
-          key: ${{ matrix.label }}-conda-${{ hashFiles('conda/environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+          key: ${{ matrix.label }}-conda-${{ hashFiles('conda/environment.yml') }}-${{ env.CACHE_NUMBER }}
         id: cache
 
       - name: Update environment
