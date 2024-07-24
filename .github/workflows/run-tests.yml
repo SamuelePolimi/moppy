@@ -1,0 +1,48 @@
+name: Moppy test ci
+
+on:
+  push:
+    branches:
+      - '**'  # Trigger on every branch
+  pull_request:
+    branches:
+      - '**'  # Trigger on pull requests to any branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Miniconda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        auto-update-conda: true
+        conda-version: 'latest'
+
+    - name: Cache Conda environment
+      uses: actions/cache@v3
+      with:
+        path: ~/.conda/envs/moppy
+        key: ${{ runner.os }}-conda-${{ hashFiles('conda/environment.yml') }}
+        restore-keys: |
+          ${{ runner.os }}-conda-
+
+    - name: Create and activate conda environment
+      run: |
+        if [ ! -d ~/.conda/envs/moppy ]; then
+          conda env create -f conda/environment.yml
+        fi
+        source activate moppy
+
+    - name: Install package and dependencies
+      run: |
+        pip install .  # Install your package from the repo
+        # If you have additional dependencies, install them here
+        # e.g., pip install -r requirements.txt
+
+    - name: Run tests with pytest
+      run: |
+        pytest  # Add any additional pytest flags if needed

@@ -9,3 +9,4 @@ gymnasium==0.29
 lightning==2.2
 matplotlib==3.9
 tensorboard==2.17
+pytest==8.3

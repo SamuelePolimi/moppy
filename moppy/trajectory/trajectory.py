@@ -42,6 +42,9 @@ class Trajectory(Generic[T]):
 
     def to_vector(self) -> torch.Tensor:
         """Return the trajectory as a tensor. The tensor is a concatenation of the trajectory states."""
+        if len(self.trajectory) == 0:
+            return torch.tensor([])
+
         return torch.cat([state.to_vector_without_time() for state in self.trajectory])
 
     @classmethod

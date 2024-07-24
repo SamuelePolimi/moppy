@@ -40,11 +40,19 @@ class SinusState(TrajectoryState):
     @classmethod
     def from_vector_without_time(cls, vector: torch.Tensor | float, time: float = 0.) -> 'SinusState':
         """Create a SinusTrajectoryState from a vector without the time dimension."""
+        if len(vector) != cls.get_dimensions() - cls.get_time_dimension():
+            raise ValueError(
+                f"The length of the vector should be equal to the number of dimensions."
+                f"({len(vector)} != {cls.get_dimensions() - cls.get_time_dimension()})")
         return cls(vector, time)
 
     @classmethod
     def from_vector(cls, vector: torch.Tensor) -> 'SinusState':
         """Create a SinusTrajectoryState from a vector."""
+        if len(vector) != cls.get_dimensions():
+            raise ValueError(
+                f"The length of the vector should be equal to the number of dimensions."
+                f"({len(vector)} != {cls.get_dimensions()})")
         return cls(vector[0], vector[-1])
 
     @classmethod
