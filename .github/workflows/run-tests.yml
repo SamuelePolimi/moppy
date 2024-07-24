@@ -36,9 +36,6 @@ jobs:
           key: ${{ runner.os }}-conda-${{ hashFiles('conda/environment.yml') }}-${{ env.CACHE_NUMBER }}
         id: cache
 
-      - name: Print cache hit
-        run: echo ${{ steps.cache.outputs.cache-hit }}
-
       - name: Update environment
         run: mamba env update -n my-env -f conda/environment.yml
         if: steps.cache.outputs.cache-hit != 'true'
