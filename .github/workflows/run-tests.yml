@@ -34,7 +34,7 @@ jobs:
       - name: Establish Conda environment directory
         id: conda_env
         run: |
-          conda info --json | jq -r '"dir=\(.envs_dirs[0])" >> $GITHUB_STATE'
+          conda info --json | jq -r '"::set-output name=dir::\(.envs_dirs[0])"'
 
 
       - uses: actions/cache@v3
