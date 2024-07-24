@@ -1,0 +1,57 @@
+name: moppy-test-ci
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - 'main'
+
+  pull_request:
+    branches:
+      - '*'
+
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+
+jobs:
+  build:
+
+    name: linux-64
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Mambaforge
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+            miniforge-variant: Mambaforge
+            miniforge-version: latest
+            activate-environment: my-env
+            use-mamba: true
+          
+      # Step 2: Identify Conda environment directory
+      - name: Establish Conda environment directory
+        id: conda_env
+        run: |
+          conda info --json | jq -r '"::set-output name=dir::\(.envs_dirs[0])"'
+
+
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path:  ${{ steps.conda_env.outputs.dir }}
+          key: ${{ runner.os }}-conda-${{ hashFiles('conda/environment.yml') }}-${{ env.CACHE_NUMBER }}
+
+
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Update environment
+        run: mamba env update -n my-env -f conda/environment.yml
+
+      - name: install moppy
+        shell: bash -l {0}
+        run: pip install -e .
+
+      - name: Run tests
+        shell: bash -l {0}
+        run: pytest
