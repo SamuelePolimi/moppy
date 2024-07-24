@@ -3,6 +3,11 @@
 
 MoPPy is a python library that implements several movement primitives for robotics.
 
+<!---
+pyreverse -o png --colorized -k moppy
+-->
+![Uml structure of the library](classes.png)
+
 ## Getting started
 
 Install the library with
