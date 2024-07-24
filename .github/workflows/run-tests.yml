@@ -36,7 +36,7 @@ jobs:
         if [ ! -d ~/.conda/envs/moppy ]; then
           conda env create -f conda/environment.yml
         fi
-        source activate moppy
+        conda activate moppy
 
     - name: Install package and dependencies
       run: |
