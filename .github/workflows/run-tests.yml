@@ -1,4 +1,4 @@
-name: moppy-ci
+name: moppy-test-ci
 
 on:
   push:
