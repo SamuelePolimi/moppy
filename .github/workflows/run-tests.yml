@@ -19,7 +19,6 @@ jobs:
     - name: Set up Miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
-        auto-update-conda: true
         conda-version: 'latest'
 
     - name: Cache Conda environment
@@ -39,7 +38,7 @@ jobs:
 
     - name: Install package and dependencies
       run: |
-        pip install .  # Install your package from the repo
+        pip install -e . # Install your package from the repo
         # If you have additional dependencies, install them here
         # e.g., pip install -r requirements.txt
 
