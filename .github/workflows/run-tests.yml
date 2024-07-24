@@ -18,8 +18,10 @@ jobs:
 
     - name: Set up Miniconda
       uses: conda-incubator/setup-miniconda@v2
-      with:
-        conda-version: 'latest'
+
+    - name: Update Conda
+      run: |
+        conda update -n base -c defaults conda
 
     - name: Cache Conda environment
       uses: actions/cache@v3
