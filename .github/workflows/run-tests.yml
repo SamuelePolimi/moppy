@@ -34,7 +34,7 @@ jobs:
       - name: Establish Conda environment directory
         id: conda_env
         run: |
-          conda info --json | jq -r '"::set-output name=dir::\(.envs_dirs[0])"'
+          conda info --json | jq -r '"dir=\(.envs_dirs[0])" >> $GITHUB_STATE'
 
 
       - uses: actions/cache@v3
@@ -42,8 +42,6 @@ jobs:
         with:
           path:  ${{ steps.conda_env.outputs.dir }}
           key: ${{ runner.os }}-conda-${{ hashFiles('conda/environment.yml') }}-${{ env.CACHE_NUMBER }}
-          restore-keys: |
-            ${{ runner.OS }}-conda-
 
 
       - if: steps.cache.outputs.cache-hit != 'true'
