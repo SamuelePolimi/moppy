@@ -20,7 +20,7 @@ jobs:
     name: linux-64
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Mambaforge
         uses: conda-incubator/setup-miniconda@v2
@@ -31,14 +31,14 @@ jobs:
             use-mamba: true
 
       - uses: actions/cache@v3
+        id: cache
         with:
           path: ~/.conda
           key: ${{ runner.os }}-conda-${{ hashFiles('conda/environment.yml') }}-${{ env.CACHE_NUMBER }}
-        id: cache
 
-      - name: Update environment
+      - if: steps.cache.outputs.cache-hit != 'true'
+        name: Update environment
         run: mamba env update -n my-env -f conda/environment.yml
-        if: steps.cache.outputs.cache-hit != 'true'
 
       - name: install moppy
         shell: bash -l {0}
