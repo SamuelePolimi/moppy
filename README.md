@@ -1,3 +1,4 @@
+[![moppy-test-ci](https://github.com/SamuelePolimi/moppy/actions/workflows/run-tests.yml/badge.svg)](https://github.com/SamuelePolimi/moppy/actions/workflows/run-tests.yml)
 # moppy
 
 MoPPy is a python library that implements several movement primitives for robotics.
