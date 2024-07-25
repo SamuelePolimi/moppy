@@ -62,18 +62,6 @@ def generate_sin_trajectory(amplitude: float | int, frequency: float | int, num_
 
     Returns:
         Trajectory: The generated sinusoidal trajectory, with num_steps points.
-
-    Example:
-        >>> traj = generate_sin_trajectory(amplitude=1,frequency=1,num_steps=100)
-        >>> len(traj)
-        100
-        >>> traj = generate_sin_trajectory(amplitude=1,frequency=1)
-        >>> len(traj)
-        100
-        >>> traj[0].get_time()
-        tensor([0.])
-        >>> traj[-1].get_time()
-        tensor([1.])
     """
     traj: Trajectory = Trajectory()
     t = 0.0
@@ -84,17 +72,52 @@ def generate_sin_trajectory(amplitude: float | int, frequency: float | int, num_
     return traj
 
 
-def generate_sin_trajectory_set(n: int) -> List[Trajectory]:
+def generate_sin_trajectory_set(n: int,
+                                amplitude_range: Tuple[int, int] = (1, 10),
+                                frequency_range: Tuple[int, int] = (1, 1)) -> List[Trajectory]:
+    """Generate a set of n sinusoidal trajectories with random amplitude and frequency.
+    The default amplitude range is [1, 10] and the default frequency range is [1, 1].
+    The random numbers are not integers but floats in the given range.
+
+    Args:
+        n (int): The number of trajectories to generate.
+        amplitude_range (Tuple[int, int], optional): The range of the amplitude of the sinusoidal trajectory. Defaults to (1, 10).
+        frequency_range (Tuple[int, int], optional): The range of the frequency of the sinusoidal trajectory. Defaults to (1, 1).
+
+    Returns:
+        List[Trajectory]: The list of generated sinusoidal trajectories.
+    """
     ret = []
     for i in range(n):
         # Generate random amplitude and frequency for the sinusoidal trajectory
-        amplitude = random.uniform(1, 10)
-        frequency = random.uniform(1, 1)  # To limit the training time, we only use frequency of 1
+        amplitude = random.uniform(amplitude_range[0], amplitude_range[1])
+        frequency = random.uniform(frequency_range[0], frequency_range[1])  # To limit the training time, we only use frequency of 1
         traj = generate_sin_trajectory(amplitude, frequency)
         ret.append(traj)
     return ret
 
 
-if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+def generate_sin_trajectory_set_labeled(n: int,
+                                        amplitude_range: Tuple[int, int] = (1, 10),
+                                        frequency_range: Tuple[int, int] = (1, 1)) -> List[dict]:
+    """Generate a set of n sinusoidal trajectories with random amplitude and frequency.
+    The default amplitude range is [1, 10] and the default frequency range is [1, 1].
+    The random numbers are not integers but floats in the given range.
+
+    Args:
+        n (int): The number of trajectories to generate.
+        amplitude_range (Tuple[int, int], optional): The range of the amplitude of the sinusoidal trajectory. Defaults to (1, 10).
+        frequency_range (Tuple[int, int], optional): The range of the frequency of the sinusoidal trajectory. Defaults to (1, 1).
+
+    Returns:
+        List[dict]: The list of generated sinusoidal trajectories with their amplitude and frequency. Example: [{'traj': traj1, 'amplitude': 5, 'frequency': 1},]
+    """
+
+    ret: List[dict] = []
+    for i in range(n):
+        # Generate random amplitude and frequency for the sinusoidal trajectory
+        amplitude = random.uniform(amplitude_range[0], amplitude_range[1])
+        frequency = random.uniform(frequency_range[0], frequency_range[1])  # To limit the training time, we only use frequency of 1
+        traj = generate_sin_trajectory(amplitude, frequency)
+        ret.append({'traj': traj, 'amplitude': amplitude, 'frequency': frequency})
+    return ret

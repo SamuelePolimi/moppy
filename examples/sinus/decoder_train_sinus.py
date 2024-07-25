@@ -1,5 +1,3 @@
-
-import numpy
 import random
 import torch
 import torch.optim as optim
@@ -10,44 +8,12 @@ from matplotlib import pyplot as plt
 
 from moppy.trajectory.state import SinusState
 from moppy.trajectory import Trajectory
-from moppy.deep_promp import DecoderDeepProMP
+from moppy.deep_promp import (
+    DecoderDeepProMP,
+    generate_sin_trajectory, plot_trajectories)
 
 
-num_steps = 100
 img_folder = 'img/'
-
-
-def generate_trajectory_set(n: int) -> List[dict]:
-    ret = []
-    for i in range(n):
-        amplitude = random.uniform(1, 10)
-        frequency = random.uniform(1, 1)
-        traj = get_sin_trajectory(amplitude, frequency)
-        ret.append({'traj': traj, 'amplitude': amplitude, 'frequency': frequency})
-    return ret
-
-
-def plot_trajs(trajs: List[Trajectory], file_name: str, title: str):
-    plt.close()
-    for i, traj in enumerate(trajs):
-        plt.plot(traj.to_vector().detach().numpy())
-        plt.title(title)
-        plt.xlabel('Index')
-        plt.ylabel('Value')
-        plt.grid(True)
-
-    plt.savefig(f'{file_name}.png')
-
-
-def get_sin_trajectory(amplitude, frequency):
-    """Generate a sinusoidal trajectory, given the amplitude and frequency, and return it as a Trajectory object."""
-    traj = Trajectory()
-    time = 0.0
-    for _ in range(num_steps + 1):
-        sin_val = amplitude * numpy.sin(frequency * time * 2 * numpy.pi)
-        traj.add_point(SinusState(value=sin_val, time=time))
-        time += 1/num_steps
-    return traj
 
 
 def __train_decoder(decoder: DecoderDeepProMP,
@@ -61,7 +27,7 @@ def __train_decoder(decoder: DecoderDeepProMP,
             print(f"{i}, ", end="", flush=True)
         amplitude = random.uniform(*amplitude_range)
         frequency = random.uniform(*frequency_range)
-        traj = get_sin_trajectory(amplitude, frequency)
+        traj = generate_sin_trajectory(amplitude, frequency)
         coked_traj = Trajectory()
         for point in traj.get_points():
             new_point = decoder.decode_from_latent_variable(latent_variable=torch.tensor([amplitude, frequency]),
@@ -74,9 +40,9 @@ def __train_decoder(decoder: DecoderDeepProMP,
         optimizer.step()
         losses.append(loss.item())  # same as detach().numpy()
         if i % 100 == 0:
-            plot_trajs(trajs=[traj, coked_traj],
-                       file_name=f'img/decoder/{i}',
-                       title=f" iter {i} - loss: {loss.item():.2f} - amp: {amplitude:.2f} - freq: {frequency:.2f}")
+            plot_trajectories(labeled_trajectories=[(traj, "Generated Trajectory"), (coked_traj, "Autoencoded Trajectory")],
+                              file_name=f'img/decoder/{i}',
+                              plot_title=f" iter {i} - loss: {loss.item():.2f} - amp: {amplitude:.2f} - freq: {frequency:.2f}.png")
 
     plt.close()
     plt.plot(losses)
@@ -94,7 +60,7 @@ def __generate_amplitude_test(decoder: DecoderDeepProMP, iterations: int):
     for i, ax in enumerate(axs.flat):
         amplitude = i + 1
         frequency = 1
-        traj = get_sin_trajectory(amplitude, frequency)
+        traj = generate_sin_trajectory(amplitude, frequency)
         coked_traj = Trajectory()
         for point in traj.get_points():
             new_point = decoder.decode_from_latent_variable(torch.tensor([amplitude, frequency]), point.get_time()).float()

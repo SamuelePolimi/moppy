@@ -1,53 +1,21 @@
 
-import numpy
 import random
 import torch
 import torch.optim as optim
 import torch.nn as nn
 
-from typing import List
 from matplotlib import pyplot as plt
 
 from moppy.trajectory.state import SinusState
-from moppy.deep_promp import EncoderDeepProMP
+from moppy.deep_promp import (
+    EncoderDeepProMP,
+    generate_sin_trajectory_set_labeled, set_seed)
 from moppy.trajectory import Trajectory
-
-
-def set_seed(seed):
-    random.seed(seed)
-    numpy.random.seed(seed)
-    torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
 
 
 set_seed(0)
 
-points_per_trajectory = 100
 img_folder = 'img/'
-
-
-def generate_trajectory_set(n: int) -> List[dict]:
-    ret = []
-    for _ in range(n):
-        amplitude = random.uniform(1, 10)
-        frequency = random.uniform(1, 1)
-        traj = get_sin_trajectory(amplitude, frequency)
-        ret.append({'traj': traj, 'amplitude': amplitude, 'frequency': frequency})
-    return ret
-
-
-def get_sin_trajectory(amplitude, frequency):
-    """Generate a sinusoidal trajectory, given the amplitude and frequency, and return it as a Trajectory object."""
-    traj = Trajectory()
-    time = 0.0
-    for _ in range(points_per_trajectory + 1):
-        sin_val = amplitude * numpy.sin(frequency * time * 2 * numpy.pi)
-        traj.add_point(SinusState(value=sin_val, time=time))
-        time += 1/points_per_trajectory
-    return traj
 
 
 def test_train_sinus_encoder():
@@ -55,7 +23,7 @@ def test_train_sinus_encoder():
     encoder = EncoderDeepProMP(2, [10, 20, 20, 10], SinusState)
     optimizer = optim.Adam(list(encoder.net.parameters()), lr=0.005)
     losses = []
-    trajectory_set = generate_trajectory_set(50)
+    trajectory_set = generate_sin_trajectory_set_labeled(50)
     validation_set = random.sample(trajectory_set, 5)
     training_set = [item for item in trajectory_set if item not in validation_set]
     iterations = 10
@@ -64,9 +32,9 @@ def test_train_sinus_encoder():
         for traj in training_set:
             optimizer.zero_grad()
 
-            amplitude = traj['amplitude']
-            frequency = traj['frequency']
-            traj = traj['traj']
+            amplitude: float = traj['amplitude']
+            frequency: float = traj['frequency']
+            traj: Trajectory[SinusState] = traj['traj']
             mu, sigma = encoder.encode_to_latent_variable(traj)
 
             log_likelihood = torch.distributions.Normal(loc=mu, scale=torch.ones_like(sigma))\
@@ -87,8 +55,6 @@ def test_train_sinus_encoder():
             traj = traj['traj']
 
             mu, sigma = encoder.encode_to_latent_variable(traj)
-            # print(f"Mu: {mu} - Sigma: {sigma}")
-            Z = encoder.sample_latent_variable(mu, sigma).float()
 
             loss = nn.MSELoss()(torch.tensor([amplitude + 0.0, frequency + 0.0]).float(), mu)
             validation_losses.append(loss.item())
