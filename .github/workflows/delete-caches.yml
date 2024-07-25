@@ -18,5 +18,7 @@ jobs:
 
       - name: Delete all caches (per click or schedule)
         run: |
-          gh cache list --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
-          gh cache delete --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
+          gh cache list --repo ${{ github.repository }}
+          gh cache delete --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
