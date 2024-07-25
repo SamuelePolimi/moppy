@@ -16,7 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/gh-actions-cache@v3
       - name: Delete all caches (per click or schedule)
         run: |
           gh cache list --repo ${{ github.repository }} --token ${{ secrets.GITHUB_TOKEN }}
