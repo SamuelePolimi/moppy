@@ -1,0 +1,25 @@
+name: delete-caches
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0' # This runs at 00:00 on Sunday every week
+
+jobs:
+  delete-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete caches
+        run: |
+          echo "Listing and deleting all caches..."
+          # The cache list endpoint provides a list of caches
+          CACHE_URL="https://api.github.com/repos/${{ github.repository }}/actions/caches"
+          
+          # Get the list of cache IDs
+          CACHE_IDS=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" $CACHE_URL | jq -r '.actions_caches[].id')
+          
+          # Loop through the cache IDs and delete each one
+          for CACHE_ID in $CACHE_IDS; do
+            echo "Deleting cache ID: $CACHE_ID"
+            curl -s -X DELETE -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/vnd.github.v3+json" "$CACHE_URL/$CACHE_ID"
+          done
