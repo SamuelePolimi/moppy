@@ -93,6 +93,7 @@ class DecoderKIDProMP(LatentDecoder, nn.Module):
             cum_mat = torch.matmul(cum_mat, self.homog_trans_mat(i, joint_configuration))
 
         # extract position and quaternion orientation from the matrix.
+        # TODO fix sqrt NaN
         eta = 0.5 * torch.sqrt(1 + torch.trace(cum_mat[:3, :3]))
         epsilon = (1 / 2) * torch.tensor(
             [torch.sign(cum_mat[2, 1] - cum_mat[1, 2]) * torch.sqrt(cum_mat[0, 0] - cum_mat[1, 1] - cum_mat[2, 2] + 1),
