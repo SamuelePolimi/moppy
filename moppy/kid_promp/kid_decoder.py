@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 
 from moppy.interfaces import LatentDecoder
+from moppy.kid_promp.forward_kinematics import forward_kinematics
 from moppy.trajectory.state import EndEffectorPose, TrajectoryState
 
 
@@ -74,59 +75,12 @@ class DecoderKIDProMP(LatentDecoder, nn.Module):
         nn_output = self.net(nn_input)
 
         if len(nn_output.shape) == 1:
-            return self.forward_kinematics(nn_output)
+            return forward_kinematics(self.dh_parameters, nn_output)
         elif len(nn_output.shape) == 2:
-            return torch.stack([self.forward_kinematics(joint_configuration)
+            return torch.stack([forward_kinematics(self.dh_parameters, joint_configuration)
                                 for joint_configuration in nn_output], dim=0)
         else:
             raise ValueError("Too many dimensions")
-
-    def forward_kinematics(self, joint_configuration: torch.Tensor) -> torch.Tensor:
-        """
-        This function calculates the forward kinematics of the robot.
-        :param joint_configuration: joint configuration of the robot.
-        :return: end effector pose of the robot.
-        """
-
-        cum_mat = torch.eye(4)
-        for i in range(1, self.output_dimension + 1):
-            cum_mat = torch.matmul(cum_mat, self.homog_trans_mat(i, joint_configuration))
-
-        # extract position and quaternion orientation from the matrix.
-        # TODO fix sqrt NaN
-        eta = 0.5 * torch.sqrt(1 + torch.trace(cum_mat[:3, :3]))
-        epsilon = (1 / 2) * torch.tensor(
-            [torch.sign(cum_mat[2, 1] - cum_mat[1, 2]) * torch.sqrt(cum_mat[0, 0] - cum_mat[1, 1] - cum_mat[2, 2] + 1),
-             torch.sign(cum_mat[0, 2] - cum_mat[2, 0]) * torch.sqrt(cum_mat[1, 1] - cum_mat[2, 2] - cum_mat[0, 0] + 1),
-             torch.sign(cum_mat[1, 0] - cum_mat[0, 1]) * torch.sqrt(cum_mat[2, 2] - cum_mat[0, 0] - cum_mat[1, 1] + 1)])
-
-        return torch.tensor([cum_mat[0, 3], cum_mat[1, 3], cum_mat[2, 3], epsilon[0], epsilon[1], epsilon[2], eta])
-
-    def homog_trans_mat(self, n, joint_configuration: torch.Tensor) -> torch.Tensor:
-        """
-        This function returns T_{n}^{n-1}, expect when n=0, then returns T_0^0, which is I.
-        :param n: number of the transformation (goal index).
-        :param joint_configuration: joint configuration of the robot.
-        :return: 4x4 homogeneous transformation matrix
-        """
-        if n == 0:
-            return torch.eye(4)
-
-        a = torch.tensor([self.dh_parameters[n - 1]['a']])
-        alpha = torch.tensor([self.dh_parameters[n - 1]['alpha']])
-        d = torch.tensor([self.dh_parameters[n - 1]['d']])
-
-        theta = torch.tensor([self.dh_parameters[n - 1]['theta']]) + joint_configuration[n - 1]
-
-        return torch.tensor([
-            [torch.cos(theta), -torch.sin(theta) * torch.cos(alpha), torch.sin(theta) * torch.sin(alpha),
-             a * torch.cos(theta)],
-            [torch.sin(theta), torch.cos(theta) * torch.cos(alpha), -torch.cos(theta) * torch.sin(alpha),
-             a * torch.sin(theta)],
-            [0, torch.sin(alpha), torch.cos(alpha), d],
-            [0, 0, 0, 1]
-        ])
-
 
     def save_model(self, path: str = '', filename: str = "decoder_kid.pth"):
         file_path = os.path.join(path, filename)
