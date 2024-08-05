@@ -5,7 +5,7 @@ import torch.nn as nn
 
 from moppy.interfaces import LatentDecoder
 from moppy.deep_promp import DecoderDeepProMP
-from moppy.trajectory.state import EndEffectorPose, TrajectoryState, JointConfiguration
+from moppy.trajectory.state import EndEffectorPose, TrajectoryState
 
 
 class DecoderKIDProMP(DecoderDeepProMP, nn.Module):
@@ -14,19 +14,52 @@ class DecoderKIDProMP(DecoderDeepProMP, nn.Module):
     it outputs a list of joint configurations which are then fed
     into differentiable kinematics to retrieve a reachable EndEffectorPose.
     """
+
     # TODO https://frankaemika.github.io/docs/control_parameters.html#denavithartenberg-parameters
-    def __init__(self,
-                 latent_variable_dimension: int,
-                 hidden_neurons: List[int],
-                 trajectory_state_class: Type[TrajectoryState] = EndEffectorPose,
-                 activation_function: Type[nn.Module] = nn.ReLU,
-                 activation_function_params: dict = {},
+    def __init__(self, latent_variable_dimension: int, hidden_neurons: List[int],
+                 activation_function: Type[nn.Module] = nn.Softmax, activation_function_params: dict = {},
                  dh_parameters: List[dict] = None):
-        super().__init__(latent_variable_dimension, hidden_neurons, trajectory_state_class, activation_function,
-                         activation_function_params)
+        nn.Module.__init__(self)
+        # Purposefully not calling the super constructor here. Overriding the __init__ method. We cannot use the
+        # parent class with JointConfiguration as the trajectory state class, as somebody had the great idea of
+        # including a gripper_open boolean value in the JointConfiguration, which in essence is not a joint.
 
         self.dh_parameters = dh_parameters
-        self.output_dimension = JointConfiguration.get_dimensions() - JointConfiguration.get_time_dimension()
+        self.output_dimension = len(dh_parameters)  # Joint configuration size of the robot.
+
+        self.hidden_neurons = hidden_neurons
+        self.latent_variable_dimension = latent_variable_dimension
+
+        self.activation_function = activation_function
+        self.activation_function_params = activation_function_params
+
+        self.trajectory_state_class = EndEffectorPose
+
+        # create the neurons list, which is the list of the number of neurons in each layer of the network
+        self.neurons = [latent_variable_dimension + EndEffectorPose.get_time_dimension()] + \
+                       hidden_neurons + [self.output_dimension]
+        if latent_variable_dimension <= 0:
+            raise ValueError(
+                "The latent_variable_dimension must be greater than 0. Got '%s'" % latent_variable_dimension)
+        if not self.neurons or len(self.neurons) < 2:
+            raise ValueError("The number of neurons must be at least 2. Got '%s'" % self.neurons)
+        if not all(isinstance(neuron, int) for neuron in self.neurons):
+            raise ValueError("All elements of neurons must be of type int. Got '%s'" % self.neurons)
+        if not all(neuron > 0 for neuron in self.neurons):
+            raise ValueError("All elements of neurons must be greater than 0. Got '%s'" % self.neurons)
+
+        layers = self.create_layers()
+        self.net = nn.Sequential(*layers).float()
+
+        # Initialize the weights and biases of the network
+        self.net.apply(self.__init_weights)
+
+    def __init_weights(self, m):
+        """Initialize the weights and biases of the network using Xavier initialization and a bias of 0.01"""
+        if isinstance(m, nn.Linear):
+            nn.init.xavier_uniform_(m.weight)
+            if m.bias is not None:
+                nn.init.zeros_(m.bias)
 
     def decode_from_latent_variable(self, latent_variable: torch.Tensor, time: torch.Tensor | float) -> torch.Tensor:
         """This is the complete procedure of decoding a latent variable z to a Tensor representing the trajectoryState
@@ -36,7 +69,14 @@ class DecoderKIDProMP(DecoderDeepProMP, nn.Module):
             time = torch.tensor([time])
         nn_input = torch.cat((latent_variable, time), dim=-1).float()
         nn_output = self.net(nn_input)
-        return self.forward_kinematics(nn_output)
+
+        if len(nn_output.shape) == 1:
+            return self.forward_kinematics(nn_output)
+        elif len(nn_output.shape) == 2:
+            return torch.stack([self.forward_kinematics(joint_configuration)
+                                for joint_configuration in nn_output], dim=0)
+        else:
+            raise ValueError("Too many dimensions")
 
     def forward_kinematics(self, joint_configuration: torch.Tensor) -> torch.Tensor:
         """
@@ -46,7 +86,7 @@ class DecoderKIDProMP(DecoderDeepProMP, nn.Module):
         """
 
         cum_mat = torch.eye(4)
-        for i in range(1, self.output_dimension + 2):
+        for i in range(1, self.output_dimension + 1):
             cum_mat = torch.matmul(cum_mat, self.homog_trans_mat(i, joint_configuration))
 
         # extract position and quaternion orientation from the matrix.
@@ -68,12 +108,13 @@ class DecoderKIDProMP(DecoderDeepProMP, nn.Module):
         if n == 0:
             return torch.eye(4)
 
-        a = self.dh_parameters[n - 1]['a']
-        alpha = self.dh_parameters[n - 1]['alpha']
-        d = self.dh_parameters[n - 1]['d']
-        theta = self.dh_parameters[n - 1]['theta'] + joint_configuration[n - 1]
+        a = torch.tensor([self.dh_parameters[n - 1]['a']])
+        alpha = torch.tensor([self.dh_parameters[n - 1]['alpha']])
+        d = torch.tensor([self.dh_parameters[n - 1]['d']])
 
-        return torch.array([
+        theta = torch.tensor([self.dh_parameters[n - 1]['theta']]) + joint_configuration[n - 1]
+
+        return torch.tensor([
             [torch.cos(theta), -torch.sin(theta) * torch.cos(alpha), torch.sin(theta) * torch.sin(alpha),
              a * torch.cos(theta)],
             [torch.sin(theta), torch.cos(theta) * torch.cos(alpha), -torch.cos(theta) * torch.sin(alpha),
