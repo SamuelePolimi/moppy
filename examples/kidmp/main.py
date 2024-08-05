@@ -1,15 +1,18 @@
 import argparse
-from typing import Union
+
+import torch
 import torch.nn as nn
 import os
 
 from moppy.deep_promp import DecoderDeepProMP, EncoderDeepProMP, DeepProMP
+from moppy.kid_promp.kid_decoder import DecoderKIDProMP
 from moppy.trajectory import Trajectory
 from moppy.trajectory.state import EndEffectorPose
 from moppy.deep_promp.utils import set_seed
 
 import matplotlib.pyplot as plt
 import random
+import json
 
 
 def load_trajectories():
@@ -34,13 +37,15 @@ def init_mp(args):
                                activation_function=nn.Softplus,
                                activation_function_params={"beta": 3.0})
 
-    decoder = DecoderDeepProMP(latent_variable_dimension=args.latent_var,
-                               hidden_neurons=[256, 256],
-                               trajectory_state_class=EndEffectorPose,
-                               activation_function=nn.Softplus,
-                               activation_function_params={"beta": 3.0})
+    # TODO compare with DH parameters for Franka Panda here:
+    #  https://frankaemika.github.io/docs/control_parameters.html#denavithartenberg-parameters
+    decoder = DecoderKIDProMP(latent_variable_dimension=args.latent_var,
+                              hidden_neurons=[256, 256],
+                              activation_function=nn.Softplus,
+                              activation_function_params={"beta": 3.0},
+                              dh_parameters=json.load(open("dh_params.json")))
 
-    if args.test_model:
+    if args.test_model or args.interactive:
         encoder.load_model('./output/')
         decoder.load_model('./output/')
 
@@ -83,6 +88,44 @@ def test_model(mp):
         index += 1
 
 
+def interactive(mp):
+    #  3d plot with sliders for each latent variable component
+    from matplotlib.widgets import Slider
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # init z randomly
+    trajectory = load_trajectories()[0]
+    mu, sigma = mp.encoder.encode_to_latent_variable(trajectory)
+    z = mp.encoder.sample_latent_variable(mu, sigma)
+
+    sliders = []
+
+    def update(val):
+        z = torch.tensor([slider.val for slider in sliders]).float()
+        print(z)
+        ax.clear()
+        for point in trajectory.get_points():
+            pos = point.position
+            ax.scatter(pos[0], pos[1], pos[2], color='b')
+        step = 0.025
+        time = 0.0
+        while time < 1.0:
+            value = mp.decoder.decode_from_latent_variable(z, time).detach().numpy()
+            ax.scatter(value[0], value[1], value[2], color='r')
+            time += step
+
+    for i in range(len(z)):
+        axslider = fig.add_axes([0.1, 0.1 + i * 0.05, 0.8, 0.03])
+        slider = Slider(axslider, f'z{i}', -1, 1, valinit=z[i].item())
+        slider.on_changed(update)
+        sliders.append(slider)
+
+    update(-1)
+    plt.show()
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="parse args")
     parser.add_argument("--rnd_seed", type=int, help="random seed for experiment.")
@@ -93,6 +136,7 @@ if __name__ == '__main__':
                         help="The folder moppy will save your files.")
     parser.add_argument("--latent_var", default='4', type=int, help="The size of the latent var.")
     parser.add_argument("--test_model", default=False, type=bool, help="Test the model instead of training.")
+    parser.add_argument("--interactive", default=False, type=bool, help="Test the model instead of training.")
 
     args = parser.parse_args()
 
@@ -103,7 +147,9 @@ if __name__ == '__main__':
 
     mp = init_mp(args)
 
-    if args.test_model:
+    if args.interactive:
+        interactive(mp)
+    elif args.test_model:
         test_model(mp)
     else:
         mp.train(load_trajectories(), kl_annealing=False)

@@ -1,29 +1,24 @@
+import os
 from typing import List, Type
 
 import torch
 import torch.nn as nn
 
 from moppy.interfaces import LatentDecoder
-from moppy.deep_promp import DecoderDeepProMP
 from moppy.trajectory.state import EndEffectorPose, TrajectoryState
 
 
-class DecoderKIDProMP(DecoderDeepProMP, nn.Module):
+class DecoderKIDProMP(LatentDecoder, nn.Module):
     """
     A normal ProMP decoder that instead of outputting an EndEffectorPose,
     it outputs a list of joint configurations which are then fed
     into differentiable kinematics to retrieve a reachable EndEffectorPose.
     """
 
-    # TODO https://frankaemika.github.io/docs/control_parameters.html#denavithartenberg-parameters
     def __init__(self, latent_variable_dimension: int, hidden_neurons: List[int],
                  activation_function: Type[nn.Module] = nn.Softmax, activation_function_params: dict = {},
                  dh_parameters: List[dict] = None):
         nn.Module.__init__(self)
-        # Purposefully not calling the super constructor here. Overriding the __init__ method. We cannot use the
-        # parent class with JointConfiguration as the trajectory state class, as somebody had the great idea of
-        # including a gripper_open boolean value in the JointConfiguration, which in essence is not a joint.
-
         self.dh_parameters = dh_parameters
         self.output_dimension = len(dh_parameters)  # Joint configuration size of the robot.
 
@@ -53,6 +48,14 @@ class DecoderKIDProMP(DecoderDeepProMP, nn.Module):
 
         # Initialize the weights and biases of the network
         self.net.apply(self.__init_weights)
+
+    def create_layers(self):
+        layers = []
+        for i in range(len(self.neurons) - 2):
+            layers += [nn.Linear(self.neurons[i], self.neurons[i + 1]),
+                       self.activation_function(**self.activation_function_params)]
+        layers += [nn.Linear(self.neurons[-2], self.neurons[-1])]
+        return layers
 
     def __init_weights(self, m):
         """Initialize the weights and biases of the network using Xavier initialization and a bias of 0.01"""
@@ -122,3 +125,30 @@ class DecoderKIDProMP(DecoderDeepProMP, nn.Module):
             [0, torch.sin(alpha), torch.cos(alpha), d],
             [0, 0, 0, 1]
         ])
+
+
+    def save_model(self, path: str = '', filename: str = "decoder_kid.pth"):
+        file_path = os.path.join(path, filename)
+        torch.save(self.net.state_dict(), file_path)
+
+    def load_model(self, path: str = '', filename: str = "decoder_kid.pth"):
+        file_path = os.path.join(path, filename)
+        self.net.load_state_dict(torch.load(file_path))
+
+    def forward(self, latent_variable: torch.Tensor, time: torch.Tensor | float):
+        return self.decode_from_latent_variable(latent_variable, time)
+
+    def __str__(self):
+        ret: str = "DecoderDeepProMP() {"
+        ret += "\n\t" + f'neurons: {self.neurons}'
+        ret += '\n\t' + f'latent_variable_dimension: {self.latent_variable_dimension}'
+        ret += "\n\t" + f'hidden_neurons: {self.hidden_neurons}'
+        ret += "\n\t" + f'output_dimension: {self.output_dimension}'
+        ret += "\n\t" + f'activation_function: {self.activation_function}'
+        ret += "\n\t" + f'trajectory_state_class: {self.trajectory_state_class}'
+        ret += "\n\t" + f'net: {str(self.net)}'
+        ret += "\n" + "}"
+        return ret
+
+    def __repr__(self):
+        return f'DecoderDeepProMP(neurons={self.neurons})'
