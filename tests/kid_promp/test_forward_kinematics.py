@@ -21,11 +21,21 @@ def test_forward_kinematics():
     # racket [ 0.52581558 -0.19978824  0.26727861] [0.81369981 0.05281687 0.56966278] -0.10289461530856192
 
     joint_configuration = torch.tensor(
-        [1.4336555, -1.2559798, -1.8131765, -1.9919585, -2.7769492, 3.1733205, 2.2967923])
+        [-0.5539, -0.7068, -0.0482, -1.4251, -0.8600,  0.3324, -0.5652])
     dh_parameters = json.load(open("dh_params.json"))
 
     print(forward_kinematics(dh_parameters, joint_configuration))
     pass
 
+def test_fk_not_nan():
 
-test_forward_kinematics()
+    dh_parameters = json.load(open("dh_params.json"))
+
+    for i in range(10000):
+        joint_configuration = torch.randn(7)
+
+        pose = forward_kinematics(dh_parameters, joint_configuration)
+        assert not torch.isnan(pose).any(), "Pose contains NaN values for joint configuration: " + str(joint_configuration)
+
+#test_fk_not_nan()
+#test_forward_kinematics()
