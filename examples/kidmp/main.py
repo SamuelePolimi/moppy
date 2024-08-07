@@ -6,6 +6,7 @@ import os
 
 from moppy.deep_promp import DecoderDeepProMP, EncoderDeepProMP, DeepProMP
 from moppy.kid_promp.kid_decoder import DecoderKIDProMP
+from moppy.kid_promp.kid_promp import KIDPMP
 from moppy.trajectory import Trajectory
 from moppy.trajectory.state import EndEffectorPose
 from moppy.deep_promp.utils import set_seed
@@ -47,7 +48,7 @@ def init_mp(args):
         encoder.load_model('./output/')
         decoder.load_model('./output/')
 
-    deep_pro_mp = DeepProMP(name="table_tennis",
+    deep_pro_mp = KIDPMP(name="table_tennis",
                             encoder=encoder,
                             decoder=decoder,
                             learning_rate=args.learning_rate,
