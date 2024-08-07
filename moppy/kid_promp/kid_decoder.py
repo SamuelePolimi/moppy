@@ -18,10 +18,10 @@ class DecoderKIDProMP(LatentDecoder, nn.Module):
 
     def __init__(self, latent_variable_dimension: int, hidden_neurons: List[int],
                  activation_function: Type[nn.Module] = nn.Softmax, activation_function_params: dict = {},
-                 dh_parameters: List[dict] = None):
+                 dh_parameters_craig: List[dict] = None):
         nn.Module.__init__(self)
-        self.dh_parameters = dh_parameters
-        self.output_dimension = len(dh_parameters)  # Joint configuration size of the robot.
+        self.dh_parameters = dh_parameters_craig
+        self.output_dimension = len(dh_parameters_craig)  # Joint configuration size of the robot.
 
         self.hidden_neurons = hidden_neurons
         self.latent_variable_dimension = latent_variable_dimension

@@ -37,13 +37,11 @@ def init_mp(args):
                                activation_function=nn.Softplus,
                                activation_function_params={"beta": 3.0})
 
-    # TODO compare with DH parameters for Franka Panda here:
-    #  https://frankaemika.github.io/docs/control_parameters.html#denavithartenberg-parameters
     decoder = DecoderKIDProMP(latent_variable_dimension=args.latent_var,
                               hidden_neurons=[256, 256],
                               activation_function=nn.Softplus,
                               activation_function_params={"beta": 3.0},
-                              dh_parameters=json.load(open("dh_params.json")))
+                              dh_parameters_craig=json.load(open("dh_params.json")))
 
     if args.test_model or args.interactive:
         encoder.load_model('./output/')
