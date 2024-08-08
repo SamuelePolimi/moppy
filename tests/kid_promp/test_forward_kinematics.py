@@ -3,7 +3,7 @@ import json
 import torch
 import json
 
-from moppy.kid_promp.forward_kinematics import forward_kinematics
+from moppy.kid_promp.forward_kinematics import forward_kinematics, forward_kinematics_batch
 
 
 def test_forward_kinematics():
@@ -20,12 +20,12 @@ def test_forward_kinematics():
     # link7 [ 0.3975476  -0.23165591  0.31344978] [ 0.77197275 -0.262593    0.48692373] -0.31306273005723173
     # racket [ 0.52581558 -0.19978824  0.26727861] [0.81369981 0.05281687 0.56966278] -0.10289461530856192
 
-    joint_configuration = torch.tensor(
-        [1.4336555, -1.2559798, -1.8131765, -1.9919585, -2.7769492, 3.1733205, 2.2967923])
     dh_parameters = json.load(open("dh_params.json"))
 
-    print(dh_parameters)
-    print(forward_kinematics(dh_parameters, joint_configuration))
+    joint_configurations = torch.tensor(
+        [[1.4336555, -1.2559798, -1.8131765, -1.9919585, -2.7769492, 3.1733205, 2.2967923],
+         [0, 0, 0, 0, 0, 0, 0]])
+    print(forward_kinematics_batch(dh_parameters, joint_configurations))
     pass
 
 

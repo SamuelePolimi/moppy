@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 
 from moppy.interfaces import LatentDecoder
-from moppy.kid_promp.forward_kinematics import forward_kinematics
+from moppy.kid_promp.forward_kinematics import forward_kinematics_batch
 from moppy.trajectory.state import EndEffectorPose, TrajectoryState
 
 
@@ -70,17 +70,11 @@ class DecoderKIDProMP(LatentDecoder, nn.Module):
         using the decoder network. The latent variable z is concatenated with the time t"""
 
         if isinstance(time, float):
-            time = torch.tensor([time])
+            time = torch.tensor([time]) # TODO change to Tensor?
         nn_input = torch.cat((latent_variable, time), dim=-1).float()
         nn_output = self.net(nn_input)
 
-        if len(nn_output.shape) == 1:
-            return forward_kinematics(self.dh_parameters, nn_output)
-        elif len(nn_output.shape) == 2:
-            return torch.stack([forward_kinematics(self.dh_parameters, joint_configuration)
-                                for joint_configuration in nn_output], dim=0)
-        else:
-            raise ValueError("Too many dimensions")
+        return forward_kinematics_batch(self.dh_parameters, nn_output)
 
     def save_model(self, path: str = '', filename: str = "decoder_kid.pth"):
         file_path = os.path.join(path, filename)
