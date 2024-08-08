@@ -5,6 +5,10 @@ from . import TrajectoryState
 
 
 class EndEffectorPose(TrajectoryState):
+    """
+    A class that represents the pose of the end effector.
+    The pose consists of a 3D position (XYZ), a quaternion orientation (XYZW) and a time.
+    """
     def __init__(self,
                  position: torch.Tensor | np.ndarray,
                  orientation: torch.Tensor | np.ndarray,
@@ -23,6 +27,10 @@ class EndEffectorPose(TrajectoryState):
             self.orientation = torch.tensor(orientation, dtype=torch.float)
         else:
             self.orientation = orientation
+
+        # ensure that the quaternion is normalized
+        if self.orientation[3] < 0:
+            self.orientation = -self.orientation
 
         if not torch.is_tensor(time):
             self.time = torch.tensor([time], dtype=torch.float)

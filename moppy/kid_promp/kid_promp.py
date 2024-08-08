@@ -43,6 +43,10 @@ class KIDPMP(MovementPrimitive):
         self.epochs = epochs
         self.beta = beta
 
+        self.transpose = torch.tensor([0.0, 0.0, 0.0], requires_grad=True)
+        self.rotate = torch.tensor([1.0, 0.0, 0.0, 0.0], requires_grad=True)
+        self.scale = torch.tensor([1.0, 1.0, 1.0], requires_grad=True)
+
         # Initialize the losses lists
         self.train_loss = []  # Training loss => ELBO
         self.kl_train_loss = []  # KL divergence => Part of the ELBO aka training loss
@@ -53,7 +57,7 @@ class KIDPMP(MovementPrimitive):
     def kl_annealing_scheduler(current_epoch, n_cycles=4, max_epoch=1000, saturation_point=0.5):
         """KL annealing scheduler"""
         tau = ((current_epoch - 1) % (math.ceil(max_epoch / n_cycles))) / (math.ceil(max_epoch / n_cycles))
-        return tau/saturation_point if tau < saturation_point else 1
+        return tau / saturation_point if tau < saturation_point else 1
 
     @staticmethod
     def gauss_kl(mu_q, std_q):
@@ -62,21 +66,44 @@ class KIDPMP(MovementPrimitive):
         return torch.mean(-torch.log(std_q) + (std_q ** 2 + mu_q ** 2) / 2 - 0.5)
 
     @staticmethod
-    def calculate_elbo(y_pred, y_star, mu, sigma, beta=1.0) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        """Calculate the Evidence Lower Bound (ELBO) using the reconstruction loss and the KL divergence.
-        The ELBO is the loss function used to train the DeepProMP."""
+    def elbo_batch(y_pred, y_star, mu, sigma, beta=1.0) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        mse = KIDPMP.mse_pose_batch(y_pred, y_star)
 
-        # Reconstruction loss (assuming Mean Squared Error)
-        mse = nn.MSELoss()(y_pred, y_star)
-        # log_prob = torch.distributions.Normal(loc=mu, scale=sigma).log_prob(torch.tensor(y_star, requires_grad=True)).sum()
-        # losses.append(log_prob)
         # KL divergence between approximate posterior (q) and prior (p)
         kl = KIDPMP.gauss_kl(mu_q=mu, std_q=sigma)
 
-        # print("mse %s, kl %s" % (mse, kl))
         # Combine terms with beta weighting
         elbo = mse + kl * beta
         return elbo, mse, kl
+
+    @staticmethod
+    def mse_pose_batch(y_pred, y_star):
+        """
+        For multiple poses, the poses are expected to be in the shape (n, 7) where n is the number of poses.
+        """
+
+        if len(y_pred.shape) == 1:
+            y_pred = y_pred.unsqueeze(0)
+            y_star = y_star.unsqueeze(0)
+
+        y_pred_pos = y_pred[:, :3]
+        y_pred_quat = y_pred[:, 3:]
+
+        y_star_pos = y_star[:, :3]
+        y_star_quat = y_star[:, 3:]
+
+        # TODO use self.transpose and self.rotate to transform the pos and rot
+        # TODO scale the pos with self.scale
+
+        mse_pos = nn.MSELoss()(y_pred_pos, y_star_pos)
+
+        # Siciliano 3.91
+        # pred.eta * desired.epsilon - desired.eta * pred.epsilon - cross(desired.epsilon, pred.epsilon)
+        e_o = ((y_pred_quat[:, 3] * y_star_quat[:, :3].T).T - (y_star_quat[:, 3] * y_pred_quat[:, :3].T).T
+               - torch.cross(y_star_quat[:, :3], y_pred_quat[:, :3], dim=-1))
+        mse_quat = nn.MSELoss()(e_o, torch.zeros_like(e_o))
+
+        return mse_pos + mse_quat
 
     def train(self,
               trajectories: List[Trajectory],
@@ -102,7 +129,8 @@ class KIDPMP(MovementPrimitive):
         print(f"Training set: {len(training_set)}")
         print(f"Validation set: {len(validation_set)}")
 
-        optimizer = optim.Adam(params=list(self.encoder.net.parameters()) + list(self.decoder.net.parameters()),
+        optimizer = optim.Adam(params=list(self.encoder.net.parameters()) + list(self.decoder.net.parameters())
+                                      + [self.transpose, self.rotate, self.scale],
                                lr=self.learning_rate)
         kl_traj = []
         mse_traj = []
@@ -126,11 +154,12 @@ class KIDPMP(MovementPrimitive):
 
                 if kl_annealing:
                     # note that I added a * self.beta here so the maximum can be lowered.
-                    beta = KIDPMP.kl_annealing_scheduler(i+1, n_cycles=4, max_epoch=self.epochs, saturation_point=0.5) * self.beta
+                    beta = KIDPMP.kl_annealing_scheduler(i + 1, n_cycles=4, max_epoch=self.epochs,
+                                                         saturation_point=0.5) * self.beta
                 else:
                     beta = self.beta
 
-                loss, mse, kl = KIDPMP.calculate_elbo(decoded.reshape(-1, 1), data.to_vector().reshape(-1, 1), mu, sigma, beta)
+                loss, mse, kl = KIDPMP.elbo_batch(decoded, data.to_vector_2d(), mu, sigma, beta)
 
                 loss.backward()
                 optimizer.step()
@@ -146,7 +175,7 @@ class KIDPMP(MovementPrimitive):
             losses_validation.append(validation_loss)
             duration = time.time() - start_time
             num_digits_epochs = len(str(abs(self.epochs)))  # Number of digits of the epochs to format the output
-            print(f"Epoch {i+1:{num_digits_epochs}}/{self.epochs} "
+            print(f"Epoch {i + 1:{num_digits_epochs}}/{self.epochs} "
                   f"({duration:.2f}s): "
                   f"validation loss = {validation_loss.item():12.10f}, "
                   f"train_loss = {elbo_loss_traj[-1].item():12.10f}, "
@@ -181,7 +210,7 @@ class KIDPMP(MovementPrimitive):
                 decoded.append(self.decoder(latent_var_z, j.get_time()))
             decoded = torch.cat(decoded)
 
-            loss += nn.MSELoss()(decoded, traj.to_vector()).detach().numpy()
+            loss += KIDPMP.mse_pose_batch(decoded, traj.to_vector_2d())
         return loss / len(trajectories)  # Average loss
 
     def save_models(self, save_path: str = None):
@@ -213,7 +242,8 @@ class KIDPMP(MovementPrimitive):
         """Save the plots of the losses to the given path. If no path is given, the default save_path is used."""
         save_path = save_path if save_path is not None else self.save_path  # Use the given path or the default one
 
-        self.plot_values(values=[self.loss_validation], path=save_path, file_name='validation_loss.png', plot_title='validation loss')
+        self.plot_values(values=[self.loss_validation], path=save_path, file_name='validation_loss.png',
+                         plot_title='validation loss')
         self.plot_values(values=[self.kl_train_loss], path=save_path, file_name='kl_loss.png', plot_title="kl loss")
         self.plot_values(values=[self.mse_train_loss], path=save_path, file_name='ms_loss.png', plot_title="ms loss")
         self.plot_values(values=[self.train_loss], path=save_path, file_name='train_loss.png', plot_title="Traing Loss")
@@ -222,14 +252,15 @@ class KIDPMP(MovementPrimitive):
                     values: List[List],
                     file_name: str,
                     plot_title: str = "Plot",
-                    path: str = None,):
+                    path: str = None, ):
         """
         Plot the given values and save the plot to the given path. If no path is given, the default save_path is used.
 
         values: List[List]: The values to plot. Each list in the list is a line in the plot. (Cannot be None or empty)
         """
         if values is None or len(values) == 0:
-            raise ValueError(f"Cannot plot '{plot_title}' at '{path}' without values. Please provide  at least one value list.")
+            raise ValueError(
+                f"Cannot plot '{plot_title}' at '{path}' without values. Please provide  at least one value list.")
 
         if not path:
             path = self.save_path
