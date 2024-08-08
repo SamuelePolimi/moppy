@@ -210,7 +210,7 @@ class KIDPMP(MovementPrimitive):
                 decoded.append(self.decoder(latent_var_z, j.get_time()))
             decoded = torch.cat(decoded)
 
-            loss += KIDPMP.mse_pose_batch(decoded, traj.to_vector_2d())
+            loss += KIDPMP.mse_pose_batch(decoded, traj.to_vector_2d()).detach().numpy()
         return loss / len(trajectories)  # Average loss
 
     def save_models(self, save_path: str = None):
