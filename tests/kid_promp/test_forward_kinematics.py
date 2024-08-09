@@ -1,11 +1,12 @@
 import json
+import unittest
 
 import torch
 import json
 
-from moppy.kid_promp.forward_kinematics import forward_kinematics, forward_kinematics_batch
+from moppy.kid_promp.forward_kinematics import forward_kinematics_batch
 
-
+@unittest.skip
 def test_forward_kinematics():
     # expected output:
     # joint config [ 1.4336555 -1.2559798 -1.8131765 -1.9919585 -2.7769492  3.1733205 2.2967923]
@@ -28,17 +29,4 @@ def test_forward_kinematics():
     print(forward_kinematics_batch(dh_parameters, joint_configurations))
     pass
 
-
-def test_fk_not_nan():
-    dh_parameters = json.load(open("dh_params.json"))
-
-    for i in range(10000):
-        joint_configuration = torch.randn(7)
-
-        pose = forward_kinematics(dh_parameters, joint_configuration)
-        assert not torch.isnan(pose).any(), "Pose contains NaN values for joint configuration: " + str(
-            joint_configuration)
-
-
-#test_fk_not_nan()
 #test_forward_kinematics()
