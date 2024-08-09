@@ -129,8 +129,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="parse args")
     parser.add_argument("--rnd_seed", type=int, help="random seed for experiment.")
     parser.add_argument("--learning_rate", default=0.01, type=float, help="learning_rate used by the adam optimizer.")
-    parser.add_argument("--epochs", default=1000, type=int, help="The amount of epochs used in the training.")
-    parser.add_argument("--beta", default=0.0025, type=float, help="The kl-divergence ratio.")
+    parser.add_argument("--epochs", default=700, type=int, help="The amount of epochs used in the training.")
+    parser.add_argument("--beta", default=0.0025, type=float, help="The kl-divergence ratio.") # 0.0025
     parser.add_argument("--save_path", default='./output/', type=str,
                         help="The folder moppy will save your files.")
     parser.add_argument("--latent_var", default='4', type=int, help="The size of the latent var.")

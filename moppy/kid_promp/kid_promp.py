@@ -44,8 +44,8 @@ class KIDPMP(MovementPrimitive):
         self.beta = beta
 
         self.transpose = torch.tensor([0.0, 0.0, 0.0], requires_grad=True)
-        self.rotate = torch.tensor([1.0, 0.0, 0.0, 0.0], requires_grad=True)
-        self.scale = torch.tensor([1.0, 1.0, 1.0], requires_grad=True)
+        self.rotate = torch.tensor([0.0, 0.0, 0.0, 1.0], requires_grad=True)
+        self.scale = torch.tensor([1.0], requires_grad=True)
 
         # Initialize the losses lists
         self.train_loss = []  # Training loss => ELBO
@@ -65,19 +65,19 @@ class KIDPMP(MovementPrimitive):
 
         return torch.mean(-torch.log(std_q) + (std_q ** 2 + mu_q ** 2) / 2 - 0.5)
 
-    @staticmethod
-    def elbo_batch(y_pred, y_star, mu, sigma, beta=1.0) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        mse = KIDPMP.mse_pose_batch(y_pred, y_star)
+    def elbo_batch(self, y_pred, y_star, mu, sigma, beta=1.0, gamma=0.1) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+        mse = self.mse_pose_batch(y_pred, y_star)
 
         # KL divergence between approximate posterior (q) and prior (p)
         kl = KIDPMP.gauss_kl(mu_q=mu, std_q=sigma)
 
+        penalty = torch.norm(self.rotate - torch.tensor([0.0, 0.0, 0.0, 1.0])) + torch.square(self.scale - 1.0)
+
         # Combine terms with beta weighting
-        elbo = mse + kl * beta
+        elbo = mse + kl * beta + penalty * gamma
         return elbo, mse, kl
 
-    @staticmethod
-    def mse_pose_batch(y_pred, y_star):
+    def mse_pose_batch(self, y_pred, y_star):
         """
         For multiple poses, the poses are expected to be in the shape (n, 7) where n is the number of poses.
         """
@@ -86,14 +86,17 @@ class KIDPMP(MovementPrimitive):
             y_pred = y_pred.unsqueeze(0)
             y_star = y_star.unsqueeze(0)
 
-        y_pred_pos = y_pred[:, :3]
+        # transpose the pose
+        y_pred_pos = y_pred[:, :3] + self.transpose
+
+        # TODO rotate the pose
         y_pred_quat = y_pred[:, 3:]
+
+        # scale the pose
+        y_pred_pos *= self.scale
 
         y_star_pos = y_star[:, :3]
         y_star_quat = y_star[:, 3:]
-
-        # TODO use self.transpose and self.rotate to transform the pos and rot
-        # TODO scale the pos with self.scale
 
         mse_pos = nn.MSELoss()(y_pred_pos, y_star_pos)
 
@@ -159,7 +162,7 @@ class KIDPMP(MovementPrimitive):
                 else:
                     beta = self.beta
 
-                loss, mse, kl = KIDPMP.elbo_batch(decoded, data.to_vector_2d(), mu, sigma, beta)
+                loss, mse, kl = self.elbo_batch(decoded, data.to_vector_2d(), mu, sigma, beta)
 
                 loss.backward()
                 optimizer.step()
@@ -181,6 +184,7 @@ class KIDPMP(MovementPrimitive):
                   f"train_loss = {elbo_loss_traj[-1].item():12.10f}, "
                   f"mse = {mse_traj[-1].item():12.10f}, "
                   f"kl = {kl_traj[-1].item():12.10f}")
+            print(f"trans: {self.transpose}, rot: {self.rotate}, scale: {self.scale}")
 
         print(f"Training finished (Time = {(time.time() - training_start_time):.2f}s).")
 
@@ -210,7 +214,7 @@ class KIDPMP(MovementPrimitive):
                 decoded.append(self.decoder(latent_var_z, j.get_time()))
             decoded = torch.cat(decoded)
 
-            loss += KIDPMP.mse_pose_batch(decoded, traj.to_vector_2d()).detach().numpy()
+            loss += self.mse_pose_batch(decoded, traj.to_vector_2d()).detach().numpy()
         return loss / len(trajectories)  # Average loss
 
     def save_models(self, save_path: str = None):

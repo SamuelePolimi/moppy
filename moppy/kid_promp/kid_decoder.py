@@ -18,10 +18,10 @@ class DecoderKIDProMP(LatentDecoder, nn.Module):
 
     def __init__(self, latent_variable_dimension: int, hidden_neurons: List[int],
                  activation_function: Type[nn.Module] = nn.Softmax, activation_function_params: dict = {},
-                 dh_parameters_craig: List[dict] = None):
+                 dh_parameters_craig: List[dict] = None, degrees_of_freedom = 7):
         nn.Module.__init__(self)
         self.dh_parameters = dh_parameters_craig
-        self.output_dimension = len(dh_parameters_craig)  # Joint configuration size of the robot.
+        self.output_dimension = degrees_of_freedom # Joint configuration size of the robot.
 
         self.hidden_neurons = hidden_neurons
         self.latent_variable_dimension = latent_variable_dimension
@@ -69,12 +69,16 @@ class DecoderKIDProMP(LatentDecoder, nn.Module):
         """This is the complete procedure of decoding a latent variable z to a Tensor representing the trajectoryState
         using the decoder network. The latent variable z is concatenated with the time t"""
 
+        nn_output = self.decode_to_joints(latent_variable, time)
+        return forward_kinematics_batch(self.dh_parameters, nn_output)
+
+    def decode_to_joints(self, latent_variable: torch.Tensor, time: torch.Tensor | float) -> torch.Tensor:
         if isinstance(time, float):
-            time = torch.tensor([time]) # TODO change to Tensor?
+            time = torch.tensor([time])  # TODO change to Tensor?
         nn_input = torch.cat((latent_variable, time), dim=-1).float()
         nn_output = self.net(nn_input)
 
-        return forward_kinematics_batch(self.dh_parameters, nn_output)
+        return nn_output
 
     def save_model(self, path: str = '', filename: str = "decoder_kid.pth"):
         file_path = os.path.join(path, filename)
