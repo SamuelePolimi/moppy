@@ -42,7 +42,10 @@ def init_mp(args):
                               hidden_neurons=[256, 256],
                               activation_function=nn.Softplus,
                               activation_function_params={"beta": 3.0},
-                              dh_parameters_craig=json.load(open("dh_params.json")))
+                              dh_parameters_craig=json.load(open("dh_params.json")),
+                              min_joints=[-2.8973, -1.7628, -2.8973, -3.0718, -2.8973, -0.0175, -2.8973],
+                              max_joints=[2.8973, 1.7628, 2.8973, -0.0698, 2.8973, 3.7525, 2.8973])
+
 
     if args.test_model or args.interactive:
         encoder.load_model('./output/')
@@ -129,8 +132,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="parse args")
     parser.add_argument("--rnd_seed", type=int, help="random seed for experiment.")
     parser.add_argument("--learning_rate", default=0.01, type=float, help="learning_rate used by the adam optimizer.")
-    parser.add_argument("--epochs", default=700, type=int, help="The amount of epochs used in the training.")
-    parser.add_argument("--beta", default=0.0025, type=float, help="The kl-divergence ratio.") # 0.0025
+    parser.add_argument("--epochs", default=350, type=int, help="The amount of epochs used in the training.")
+    parser.add_argument("--beta", default=0.003, type=float, help="The kl-divergence ratio.") # 0.0025
     parser.add_argument("--save_path", default='./output/', type=str,
                         help="The folder moppy will save your files.")
     parser.add_argument("--latent_var", default='4', type=int, help="The size of the latent var.")

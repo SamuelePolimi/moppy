@@ -3,6 +3,7 @@ from typing import List, Type
 
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 from moppy.interfaces import LatentDecoder
 from moppy.kid_promp.forward_kinematics import forward_kinematics_batch
@@ -18,10 +19,21 @@ class DecoderKIDProMP(LatentDecoder, nn.Module):
 
     def __init__(self, latent_variable_dimension: int, hidden_neurons: List[int],
                  activation_function: Type[nn.Module] = nn.Softmax, activation_function_params: dict = {},
-                 dh_parameters_craig: List[dict] = None, degrees_of_freedom = 7):
+                 dh_parameters_craig: List[dict] = None, degrees_of_freedom=7,
+                 min_joints: List[float] = None, max_joints: List[float] = None):
         nn.Module.__init__(self)
         self.dh_parameters = dh_parameters_craig
-        self.output_dimension = degrees_of_freedom # Joint configuration size of the robot.
+        self.output_dimension = degrees_of_freedom  # Joint configuration size of the robot.
+
+        if min_joints is None or max_joints is None or len(min_joints) != len(max_joints) or len(min_joints) != degrees_of_freedom:
+            raise ValueError("The minimum and maximum joint values must be provided.")
+
+        self.min_joints = torch.tensor(min_joints)
+        self.max_joints = torch.tensor(max_joints)
+
+        # Check if any minimum joint value is greater than the maximum joint value
+        if torch.any(self.min_joints > self.max_joints):
+            raise ValueError("The minimum joint values must be less than the maximum joint values")
 
         self.hidden_neurons = hidden_neurons
         self.latent_variable_dimension = latent_variable_dimension
@@ -74,11 +86,27 @@ class DecoderKIDProMP(LatentDecoder, nn.Module):
 
     def decode_to_joints(self, latent_variable: torch.Tensor, time: torch.Tensor | float) -> torch.Tensor:
         if isinstance(time, float):
-            time = torch.tensor([time])  # TODO change to Tensor?
+            time = torch.tensor([time])
         nn_input = torch.cat((latent_variable, time), dim=-1).float()
         nn_output = self.net(nn_input)
 
-        return nn_output
+        tanh_joint_range = self.min_joints + (self.max_joints - self.min_joints) * (0.5 + torch.tanh(nn_output) * 0.5)
+        return tanh_joint_range
+
+        # smooth clamp
+        #min_jnt = F.softplus(nn_output - self.min_joints, 0.5, 20.0) + self.min_joints
+        #clamped_jnt = self.max_joints - F.softplus(self.max_joints - min_jnt, 0.5, 20.0)
+        #return clamped_jnt
+
+    def sigmoid_clamp(self, x, mi, mx):
+        # Normalize x between mi and mx
+        normalized_x = (x - mi) / (mx - mi)
+        # sigmoid will smoothly map normalized_x between 0 and 1
+        sigmoid = torch.sigmoid(4 * (normalized_x - 0.5))
+        # Scale and shift to match the original function's output range
+        result = mi + (mx - mi) * sigmoid
+        # The result will always be between mi and mx
+        return result
 
     def save_model(self, path: str = '', filename: str = "decoder_kid.pth"):
         file_path = os.path.join(path, filename)
