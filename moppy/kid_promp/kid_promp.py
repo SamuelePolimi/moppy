@@ -11,8 +11,11 @@ from matplotlib import pyplot as plt
 
 from moppy.deep_promp import EncoderDeepProMP
 from moppy.interfaces import MovementPrimitive, LatentEncoder, LatentDecoder
+from moppy.kid_promp.forward_kinematics import quat_mul_batch
 from moppy.kid_promp.kid_decoder import DecoderKIDProMP
 from moppy.trajectory import Trajectory
+
+
 
 
 class KIDPMP(MovementPrimitive):
@@ -65,7 +68,7 @@ class KIDPMP(MovementPrimitive):
 
         return torch.mean(-torch.log(std_q) + (std_q ** 2 + mu_q ** 2) / 2 - 0.5)
 
-    def elbo_batch(self, y_pred, y_star, mu, sigma, beta=1.0, gamma=0.1) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def elbo_batch(self, y_pred, y_star, mu, sigma, beta=1.0, gamma=0.05) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         mse = self.mse_pose_batch(y_pred, y_star)
 
         # KL divergence between approximate posterior (q) and prior (p)
@@ -89,8 +92,8 @@ class KIDPMP(MovementPrimitive):
         # transpose the pose
         y_pred_pos = y_pred[:, :3] + self.transpose
 
-        # TODO rotate the pose
-        y_pred_quat = y_pred[:, 3:]
+        # rotate the pose
+        y_pred_quat = y_pred[:, 3:]  # TODO quat_mul_batch(torch.unsqueeze(self.rotate, 0), y_pred[:, 3:])
 
         # scale the pose
         y_pred_pos *= self.scale

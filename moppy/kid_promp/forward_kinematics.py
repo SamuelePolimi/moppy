@@ -81,3 +81,22 @@ def homog_trans_mat_craig_batch(dh_parameters_craig, i, joint_configurations: to
     trans_matrices[:, 3, 3] = 1
 
     return trans_matrices
+
+
+def quat_mul_batch(quaternion0, quaternion1):
+    x0 = quaternion0[:, 0]
+    y0 = quaternion0[:, 1]
+    z0 = quaternion0[:, 2]
+    w0 = quaternion0[:, 3]
+
+    x1 = quaternion1[:, 0]
+    y1 = quaternion1[:, 1]
+    z1 = quaternion1[:, 2]
+    w1 = quaternion1[:, 3]
+
+    return torch.stack([
+        x1 * w0 + y1 * z0 - z1 * y0 + w1 * x0,
+        -x1 * z0 + y1 * w0 + z1 * x0 + w1 * y0,
+        x1 * y0 - y1 * x0 + z1 * w0 + w1 * z0,
+        -x1 * x0 - y1 * y0 - z1 * z0 + w1 * w0
+    ], dim=-1)

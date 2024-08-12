@@ -90,7 +90,9 @@ class DecoderKIDProMP(LatentDecoder, nn.Module):
         nn_input = torch.cat((latent_variable, time), dim=-1).float()
         nn_output = self.net(nn_input)
 
-        tanh_joint_range = self.min_joints + (self.max_joints - self.min_joints) * (0.5 + torch.tanh(nn_output) * 0.5)
+        joint_pct = (0.5 + torch.tanh(0.15 * nn_output) * 0.4)
+        tanh_joint_range = self.min_joints + (self.max_joints - self.min_joints) * joint_pct
+
         return tanh_joint_range
 
         # smooth clamp
