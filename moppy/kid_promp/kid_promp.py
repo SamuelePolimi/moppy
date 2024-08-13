@@ -74,7 +74,8 @@ class KIDPMP(MovementPrimitive):
         # KL divergence between approximate posterior (q) and prior (p)
         kl = KIDPMP.gauss_kl(mu_q=mu, std_q=sigma)
 
-        penalty = torch.norm(self.rotate - torch.tensor([0.0, 0.0, 0.0, 1.0])) + torch.square(self.scale - 1.0)
+        penalty = (torch.norm(self.rotate - torch.tensor([0.0, 0.0, 0.0, 1.0])) + torch.square(self.scale - 1.0)
+                   + torch.norm(self.transpose))
 
         # Combine terms with beta weighting
         elbo = mse + kl * beta + penalty * gamma
