@@ -68,7 +68,7 @@ class KIDPMP(MovementPrimitive):
 
         return torch.mean(-torch.log(std_q) + (std_q ** 2 + mu_q ** 2) / 2 - 0.5)
 
-    def elbo_batch(self, y_pred, y_star, mu, sigma, beta=1.0, gamma=0.05) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
+    def elbo_batch(self, y_pred, y_star, mu, sigma, beta=1.0, gamma=0.005) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         mse = self.mse_pose_batch(y_pred, y_star)
 
         # KL divergence between approximate posterior (q) and prior (p)
@@ -107,6 +107,7 @@ class KIDPMP(MovementPrimitive):
         # pred.eta * desired.epsilon - desired.eta * pred.epsilon - cross(desired.epsilon, pred.epsilon)
         e_o = ((y_pred_quat[:, 3] * y_star_quat[:, :3].T).T - (y_star_quat[:, 3] * y_pred_quat[:, :3].T).T
                - torch.cross(y_star_quat[:, :3], y_pred_quat[:, :3], dim=-1))
+
         mse_quat = nn.MSELoss()(e_o, torch.zeros_like(e_o))
 
         return mse_pos + mse_quat
@@ -183,10 +184,10 @@ class KIDPMP(MovementPrimitive):
             num_digits_epochs = len(str(abs(self.epochs)))  # Number of digits of the epochs to format the output
             print(f"Epoch {i + 1:{num_digits_epochs}}/{self.epochs} "
                   f"({duration:.2f}s): "
-                  f"validation loss = {validation_loss.item():12.10f}, "
                   f"train_loss = {elbo_loss_traj[-1].item():12.10f}, "
-                  f"mse = {mse_traj[-1].item():12.10f}, "
-                  f"kl = {kl_traj[-1].item():12.10f}")
+                  f"train_kl = {kl_traj[-1].item():12.10f}, "
+                  f"train_mse = {mse_traj[-1].item():12.10f}, "
+                  f"validation_mse = {validation_loss.item():12.10f}")
             print(f"trans: {self.transpose}, rot: {self.rotate}, scale: {self.scale}")
 
         print(f"Training finished (Time = {(time.time() - training_start_time):.2f}s).")
@@ -211,13 +212,13 @@ class KIDPMP(MovementPrimitive):
         loss = 0
         for traj in trajectories:
             mu, sigma = self.encoder(traj)
-            latent_var_z = self.encoder.sample_latent_variable(mu, sigma)
-            decoded = []
-            for j in traj.get_points():
-                decoded.append(self.decoder(latent_var_z, j.get_time()))
-            decoded = torch.cat(decoded)
+            latent_var_z = self.encoder.sample_latent_variables(mu, sigma, len(traj))
+
+            times = torch.tensor(traj.get_times()).reshape(-1, 1)
+            decoded = self.decoder(latent_var_z, times)
 
             loss += self.mse_pose_batch(decoded, traj.to_vector_2d()).detach().numpy()
+
         return loss / len(trajectories)  # Average loss
 
     def save_models(self, save_path: str = None):
@@ -250,7 +251,7 @@ class KIDPMP(MovementPrimitive):
         save_path = save_path if save_path is not None else self.save_path  # Use the given path or the default one
 
         self.plot_values(values=[self.loss_validation], path=save_path, file_name='validation_loss.png',
-                         plot_title='validation loss')
+                         plot_title='validation mse')
         self.plot_values(values=[self.kl_train_loss], path=save_path, file_name='kl_loss.png', plot_title="kl loss")
         self.plot_values(values=[self.mse_train_loss], path=save_path, file_name='ms_loss.png', plot_title="ms loss")
         self.plot_values(values=[self.train_loss], path=save_path, file_name='train_loss.png', plot_title="Traing Loss")
