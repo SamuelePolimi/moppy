@@ -10,7 +10,7 @@ import math
 from matplotlib import pyplot as plt
 
 from . import DecoderDeepProMP, EncoderDeepProMP
-from moppy.interfaces import MovementPrimitive, LatentEncoder, LatentDecoder
+from moppy.interfaces import MovementPrimitive
 from moppy.trajectory import Trajectory
 
 
@@ -28,12 +28,12 @@ class DeepProMP(MovementPrimitive):
         super().__init__(name, encoder, decoder)
 
         # Check if the encoder and decoder are instances/subclasses of EncoderDeepProMP and DecoderDeepProMP
-        if not issubclass(type(encoder), LatentEncoder):
-            raise TypeError(f"The encoder must be an instance of '{LatentDecoder.__name__}' or a subclass. Got '{type(encoder)}'."
-                            f"\nThe usable classes are {[EncoderDeepProMP] + LatentEncoder.__subclasses__()}")
-        if not issubclass(type(decoder), LatentDecoder):
-            raise TypeError(f"The decoder must be an instance of '{LatentDecoder.__name__}' or a subclass. Got '{type(decoder)}'."
-                            f"\nThe usable classes are {[DecoderDeepProMP] + LatentDecoder.__subclasses__()}")
+        if not issubclass(type(encoder), EncoderDeepProMP):
+            raise TypeError(f"The encoder must be an instance of '{EncoderDeepProMP.__name__}' or a subclass. Got '{type(encoder)}'."
+                            f"\nThe usable classes are {[EncoderDeepProMP] + EncoderDeepProMP.__subclasses__()}")
+        if not issubclass(type(decoder), DecoderDeepProMP):
+            raise TypeError(f"The decoder must be an instance of '{DecoderDeepProMP.__name__}' or a subclass. Got '{type(decoder)}'."
+                            f"\nThe usable classes are {[DecoderDeepProMP] + DecoderDeepProMP.__subclasses__()}")
 
         # Check if the encoder and decoder are compatible
         if encoder.latent_variable_dimension != decoder.latent_variable_dimension:
