@@ -49,6 +49,28 @@ class DecoderDeepProMP(LatentDecoder, nn.Module):
         # Initialize the weights and biases of the network
         self.net.apply(self.__init_weights)
 
+    @classmethod
+    def load_from_save_file(cls, path: str = '', file: str = "decoder_deep_pro_mp.pth") -> 'DecoderDeepProMP':
+        """Load a model from a file and return a DecoderDeepProMP instance."""
+        # Load the model data
+        file_path = os.path.join(path, file)
+        model_data = torch.load(file_path)
+
+        # Reconstruct the model using the saved configuration
+        model = cls(
+            latent_variable_dimension=model_data['latent_variable_dimension'],
+            hidden_neurons=model_data['hidden_neurons'],
+            trajectory_state_class=model_data['trajectory_state_class'],
+            activation_function=model_data['activation_function'],
+            activation_function_params=model_data['activation_function_params']
+        )
+
+        # Load the saved state_dict into the model's neural network
+        model.net.load_state_dict(model_data['state_dict'])
+        model.eval()  # Set to evaluation mode if needed
+
+        return model
+
     def create_layers(self):
         layers = []
         for i in range(len(self.neurons) - 2):
@@ -73,11 +95,28 @@ class DecoderDeepProMP(LatentDecoder, nn.Module):
         nn_input = torch.cat((latent_variable, time), dim=-1).float()
         return self.net(nn_input)
 
-    def save_model(self, path: str = '', filename: str = "decoder_deep_pro_mp.pth"):
+    def save_decoder(self, path: str = '', filename: str = "decoder_deep_pro_mp.pth"):
+        """Save the decoder to a file, including the state_dict of the network and the configuration of the model.
+        The configuration includes the latent_variable_dimension, hidden_neurons, trajectory_state_class, activation function,
+        and activation function parameters.
+        Can be loaded using the load_from_save_file method."""
+
+        file_path = os.path.join(path, filename)
+        model_data = {
+            'state_dict': self.net.state_dict(),
+            'latent_variable_dimension': self.latent_variable_dimension,
+            'hidden_neurons': self.hidden_neurons,
+            'trajectory_state_class': self.trajectory_state_class,
+            'activation_function': self.activation_function,
+            'activation_function_params': self.activation_function_params
+        }
+        torch.save(model_data, file_path)
+
+    def save_model(self, path: str = '', filename: str = "decoder_model_deep_pro_mp.pth"):
         file_path = os.path.join(path, filename)
         torch.save(self.net.state_dict(), file_path)
 
-    def load_model(self, path: str = '', filename: str = "decoder_deep_pro_mp.pth"):
+    def load_model(self, path: str = '', filename: str = "decoder_model_deep_pro_mp.pth"):
         file_path = os.path.join(path, filename)
         self.net.load_state_dict(torch.load(file_path))
 
