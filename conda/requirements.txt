@@ -10,3 +10,6 @@ lightning==2.2
 matplotlib==3.9
 tensorboard==2.17
 pytest==8.3
+stable_baselines3[extra]==2.3
+scipy==1.14
+rich==13.7

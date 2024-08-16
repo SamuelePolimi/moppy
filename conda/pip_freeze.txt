@@ -3,6 +3,7 @@ aiohappyeyeballs==2.3.6
 aiohttp==3.10.3
 aiosignal==1.3.1
 attrs==24.2.0
+cffi==1.17.0
 cloudpickle==3.0.0
 colorama==0.4.6
 contourpy==1.2.1
@@ -21,10 +22,14 @@ kiwisolver==1.4.5
 lightning==2.2.0
 lightning-utilities==0.11.6
 Markdown==3.6
+markdown-it-py==3.0.0
 MarkupSafe==2.1.5
 matplotlib==3.9.0
+mdurl==0.1.2
+-e git+ssh://git@github.com/SamuelePolimi/moppy.git@43b5daa2d0f05cf11cc5c344e2401f7f1bb05c6b#egg=moppy
 mpmath==1.3.0
 multidict==6.0.5
+natsort==8.4.0
 networkx==3.3
 numpy==1.26.0
 nvidia-cublas-cu12==12.1.3.1
@@ -40,17 +45,27 @@ nvidia-nccl-cu12==2.20.5
 nvidia-nvjitlink-cu12==12.6.20
 nvidia-nvtx-cu12==12.1.105
 packaging==24.1
+pandas==2.2.2
 pillow==10.4.0
 pluggy==1.5.0
 pretty-errors==1.2.25
 protobuf==4.25.4
+pycparser==2.22
+Pygments==2.18.0
 pyparsing==3.1.2
+pyquaternion==0.9.9
+PyRep @ git+https://github.com/stepjam/PyRep.git@8f420be8064b1970aae18a9cfbc978dfb15747ef
 pytest==8.3.0
 python-dateutil==2.9.0.post0
 pytorch-lightning==2.2.0
+pytz==2024.1
 PyYAML==6.0.2
+rich==13.7.1
+rlbench @ git+https://github.com/stepjam/RLBench.git@b80e51feb3694d9959cb8c0408cd385001b01382
+scipy==1.14.0
 setuptools==70.0.0
 six==1.16.0
+stable_baselines3==2.3.2
 sympy==1.13.2
 tensorboard==2.17.0
 tensorboard-data-server==0.7.2
@@ -59,6 +74,7 @@ torchmetrics==1.4.0
 torchvision==0.18.0
 tqdm==4.66.5
 typing_extensions==4.12.2
+tzdata==2024.1
 Werkzeug==3.0.3
 wheel==0.43.0
 yarl==1.9.4
