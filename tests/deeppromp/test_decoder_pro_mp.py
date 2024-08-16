@@ -47,7 +47,7 @@ class TestDecoderDeepProMP:
         assert decoder.net is not None
         assert decoder.net.state_dict() is not None
         # delte the file
-        os.remove("decoder_deep_pro_mp.pth")
+        os.remove("decoder_model_deep_pro_mp.pth")
 
     def test_forward(self, decoder):
         """Same as the test_decode_from_latent_variable test"""

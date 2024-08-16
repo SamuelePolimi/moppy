@@ -66,14 +66,6 @@ class TestEncoderDeepProMP:
             test_traj.add_point(test_sin_point)
             encoder.encode_to_latent_variable(trajectory=test_traj)
 
-    def test_save_load_model(self, encoder: EncoderDeepProMP):
-        encoder.save_model()
-        encoder.load_model()
-        assert encoder.net is not None
-        assert encoder.net.state_dict() is not None
-        # delte the file
-        os.remove("encoder_deep_pro_mp.pth")
-
     def test_sample_latent_variables(self, encoder: EncoderDeepProMP):
         # normal values
         mu = torch.tensor([1.0, 2.0])
@@ -99,7 +91,7 @@ class TestEncoderDeepProMP:
         encoder.load_model()
         assert encoder.net is not None
         assert encoder.net.state_dict() is not None
-        os.remove("encoder_deep_pro_mp.pth")
+        os.remove("encoder_model_deep_pro_mp.pth")
 
     def test_forward(self, encoder: EncoderDeepProMP, trajectory: Trajectory[JointConfiguration]):
         """Same as the test_encode_from_trajectory_state test"""
