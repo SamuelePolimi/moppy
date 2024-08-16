@@ -10,7 +10,7 @@ import math
 from matplotlib import pyplot as plt
 
 from . import DecoderDeepProMP, EncoderDeepProMP
-from moppy.interfaces import MovementPrimitive, LatentEncoder, LatentDecoder
+from moppy.interfaces import MovementPrimitive
 from moppy.trajectory import Trajectory
 
 
@@ -28,12 +28,12 @@ class DeepProMP(MovementPrimitive):
         super().__init__(name, encoder, decoder)
 
         # Check if the encoder and decoder are instances/subclasses of EncoderDeepProMP and DecoderDeepProMP
-        if not issubclass(type(encoder), LatentEncoder):
-            raise TypeError(f"The encoder must be an instance of '{LatentDecoder.__name__}' or a subclass. Got '{type(encoder)}'."
-                            f"\nThe usable classes are {[EncoderDeepProMP] + LatentEncoder.__subclasses__()}")
-        if not issubclass(type(decoder), LatentDecoder):
-            raise TypeError(f"The decoder must be an instance of '{LatentDecoder.__name__}' or a subclass. Got '{type(decoder)}'."
-                            f"\nThe usable classes are {[DecoderDeepProMP] + LatentDecoder.__subclasses__()}")
+        if not issubclass(type(encoder), EncoderDeepProMP):
+            raise TypeError(f"The encoder must be an instance of '{EncoderDeepProMP.__name__}' or a subclass. Got '{type(encoder)}'."
+                            f"\nThe usable classes are {[EncoderDeepProMP] + EncoderDeepProMP.__subclasses__()}")
+        if not issubclass(type(decoder), DecoderDeepProMP):
+            raise TypeError(f"The decoder must be an instance of '{DecoderDeepProMP.__name__}' or a subclass. Got '{type(decoder)}'."
+                            f"\nThe usable classes are {[DecoderDeepProMP] + DecoderDeepProMP.__subclasses__()}")
 
         # Check if the encoder and decoder are compatible
         if encoder.latent_variable_dimension != decoder.latent_variable_dimension:
@@ -133,7 +133,7 @@ class DeepProMP(MovementPrimitive):
                 decoded = self.decoder(latent_var_z, times)
                 if kl_annealing:
                     # note that I added a * self.beta here so the maximum can be lowered.
-                    beta = DeepProMP.kl_annealing_scheduler(i+1, n_cycles=4, max_epoch=self.epochs, saturation_point=0.5) * self.beta
+                    beta = DeepProMP.kl_annealing_scheduler(i+1, n_cycles=100, max_epoch=self.epochs, saturation_point=0.5) * self.beta
                 else:
                     beta = self.beta
                 loss, mse, kl = DeepProMP.calculate_elbo(decoded.reshape(-1, 1), data.to_vector().reshape(-1, 1), mu, sigma, beta)
@@ -196,7 +196,9 @@ class DeepProMP(MovementPrimitive):
         if not os.path.exists(use_path):
             os.makedirs(use_path)
         self.decoder.save_model(use_path)
+        self.decoder.save_decoder(use_path)
         self.encoder.save_model(use_path)
+        self.encoder.save_encoder(use_path)
 
     def save_losses(self, save_path: str = None):
         """Save the losses to the given path. If no path is given, the default save_path is used."""
@@ -223,6 +225,21 @@ class DeepProMP(MovementPrimitive):
         self.plot_values(values=[self.kl_train_loss], path=save_path, file_name='kl_loss.png', plot_title="kl loss")
         self.plot_values(values=[self.mse_train_loss], path=save_path, file_name='ms_loss.png', plot_title="ms loss")
         self.plot_values(values=[self.train_loss], path=save_path, file_name='train_loss.png', plot_title="Traing Loss")
+
+        # Plot all the losses in one plot, for better comparison and overview
+        plt.close()
+        fig, axs = plt.subplots(2, 2, figsize=(10, 8))
+        fig.suptitle('Losses')
+        plt.subplots_adjust(hspace=0.5, wspace=0.3)
+        axs[0, 0].plot(self.loss_validation)
+        axs[0, 0].set_title('Validation Loss')
+        axs[0, 1].plot(self.kl_train_loss)
+        axs[0, 1].set_title('KL Loss')
+        axs[1, 0].plot(self.mse_train_loss)
+        axs[1, 0].set_title('MSE Loss')
+        axs[1, 1].plot(self.train_loss)
+        axs[1, 1].set_title('Training Loss')
+        plt.savefig(os.path.join(save_path, 'all_losses.png'))
 
     def plot_values(self,
                     values: List[List],

@@ -31,11 +31,11 @@ def get_activation_function(ac_str: str) -> Union[nn.ReLU, nn.Sigmoid, nn.Tanh]:
 
 def test_deep_pro_mp(args):
     encoder = EncoderDeepProMP(latent_variable_dimension=args.latent_var,
-                               hidden_neurons=[128, 128],
+                               hidden_neurons=[128, 128, 128],
                                activation_function=get_activation_function(args.activation_func),)
 
     decoder = DecoderDeepProMP(latent_variable_dimension=args.latent_var,
-                               hidden_neurons=[128, 128],
+                               hidden_neurons=[128, 128, 128],
                                activation_function=get_activation_function(args.activation_func),)
 
     deep_pro_mp = DeepProMP(name="7_joint_reach_target",
@@ -52,11 +52,11 @@ def test_deep_pro_mp(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="parse args")
     parser.add_argument("--rnd_seed", type=int, help="random seed for experiment.")
-    parser.add_argument("--learning_rate", default=0.01, type=float, help="lerning_rate used by the adam optimizer.")
-    parser.add_argument("--epochs", default=1000, type=int, help="The amout of epochs used in the training.")
+    parser.add_argument("--learning_rate", default=0.002, type=float, help="lerning_rate used by the adam optimizer.")
+    parser.add_argument("--epochs", default=100, type=int, help="The amout of epochs used in the training.")
     parser.add_argument("--beta", default=1, type=float, help="The kl-divergence ratio.")
-    parser.add_argument("--save_path", default='./deep_promp/output/', type=str, help="The folder moppy will save your files.")
-    parser.add_argument("--latent_var", default='3', type=int, help="The size of the latent var.")
+    parser.add_argument("--save_path", default='./deep_promp/output_10_epochs/', type=str, help="The folder moppy will save your files.")
+    parser.add_argument("--latent_var", default=10, type=int, help="The size of the latent var.")
     parser.add_argument("--activation_func", default='relu', type=str, help="The activation function used in the network.")
     args = parser.parse_args()
 

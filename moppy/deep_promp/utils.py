@@ -28,8 +28,10 @@ def set_seed(seed) -> None:
         torch.backends.cudnn.benchmark = False
 
 
-def plot_trajectories(labeled_trajectories: List[Tuple[Trajectory, str]], file_name: str, plot_title: str) -> None:
-    """Plot the trajectories and save the plot to a file. The trajectories are labeled with the given labels.
+def plot_trajectories(labeled_trajectories: List[Tuple[Trajectory[SinusState], str]], file_name: str, plot_title: str) -> None:
+    """
+    Plot the trajectories and save the plot to a file. The trajectories are labeled with the given labels.
+    This works for SinusState trajectories.
 
     Args:
         labeled_trajectories (List[Tuple[Trajectory, str]]):  List of tuples containing the trajectory and the label. Example: [(traj1, 'label1'), (traj2, 'label2')]
