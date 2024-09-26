@@ -105,3 +105,12 @@ class JointConfiguration(TrajectoryState):
     def get_time_dimension(cls) -> int:
         """Get the number of dimensions that represent the time."""
         return 1
+
+
+class JointConfiguration2(JointConfiguration):
+    """A trajectory state that represents a joint configuration trajectory."""
+
+    @classmethod
+    def get_dimensions(cls) -> int:
+        """Get the total number of dimensions of the state."""
+        return 8
