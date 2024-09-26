@@ -18,10 +18,10 @@ class DecoderDeepProMP(LatentDecoder, nn.Module):
         nn.Module.__init__(self)
 
         # Check if the trajectory state class is a subclass of TrajectoryState
-        if trajectory_state_class not in TrajectoryState.__subclasses__():
+        if TrajectoryState not in trajectory_state_class.__mro__:
             raise TypeError(f"The trajectory state class must be a subclass of '{TrajectoryState.__name__}'. "
                             f"Got '{trajectory_state_class}'"
-                            f"\nThe usable subclasses are {TrajectoryState.__subclasses__()}")
+                            f"\nThe parent classes are: {trajectory_state_class.__mro__}")
 
         # The output dimension is the total dimension of the trajectory state minus the time dimension
         self.output_dimension = trajectory_state_class.get_dimensions() - trajectory_state_class.get_time_dimension()

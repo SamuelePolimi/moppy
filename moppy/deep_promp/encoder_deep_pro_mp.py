@@ -21,10 +21,10 @@ class EncoderDeepProMP(LatentEncoder, nn.Module):
         nn.Module.__init__(self)
 
         # Check if the trajectory state class is a subclass of TrajectoryState
-        if trajectory_state_class not in TrajectoryState.__subclasses__():
+        if TrajectoryState not in trajectory_state_class.__mro__:
             raise TypeError(f"The trajectory state class must be a subclass of '{TrajectoryState.__name__}'. "
                             f"Got '{trajectory_state_class}'"
-                            f"\nThe usable subclasses are {TrajectoryState.__subclasses__()}")
+                            f"\nThe parent classes are: {trajectory_state_class.__mro__}")
 
         self.input_dimension = trajectory_state_class.get_dimensions()
         self.activation_function = activation_function
