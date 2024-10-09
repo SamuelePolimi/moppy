@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='moppy',
@@ -13,8 +13,9 @@ setup(
               'moppy.deep_promp',
               'moppy.trajectory',
               'moppy.trajectory.state',
-              'moppy.interfaces',],
-    python_requires='>=3.12',
+              'moppy.interfaces',
+              'moppy.logger',],
+    python_requires='>=3.11',
     install_requires=[
         'torch',
         'numpy',
