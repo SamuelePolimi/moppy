@@ -44,6 +44,7 @@ def test_deep_pro_mp(args):
                             learning_rate=args.learning_rate,
                             epochs=args.epochs,
                             beta=args.beta,
+                            log_to_tensorboard=True,
                             save_path=args.save_path)
     print(deep_pro_mp)
     deep_pro_mp.train(load_from_file_trajectory())
