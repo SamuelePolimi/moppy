@@ -133,7 +133,7 @@ class DeepProMP(MovementPrimitive):
                 decoded = self.decoder(latent_var_z, times)
                 if kl_annealing:
                     # note that I added a * self.beta here so the maximum can be lowered.
-                    beta = DeepProMP.kl_annealing_scheduler(i+1, n_cycles=100, max_epoch=self.epochs, saturation_point=0.5) * self.beta
+                    beta = DeepProMP.kl_annealing_scheduler(i+1, n_cycles=200, max_epoch=self.epochs, saturation_point=0.5) * self.beta
                 else:
                     beta = self.beta
                 loss, mse, kl = DeepProMP.calculate_elbo(decoded.reshape(-1, 1), data.to_vector().reshape(-1, 1), mu, sigma, beta)
