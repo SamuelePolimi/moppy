@@ -12,9 +12,10 @@ from matplotlib import pyplot as plt
 from . import DecoderDeepProMP, EncoderDeepProMP
 from moppy.interfaces import MovementPrimitive
 from moppy.trajectory import Trajectory
+from moppy.logger import Logger
 
 
-class DeepProMP(MovementPrimitive):
+class DeepProMP(MovementPrimitive, Logger):
     """A DeepProMP is a probabilistic movement primitive that uses deep neural networks to encode and decode trajectories."""
 
     def __init__(self,
@@ -22,10 +23,12 @@ class DeepProMP(MovementPrimitive):
                  encoder: EncoderDeepProMP,
                  decoder: DecoderDeepProMP,
                  save_path: str = './deep_promp/output/',
+                 log_to_tensorboard: bool = False,
                  learning_rate: float = 0.005,
                  epochs: int = 100,
                  beta: float = 0.01):
-        super().__init__(name, encoder, decoder)
+        MovementPrimitive.__init__(self, name, encoder, decoder)
+        Logger.__init__(self, log_dir=save_path, logging_enabled=log_to_tensorboard)
 
         # Check if the encoder and decoder are instances/subclasses of EncoderDeepProMP and DecoderDeepProMP
         if not issubclass(type(encoder), EncoderDeepProMP):
@@ -143,7 +146,7 @@ class DeepProMP(MovementPrimitive):
                 mse_tot += mse.detach().numpy()
                 kl_tot += kl.detach().numpy()
                 loss_tot += loss.detach().numpy()
-
+            self.log_metrics(i, {'mse': mse_tot / len(training_set), 'kl': kl_tot / len(training_set), 'loss': loss_tot / len(training_set)})
             kl_traj.append(kl_tot / len(training_set))
             mse_traj.append(mse_tot / len(training_set))
             elbo_loss_traj.append(loss_tot / len(training_set))
