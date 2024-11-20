@@ -5,7 +5,7 @@ class DataPoint():
     beta: float
     ld: int
     af: str
-    validation: list[float]
+    validation: list[float] # validations of all seeds
 
     def __init__(self, lr, beta, ld, af, validation) -> None:
         self.lr = lr
