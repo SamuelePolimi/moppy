@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 
 from moppy.trajectory import Trajectory
 from moppy.trajectory.state import SinusState
+from moppy.deep_promp import DeepProMP
 
 
 def set_seed(seed) -> None:
@@ -123,3 +124,58 @@ def generate_sin_trajectory_set_labeled(n: int,
         traj = generate_sin_trajectory(amplitude, frequency)
         ret.append({'traj': traj, 'amplitude': amplitude, 'frequency': frequency})
     return ret
+
+
+def plot_kl_annealing(
+        steps: int = 1_000,
+        n_cycles_values: List[int] = [4],
+        save_path: str = './kl_annealing_plot.png',
+        show_plot: bool = True):
+    """
+        Plots the KL annealing schedule for given number of steps and cycles.
+
+        Args:
+            steps (int): The total number of steps for the annealing schedule. Default is 1,000.
+            n_cycles_values (List[int]): A list of integers representing the number of cycles for the annealing schedule. Default is [4].
+            save_path (str): The file path where the plot will be saved. Default is './kl_annealing_plot.png'.
+            show_plot (bool): A flag to indicate whether to display the plot. Default is True.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If n_cycles_values is an empty list or if steps is less than 1.
+
+        Example:
+            Plot (save and show) the KL annealing schedule for 1,000 steps with 4, 16, and 64 cycles:
+            >>> plot_kl_annealing(steps=1000, n_cycles_values=[4, 16, 64])
+
+            Plot and save the KL annealing schedule for 1,000 steps with 4 cycles, without showing the plot:
+            >>> plot_kl_annealing(steps=1000, n_cycles_values=4, save_path='./kl_annealing_plot.png', show_plot=False)
+    """
+    if isinstance(n_cycles_values, int):
+        n_cycles_values = [n_cycles_values]
+
+    if len(n_cycles_values) == 0:
+        raise ValueError('At least one value for n_cycles_values is required.')
+    if steps < 1:
+        raise ValueError('steps must be greater than 0.')
+
+    fig, axs = plt.subplots(len(n_cycles_values), 1, figsize=(10, int(2 * len(n_cycles_values))))
+
+    if len(n_cycles_values) == 1:
+        # If only one value is given, the axs is not a list but a single axis
+        axs = [axs]
+
+    for ax, n_cycles in zip(axs, n_cycles_values):
+        x = np.linspace(1, steps, steps)
+        y = np.array([DeepProMP.kl_annealing_scheduler(t, n_cycles=n_cycles, max_epoch=steps) for t in x])
+        ax.plot(x, y, label=f'n_cycles={n_cycles}')
+        ax.legend(loc='lower right')  # Set the legend location to the lower right corner so its uniform for all plots
+
+    plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+    # Save the plot with high resolution
+    plt.savefig(save_path, dpi=300)
+    if show_plot:
+        plt.show()
