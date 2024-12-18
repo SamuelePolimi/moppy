@@ -12,8 +12,8 @@ class JointConfiguration(TrajectoryState):
                  gripper_open: torch.Tensor | float,
                  time: torch.Tensor | float) -> None:
         super().__init__()
-        if gripper_open > 1 or gripper_open < 0:
-            raise ValueError("gripper_open should be either 0 or 1.")
+        if gripper_open > 1 or gripper_open < -1:
+            raise ValueError("gripper_open should be either -1 or 1.")
 
         # make sure that all vars are torch tensors
         # because we want to use them in a neural network

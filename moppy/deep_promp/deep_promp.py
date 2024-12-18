@@ -26,7 +26,8 @@ class DeepProMP(MovementPrimitive, Logger):
                  log_to_tensorboard: bool = False,
                  learning_rate: float = 0.005,
                  epochs: int = 100,
-                 beta: float = 0.01):
+                 beta: float = 0.01,
+                 n_cycles: int = 8) -> None:
         MovementPrimitive.__init__(self, name, encoder, decoder)
         Logger.__init__(self, log_dir=save_path, logging_enabled=log_to_tensorboard)
 
@@ -53,6 +54,7 @@ class DeepProMP(MovementPrimitive, Logger):
         self.learning_rate = learning_rate
         self.epochs = epochs
         self.beta = beta
+        self.n_cycles = n_cycles
 
         # Initialize the losses lists
         self.train_loss = []  # Training loss => ELBO
@@ -94,7 +96,8 @@ class DeepProMP(MovementPrimitive, Logger):
               kl_annealing=True,
               beta: float = None,
               learning_rate: float = None,
-              epochs: int = None) -> None:
+              epochs: int = None,
+              n_cycles: int = None) -> None:
         """Train the DeepProMP using the given trajectories. The training is done using the Evidence Lower Bound (ELBO).
         The ELBO is the loss function used to train the DeepProMP. The training is done using the Adam optimizer."""
         if beta is not None:
@@ -103,6 +106,8 @@ class DeepProMP(MovementPrimitive, Logger):
             self.learning_rate = learning_rate
         if epochs is not None:
             self.epochs = epochs
+        if n_cycles is not None:
+            self.n_cycles = n_cycles
 
         training_start_time = time.time()
         print("Start DeepProMP training ...")
@@ -136,7 +141,7 @@ class DeepProMP(MovementPrimitive, Logger):
                 decoded = self.decoder(latent_var_z, times)
                 if kl_annealing:
                     # note that I added a * self.beta here so the maximum can be lowered.
-                    beta = DeepProMP.kl_annealing_scheduler(i+1, n_cycles=200, max_epoch=self.epochs, saturation_point=0.5) * self.beta
+                    beta = DeepProMP.kl_annealing_scheduler(i+1, n_cycles=self.n_cycles, max_epoch=self.epochs, saturation_point=0.5) * self.beta
                 else:
                     beta = self.beta
                 loss, mse, kl = DeepProMP.calculate_elbo(decoded.reshape(-1, 1), data.to_vector().reshape(-1, 1), mu, sigma, beta)
@@ -146,12 +151,14 @@ class DeepProMP(MovementPrimitive, Logger):
                 mse_tot += mse.detach().numpy()
                 kl_tot += kl.detach().numpy()
                 loss_tot += loss.detach().numpy()
-            self.log_metrics(i, {'mse': mse_tot / len(training_set), 'kl': kl_tot / len(training_set), 'loss': loss_tot / len(training_set)})
+            self.log_metrics(i, {'mse loss': mse_tot / len(training_set), 'kl loss': kl_tot / len(training_set), 'elbo loss': loss_tot / len(training_set)})
+
             kl_traj.append(kl_tot / len(training_set))
             mse_traj.append(mse_tot / len(training_set))
             elbo_loss_traj.append(loss_tot / len(training_set))
             # validation
             validation_loss = self.validate(validation_set)
+            self.log_metrics(i, {'validation loss': validation_loss})
             losses_validation.append(validation_loss)
             duration = time.time() - start_time
             num_digits_epochs = len(str(abs(self.epochs)))  # Number of digits of the epochs to format the output
