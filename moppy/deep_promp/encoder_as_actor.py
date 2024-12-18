@@ -93,6 +93,44 @@ class RobosuiteDemoStartingPosition:
             cubeA_to_cubeB=array[52:55]
         )
 
+    @classmethod
+    def from_dict(cls, dict):
+        """
+        Creates an instance of the class from a given dictionary.
+        Args:
+            dict (dict): Input dictionary containing the values to initialize the class attributes.
+            The dictionary must have keys corresponding to the class attributes.
+        Returns:
+            An instance of the class with attributes initialized from the input dictionary.
+        Raises:
+            AssertionError: If the input dictionary is None or does not contain the required keys.
+        """
+        assert dict is not None, "Input dictionary cannot be None"
+        required_keys = [
+            'robot0_joint_pos_cos', 'robot0_joint_pos_sin', 'robot0_joint_vel', 'robot0_eef_pos',
+            'robot0_eef_quat', 'robot0_gripper_qpos', 'robot0_gripper_qvel', 'cubeA_pos', 'cubeA_quat',
+            'cubeB_pos', 'cubeB_quat', 'gripper_to_cubeA', 'gripper_to_cubeB', 'cubeA_to_cubeB'
+        ]
+        for key in required_keys:
+            assert key in dict, f"Missing key '{key}' in input dictionary"
+
+        return cls(
+            robot0_joint_pos_cos=dict['robot0_joint_pos_cos'],
+            robot0_joint_pos_sin=dict['robot0_joint_pos_sin'],
+            robot0_joint_vel=dict['robot0_joint_vel'],
+            robot0_eef_pos=dict['robot0_eef_pos'],
+            robot0_eef_quat=dict['robot0_eef_quat'],
+            robot0_gripper_qpos=dict['robot0_gripper_qpos'],
+            robot0_gripper_qvel=dict['robot0_gripper_qvel'],
+            cubeA_pos=dict['cubeA_pos'],
+            cubeA_quat=dict['cubeA_quat'],
+            cubeB_pos=dict['cubeB_pos'],
+            cubeB_quat=dict['cubeB_quat'],
+            gripper_to_cubeA=dict['gripper_to_cubeA'],
+            gripper_to_cubeB=dict['gripper_to_cubeB'],
+            cubeA_to_cubeB=dict['cubeA_to_cubeB']
+        )
+
     def get_object_state_as_flatten_torch(self):
         """
         Returns the state of the objects as a flattened PyTorch tensor.
