@@ -53,6 +53,7 @@ class Trajectory(Generic[T]):
             return torch.tensor([])
 
         return torch.stack([state.to_vector_without_time() for state in self.trajectory])
+
     @classmethod
     def load_points_from_file(cls, file_path: str, trajectory_state_class: Type[T]):
         """Load the trajectory points from a file. The file should be a torch file.

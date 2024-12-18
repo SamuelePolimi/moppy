@@ -8,7 +8,7 @@ import time
 
 from matplotlib import pyplot as plt
 
-from deep_promp.decoder_deep_pro_mp import DecoderDeepProMP
+from .decoder_deep_pro_mp import DecoderDeepProMP
 
 from .encoder_as_actor import EncoderAsActor, RobosuiteDemoStartingPosition
 from moppy.trajectory import Trajectory
@@ -83,11 +83,11 @@ class TrainEncoderAsActor(Logger):
                 obs, traj = data
                 optimizer.zero_grad()  # Zero the gradients of the optimizer to avoid accumulation
                 latent_var_z = self.encoder(obs)
-
                 times = torch.tensor(traj.get_times()).reshape(-1, 1)
-                decoded = self.decoder(latent_var_z, times)
+                latent_var_z_list = latent_var_z.expand(len(times), -1)
+                decoded = self.decoder(latent_var_z_list, times)
 
-                mse_loss = nn.MSELoss()(decoded.reshape(-1, 1), traj.to_vector())
+                mse_loss = nn.MSELoss()(decoded.reshape(-1, 1), traj.to_vector().reshape(-1, 1))
 
                 mse_loss.backward()
                 optimizer.step()
