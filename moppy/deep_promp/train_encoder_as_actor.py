@@ -42,6 +42,7 @@ class TrainEncoderAsActor(Logger):
                              f"and decoder latent variable dimension '{decoder.latent_variable_dimension}'")
         self.latent_variable_dimension = encoder.latent_variable_dimension
 
+        self.name = name
         self.encoder = encoder
         self.decoder = decoder
         self.save_path = save_path
@@ -52,6 +53,7 @@ class TrainEncoderAsActor(Logger):
 
         # Initialize the losses lists
         self.mse_train_loss = []  # Mean Squared Error
+        self.loss_validation = []  # Validation loss
 
     def train(self,
               trajectories: List[Tuple[RobosuiteDemoStartingPosition, Trajectory]],
@@ -104,7 +106,7 @@ class TrainEncoderAsActor(Logger):
             print(f"Epoch {i+1:{num_digits_epochs}}/{self.epochs} "
                   f"({duration:.2f}s): "
                   f"validation loss = {validation_loss.item():12.10f}, "
-                  f"mse = {mse_traj[-1].item():12.10f}, ")
+                  f"mse = {mse_traj[-1].item():12.10f}")
 
         print(f"Training finished (Time = {(time.time() - training_start_time):.2f}s).")
 
@@ -149,7 +151,8 @@ class TrainEncoderAsActor(Logger):
         if not os.path.exists(save_path):
             os.makedirs(save_path)
 
-        values_to_plot_with_filenames = [(self.mse_train_loss, 'mse_loss.pth')]
+        values_to_plot_with_filenames = [(self.mse_train_loss, 'mse_loss.pth'),
+                                         (self.loss_validation, 'validation_loss.pth')]
 
         for values, file_name in values_to_plot_with_filenames:
             file_path = os.path.join(save_path, file_name)
@@ -159,15 +162,18 @@ class TrainEncoderAsActor(Logger):
         """Save the plots of the losses to the given path. If no path is given, the default save_path is used."""
         save_path = save_path if save_path is not None else self.save_path  # Use the given path or the default one
         self.plot_values(values=[self.mse_train_loss], path=save_path, file_name='ms_loss.png', plot_title="ms loss")
+        self.plot_values(values=[self.loss_validation], path=save_path, file_name='loss_validation.png', plot_title="loss validation")
 
-        # Plot all the losses in one plot, for better comparison and overview
+        # Plot the validation loss and mse loss in one plot, for better comparison and overview
         plt.close()
-        plt.plot(self.mse_train_loss)
-        plt.title('MSE Loss')
-        plt.xlabel('Epoch')
-        plt.ylabel('Loss')
-        plt.grid(True)
-        plt.savefig(os.path.join(save_path, 'mse_loss.png'))
+        fig, axs = plt.subplots(1, 2, figsize=(10, 4))
+        fig.suptitle('Losses')
+        plt.subplots_adjust(hspace=0.5, wspace=0.3)
+        axs[0].plot(self.loss_validation)
+        axs[0].set_title('Validation Loss')
+        axs[1].plot(self.mse_train_loss)
+        axs[1].set_title('MSE Loss')
+        plt.savefig(os.path.join(self.save_path, 'validation_and_mse_losses.png'))
 
     def plot_values(self,
                     values: List[List],

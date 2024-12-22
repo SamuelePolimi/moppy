@@ -216,7 +216,7 @@ class RobosuiteDemoStartingPosition:
 
         object_state = self.get_object_state_as_flatten_torch()
         robot0_proprio_state = self.get_robot0_proprio_state_as_flatten_torch()
-        return torch.cat((object_state, robot0_proprio_state))
+        return torch.cat((robot0_proprio_state, object_state))
 
     def __str__(self):
         ret = "RobosuiteDemoStartingPosition {\n"
@@ -330,7 +330,7 @@ class EncoderAsActor(nn.Module):
 
     def save_model(self, path: str = '', filename: str = "encoder_as_actor_model.pth"):
         file_path = os.path.join(path, filename)
-        torch.save(self.net.state_dict(), file_path)
+        torch.save(self.net, file_path)
 
     def load_model(self, path: str = '', filename: str = "encoder_as_actor_model.pth"):
         file_path = os.path.join(path, filename)
