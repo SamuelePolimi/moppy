@@ -82,18 +82,14 @@ class TrainEncoderAsActor(Logger):
             start_time = time.time()
             mse_tot = 0
             for tr_i, data in enumerate(training_set):
-                obs, traj = data
+                obs, z = data
                 optimizer.zero_grad()  # Zero the gradients of the optimizer to avoid accumulation
                 latent_var_z = self.encoder(obs)
-                times = torch.tensor(traj.get_times()).reshape(-1, 1)
-                latent_var_z_list = latent_var_z.expand(len(times), -1)
-                decoded = self.decoder(latent_var_z_list, times)
-
-                mse_loss = nn.MSELoss()(decoded.reshape(-1, 1), traj.to_vector().reshape(-1, 1))
-
+                mse_loss = nn.MSELoss()(latent_var_z, z)
                 mse_loss.backward()
                 optimizer.step()
                 mse_tot += mse_loss.detach().numpy()
+
             self.log_metrics(i, {'mse loss': mse_tot / len(training_set)})
 
             mse_traj.append(mse_tot / len(training_set))
@@ -127,14 +123,9 @@ class TrainEncoderAsActor(Logger):
     def validate(self, trajectories: List[Tuple[RobosuiteDemoStartingPosition, Trajectory]]):
         loss = 0
         for data in trajectories:
-            obs, traj = data
+            obs, z = data
             latent_var_z = self.encoder(obs)
-            decoded = []
-            for j in traj.get_points():
-                decoded.append(self.decoder(latent_var_z, j.get_time()))
-            decoded = torch.cat(decoded)
-
-            loss += nn.MSELoss()(decoded, traj.to_vector()).detach().numpy()
+            loss += nn.MSELoss()(latent_var_z, z).detach().numpy()
         return loss / len(trajectories)  # Average loss
 
     def save_models(self, save_path: str = None):
