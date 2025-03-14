@@ -184,6 +184,8 @@ class DeepProMP(MovementPrimitive, Logger):
         self.save_models()
         print("finished.")
 
+        return self.loss_validation
+
     def test(self):
         raise NotImplementedError()
 

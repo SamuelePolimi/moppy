@@ -270,7 +270,7 @@ class EncoderAsActor(nn.Module):
         self.input_dimension = RobosuiteDemoStartingPosition.input_dimension
 
         # create the neurons list, which is the list of the number of neurons in each layer of the network
-        self.neurons = [self.input_dimension] + hidden_neurons + [latent_variable_dimension]
+        self.neurons = [self.input_dimension] + hidden_neurons + [latent_variable_dimension * 2]
 
         # Check if the neurons list is empty or has fewer than 2 elements
         if not self.neurons or len(self.neurons) < 2:
@@ -352,6 +352,23 @@ class EncoderAsActor(nn.Module):
                 nn.init.zeros_(m.bias)
                 nn.init.constant_(m.bias, 0.05)
 
+    @staticmethod
+    def sample_latent_variable(mu: torch.Tensor,
+                               sigma: torch.Tensor,
+                               percentage_of_standard_deviation=None) -> torch.Tensor:
+        # This is the complete procedure of sampling a latent variable z from a normal distribution
+        # specified by mu and sigma.
+
+        # 1. Calculate the standard deviation of the normal distribution.
+        # if percentage_of_standard_deviation is not None:
+        #    sigma = sigma * percentage_of_standard_deviation
+
+        # 2. Sample each element of z from a normal distribution specified by mu and sigma.
+        # TODO: matyas: implement the "percentage_of_standard_deviation" feature
+        z_sampled = torch.normal(torch.zeros_like(mu), torch.ones_like(sigma))
+        z_sampled = z_sampled * sigma + mu
+        return z_sampled
+
     def encode_to_latent_variable(self, input: RobosuiteDemoStartingPosition | List | Tensor) -> Tensor:
         """
         Encodes the input into a latent variable tensor.
@@ -367,7 +384,7 @@ class EncoderAsActor(nn.Module):
         """"""
         input_tensor = None
         if isinstance(input, list):
-            input_tensor = torch.tensor(input, dtype=torch.float32)
+            input_tensor = torch.tensor(input, dtype=torch.floa64)
         elif isinstance(input, RobosuiteDemoStartingPosition):
             input_tensor = input.get_as_flatten_torch()
         elif isinstance(input, Tensor):

@@ -9,6 +9,7 @@ import time
 from matplotlib import pyplot as plt
 
 from .decoder_deep_pro_mp import DecoderDeepProMP
+from .deep_promp import DeepProMP, EncoderDeepProMP
 
 from .encoder_as_actor import EncoderAsActor, RobosuiteDemoStartingPosition
 from moppy.trajectory import Trajectory
@@ -34,7 +35,7 @@ class TrainEncoderAsActor(Logger):
         if not issubclass(type(decoder), DecoderDeepProMP):
             raise TypeError(f"The decoder must be an instance of '{DecoderDeepProMP.__name__}' or a subclass. Got '{type(decoder)}'."
                             f"\nThe usable classes are {[DecoderDeepProMP] + DecoderDeepProMP.__subclasses__()}")
-
+        self.encoder_for_bayesian = EncoderDeepProMP(10, [10])
         # Check if the encoder and decoder are compatible
         if encoder.latent_variable_dimension != decoder.latent_variable_dimension:
             raise ValueError("The encoder and decoder must have the same latent variable dimension. "
@@ -77,18 +78,30 @@ class TrainEncoderAsActor(Logger):
         optimizer = optim.Adam(params=self.encoder.net.parameters(), lr=self.learning_rate)
         mse_traj = []
         losses_validation = []
-
+        validation_loss = self.validate(validation_set)
+        self.log_metrics(-1, {'validation loss': validation_loss})
+        losses_validation.append(validation_loss)
         for i in range(self.epochs):
             start_time = time.time()
             mse_tot = 0
             for tr_i, data in enumerate(training_set):
-                obs, z = data
                 optimizer.zero_grad()  # Zero the gradients of the optimizer to avoid accumulation
+                obs, z = data
+                z = torch.tensor(z, dtype=torch.float32)
                 latent_var_z = self.encoder(obs)
-                mse_loss = nn.MSELoss()(latent_var_z, z)
-                mse_loss.backward()
+                mu = latent_var_z[:self.latent_variable_dimension].float()
+                sigma = latent_var_z[self.latent_variable_dimension:].float()
+
+                sampled_latent_var_z = EncoderAsActor.sample_latent_variable(mu=mu, sigma=sigma)
+                mu_points = torch.zeros((1, self.latent_variable_dimension), dtype=torch.float64)
+                sigma_points = torch.zeros((1, self.latent_variable_dimension), dtype=torch.float64)
+                mu_points[0] = mu
+                sigma_points[0] = sigma
+                mu, sigma = self.encoder_for_bayesian.bayesian_aggregation(mu_points=mu_points, sigma_points=sigma_points)
+                loss, mse, kl = DeepProMP.calculate_elbo(y_pred=sampled_latent_var_z, y_star=z, mu=mu, sigma=sigma, beta=0.01)
+                loss.backward()
                 optimizer.step()
-                mse_tot += mse_loss.detach().numpy()
+                mse_tot += loss.detach().numpy()
 
             self.log_metrics(i, {'mse loss': mse_tot / len(training_set)})
 
@@ -121,12 +134,21 @@ class TrainEncoderAsActor(Logger):
         raise NotImplementedError()
 
     def validate(self, trajectories: List[Tuple[RobosuiteDemoStartingPosition, Trajectory]]):
-        loss = 0
+        mse_tot = 0
         for data in trajectories:
             obs, z = data
-            latent_var_z = self.encoder(obs)
-            loss += nn.MSELoss()(latent_var_z, z).detach().numpy()
-        return loss / len(trajectories)  # Average loss
+            latent_var_z = self.encoder(obs).double()
+            mu = latent_var_z[:self.latent_variable_dimension]
+            sigma = latent_var_z[self.latent_variable_dimension:]
+            mu_points = torch.zeros((1, self.latent_variable_dimension), dtype=torch.float64)
+            sigma_points = torch.zeros((1, self.latent_variable_dimension), dtype=torch.float64)
+            mu_points[0] = mu
+            sigma_points[0] = sigma
+            mu, sigma = self.encoder_for_bayesian.bayesian_aggregation(mu_points=mu_points, sigma_points=sigma_points)
+            sampled_latent_var_z = EncoderAsActor.sample_latent_variable(mu, sigma)
+            loss, mse, kl = DeepProMP.calculate_elbo(y_pred=sampled_latent_var_z, y_star=z, mu=mu, sigma=sigma, beta=0.00)
+            mse_tot += loss.detach().numpy()
+        return mse_tot / len(trajectories)  # Average loss
 
     def save_models(self, save_path: str = None):
         """Save the encoder and decoder models to the given path. If no path is given, the default save_path is used."""
