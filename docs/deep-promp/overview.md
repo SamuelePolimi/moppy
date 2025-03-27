@@ -7,8 +7,7 @@ last_updated: 2024-11-02
 **Probabilistic Movement Primitives** (ProMPs) offer a powerful framework for robot
 skill learning by representing movements as distributions of trajectories.
 
-In this this part of the library we use **neural network** to create Probabilistic Movement Primitives, thus the name Deep Pro MPs.
-
+In this part of the library we use **neural network** to create Probabilistic Movement Primitives, thus the name Deep Pro MPs.
 ## Structure
 
 <!--- pyreverse -o png --colorized -k moppy -->
