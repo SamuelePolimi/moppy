@@ -13,4 +13,4 @@ In this part of the library we use **neural network** to create Probabilistic Mo
 <!--- pyreverse -o png --colorized -k moppy -->
 ![Uml structure of the library](/assets/img/deep-promp/classes.png)
 
-The main part is the class **DeepProMP** it implements the core training algorithmus. It used a DecoderDeepProPM and a EncoderDeepProMP.
+The main part is the class **DeepProMP** it implements the core training algorithm. It used a DecoderDeepProMP and a EncoderDeepProMP.
