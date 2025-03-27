@@ -43,3 +43,19 @@ pip install -e .
 - All the tests can be found in the [tests](/tests/) folder.
 - There exists a ci for testings.
 - For mor information on testing in moppy follow [README.md](/tests/README.md).
+
+
+### Local development docs
+
+Install necessary packages:
+
+```bash
+pip install mkdocs
+pip install mkdocs-material
+```
+
+Start local server:
+
+```bash
+mkdocs serve
+```
