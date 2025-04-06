@@ -1,0 +1,2233 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Matthias Ebner">
+      
+      
+      
+        <link rel="prev" href="../usage/">
+      
+      
+        <link rel="next" href="../util/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.11">
+    
+    
+      
+        <title>Classes - MoPPy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.4af4bdda.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/css/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#deeppromp" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="MoPPy" class="md-header__button md-logo" aria-label="MoPPy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            MoPPy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Classes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+          <a href="javascript:void(0)" class="md-search__icon md-icon" title="Share" aria-label="Share" data-clipboard data-clipboard-text="" data-md-component="search-share" tabindex="-1">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.15c-.05.21-.08.43-.08.66 0 1.61 1.31 2.91 2.92 2.91s2.92-1.3 2.92-2.91A2.92 2.92 0 0 0 18 16.08"/></svg>
+          </a>
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/SamuelePolimi/moppy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    SamuelePolimi/moppy
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../overview/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  DeepProMP
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../interfaces/movement_primitive/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Interfaces
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../about/license/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  About
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="MoPPy" class="md-nav__button md-logo" aria-label="MoPPy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    MoPPy
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/SamuelePolimi/moppy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    SamuelePolimi/moppy
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    DeepProMP
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            DeepProMP
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Overview
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Classes
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Classes
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#deeppromp" class="md-nav__link">
+    <span class="md-ellipsis">
+      DeepProMP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DeepProMP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kl_annealing_scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      kl_annealing_scheduler()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gauss_kl" class="md-nav__link">
+    <span class="md-ellipsis">
+      gauss_kl()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_elbo" class="md-nav__link">
+    <span class="md-ellipsis">
+      calculate_elbo()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#train" class="md-nav__link">
+    <span class="md-ellipsis">
+      train()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      validate()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_models" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_models()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_losses" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_losses()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot_values" class="md-nav__link">
+    <span class="md-ellipsis">
+      plot_values()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decoderdeeppromp" class="md-nav__link">
+    <span class="md-ellipsis">
+      DecoderDeepProMP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DecoderDeepProMP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load_from_save_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      load_from_save_file()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_layers()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#__init_weights" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init_weights()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decode_from_latent_variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      decode_from_latent_variable()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_decoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_decoder()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_model()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      load_model()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      forward()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encoderdeeppromp" class="md-nav__link">
+    <span class="md-ellipsis">
+      EncoderDeepProMP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EncoderDeepProMP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load_from_save_file_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      load_from_save_file()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_layers_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_layers()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#__init_weights_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init_weights()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encode_to_latent_variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      encode_to_latent_variable()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample_latent_variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      sample_latent_variable()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample_latent_variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      sample_latent_variables()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bayesian_aggregation" class="md-nav__link">
+    <span class="md-ellipsis">
+      bayesian_aggregation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_encoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_encoder()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_model_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_model()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load_model_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      load_model()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forward_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      forward()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../util/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Util
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Interfaces
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Interfaces
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../interfaces/movement_primitive/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    MovementPrimitive
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../interfaces/latent_decoder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LatentDecoder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../interfaces/latent_encoder/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    LatentEncoder
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    About
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            About
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/license/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Licence
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/contact/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contact
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#deeppromp" class="md-nav__link">
+    <span class="md-ellipsis">
+      DeepProMP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DeepProMP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#kl_annealing_scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      kl_annealing_scheduler()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gauss_kl" class="md-nav__link">
+    <span class="md-ellipsis">
+      gauss_kl()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculate_elbo" class="md-nav__link">
+    <span class="md-ellipsis">
+      calculate_elbo()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#train" class="md-nav__link">
+    <span class="md-ellipsis">
+      train()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#validate" class="md-nav__link">
+    <span class="md-ellipsis">
+      validate()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_models" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_models()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_losses" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_losses()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plot_values" class="md-nav__link">
+    <span class="md-ellipsis">
+      plot_values()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decoderdeeppromp" class="md-nav__link">
+    <span class="md-ellipsis">
+      DecoderDeepProMP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DecoderDeepProMP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load_from_save_file" class="md-nav__link">
+    <span class="md-ellipsis">
+      load_from_save_file()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_layers" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_layers()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#__init_weights" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init_weights()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#decode_from_latent_variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      decode_from_latent_variable()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_decoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_decoder()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_model()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load_model" class="md-nav__link">
+    <span class="md-ellipsis">
+      load_model()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forward" class="md-nav__link">
+    <span class="md-ellipsis">
+      forward()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encoderdeeppromp" class="md-nav__link">
+    <span class="md-ellipsis">
+      EncoderDeepProMP
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EncoderDeepProMP">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parameters_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#load_from_save_file_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      load_from_save_file()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create_layers_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_layers()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#__init_weights_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      __init_weights()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#encode_to_latent_variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      encode_to_latent_variable()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample_latent_variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      sample_latent_variable()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sample_latent_variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      sample_latent_variables()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bayesian_aggregation" class="md-nav__link">
+    <span class="md-ellipsis">
+      bayesian_aggregation()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_encoder" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_encoder()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#save_model_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      save_model()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load_model_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      load_model()
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forward_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      forward()
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/SamuelePolimi/moppy/docs/deep-promp/classes.md" title="Edit this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+    
+      
+    
+    <a href="https://github.com/SamuelePolimi/moppy/docs/deep-promp/classes.md" title="View source of this page" class="md-content__button md-icon">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M17 18c.56 0 1 .44 1 1s-.44 1-1 1-1-.44-1-1 .44-1 1-1m0-3c-2.73 0-5.06 1.66-6 4 .94 2.34 3.27 4 6 4s5.06-1.66 6-4c-.94-2.34-3.27-4-6-4m0 6.5a2.5 2.5 0 0 1-2.5-2.5 2.5 2.5 0 0 1 2.5-2.5 2.5 2.5 0 0 1 2.5 2.5 2.5 2.5 0 0 1-2.5 2.5M9.27 20H6V4h7v5h5v4.07c.7.08 1.36.25 2 .49V8l-6-6H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h4.5a8.2 8.2 0 0 1-1.23-2"/></svg>
+    </a>
+  
+
+
+  <h1>Classes</h1>
+
+<h2 id="deeppromp">DeepProMP<a class="headerlink" href="#deeppromp" title="Permanent link">&para;</a></h2>
+<p><code>moppy.deep_promp.deep_promp.DeepProMP(name: str, encoder: EncoderDeepProMP, decoder: DecoderDeepProMP, save_path: str = './deep_promp/output/', log_to_tensorboard: bool = False, learning_rate: float = 0.005, epochs: int = 100, beta: float = 0.01)</code></p>
+<p>Bases: <a href="/interfaces/movement_primitive"><code>moppy.interfaces.movement_primitive.MovementPrimitive</code></a></p>
+<h3 id="parameters">Parameters<a class="headerlink" href="#parameters" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>name</strong> (<code>str</code>): Name of the model.</li>
+<li><strong>encoder</strong> (<code>EncoderDeepProMP</code>): Encoder component for DeepProMP.</li>
+<li><strong>decoder</strong> (<code>DecoderDeepProMP</code>): Decoder component for DeepProMP.</li>
+<li><strong>save_path</strong> (<code>str</code>, optional): Path to save the output files. Defaults to <code>./deep_promp/output/</code>.</li>
+<li><strong>log_to_tensorboard</strong> (<code>bool</code>, optional): Whether to log training to TensorBoard. Defaults to <code>False</code>.</li>
+<li><strong>learning_rate</strong> (<code>float</code>, optional): Learning rate for the optimizer. Defaults to <code>0.005</code>.</li>
+<li><strong>epochs</strong> (<code>int</code>, optional): Number of epochs for training. Defaults to <code>100</code>.</li>
+<li><strong>beta</strong> (<code>float</code>, optional): Regularization parameter for the model. Defaults to <code>0.01</code>.</li>
+</ul>
+<hr />
+<h3 id="functions">Functions<a class="headerlink" href="#functions" title="Permanent link">&para;</a></h3>
+<h4 id="kl_annealing_scheduler"><span class="highlight-text">kl_annealing_scheduler()</span><a class="headerlink" href="#kl_annealing_scheduler" title="Permanent link">&para;</a></h4>
+<p>The <code>kl_annealing_scheduler</code> is a static method used to adjust the Kullback-Leibler (KL) divergence term during training, commonly used in variational models. This annealing process helps in gradually increasing the weight of the KL divergence term, preventing the model from relying too heavily on the prior too early during training. The scheduler operates over multiple cycles and gradually saturates based on the provided <code>saturation_point</code>.</p>
+<h4>Method Signature</h4>
+
+<p><code>kl_annealing_scheduler(current_epoch: int, n_cycles: int = 4, max_epoch: int = 1000, saturation_point: float = 0.5)</code></p>
+<h4>Parameters</h4>
+
+<ul>
+<li><strong>current_epoch</strong> (<code>int</code>): The current epoch during training.</li>
+<li><strong>n_cycles</strong> (<code>int</code>, optional): Number of cycles to repeat the annealing process. Defaults to <code>4</code>.</li>
+<li><strong>max_epoch</strong> (<code>int</code>, optional): Maximum number of training epochs. Defaults to <code>1000</code>.</li>
+<li><strong>saturation_point</strong> (<code>float</code>, optional): The point at which the annealing process saturates (i.e., reaches its maximum). Defaults to <code>0.5</code>.</li>
+</ul>
+<h4>Returns</h4>
+
+<ul>
+<li><strong>tau</strong> (<code>float</code>): A value between <code>0</code> and <code>1</code>, representing the current weight of the KL divergence term.</li>
+</ul>
+<h4>Example</h4>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Using the KL annealing scheduler in training</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">kl_weight</span> <span class="o">=</span> <span class="n">DeepProMP</span><span class="o">.</span><span class="n">kl_annealing_scheduler</span><span class="p">(</span><span class="n">current_epoch</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h4 id="gauss_kl"><span class="highlight-text">gauss_kl()</span><a class="headerlink" href="#gauss_kl" title="Permanent link">&para;</a></h4>
+<p>The <code>gauss_kl</code> method calculates the Kullback-Leibler (KL) divergence between a given Gaussian distribution (with parameters <code>mu_q</code> and <code>std_q</code>) and a standard Gaussian distribution. This divergence is a measure of how one probability distribution diverges from a second, reference distribution (in this case, the standard Gaussian). It's a key component of variational inference models.</p>
+<h4>Method Signature</h4>
+
+<p><code>gauss_kl(mu_q: torch.Tensor, std_q: torch.Tensor) -&gt; torch.Tensor</code></p>
+<h4>Parameters</h4>
+
+<ul>
+<li><strong>mu_q</strong> (<code>torch.Tensor</code>): The mean of the approximate posterior distribution.</li>
+<li><strong>std_q</strong> (<code>torch.Tensor</code>): The standard deviation of the approximate posterior distribution.</li>
+</ul>
+<h4>Returns</h4>
+
+<ul>
+<li><strong>kl_divergence</strong> (<code>torch.Tensor</code>): The mean KL divergence between the approximate posterior and the standard Gaussian distribution.</li>
+</ul>
+<h4>Example</h4>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Calculate KL divergence for a Gaussian distribution with given mean and std deviation</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">kl_div</span> <span class="o">=</span> <span class="n">DeepProMP</span><span class="o">.</span><span class="n">gauss_kl</span><span class="p">(</span><span class="n">mu_q</span><span class="o">=</span><span class="n">mu_tensor</span><span class="p">,</span> <span class="n">std_q</span><span class="o">=</span><span class="n">std_tensor</span><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h4 id="calculate_elbo"><span class="highlight-text">calculate_elbo()</span><a class="headerlink" href="#calculate_elbo" title="Permanent link">&para;</a></h4>
+<p>The <code>calculate_elbo</code> method computes the Evidence Lower Bound (ELBO), which is the objective function used to train variational models like DeepProMP. The ELBO consists of two main components: the reconstruction loss (typically Mean Squared Error) and the KL divergence, weighted by a factor <code>beta</code>. The goal of ELBO is to balance between fitting the data and keeping the posterior distribution close to the prior.</p>
+<h4>Method Signature</h4>
+
+<p><code>calculate_elbo(y_pred: torch.Tensor, y_star: torch.Tensor, mu: torch.Tensor, sigma: torch.Tensor, beta: float = 1.0) -&gt; Tuple[torch.Tensor, torch.Tensor, torch.Tensor]</code></p>
+<h4>Parameters</h4>
+
+<ul>
+<li><strong>y_pred</strong> (<code>torch.Tensor</code>): The predicted output from the model.</li>
+<li><strong>y_star</strong> (<code>torch.Tensor</code>): The ground truth target values.</li>
+<li><strong>mu</strong> (<code>torch.Tensor</code>): The mean of the approximate posterior distribution.</li>
+<li><strong>sigma</strong> (<code>torch.Tensor</code>): The standard deviation of the approximate posterior distribution.</li>
+<li><strong>beta</strong> (<code>float</code>, optional): The weight applied to the KL divergence term in the ELBO. Defaults to <code>1.0</code>.</li>
+</ul>
+<h4>Returns</h4>
+
+<ul>
+<li><strong>elbo</strong> (<code>torch.Tensor</code>): The total ELBO loss, combining the reconstruction loss and KL divergence.</li>
+<li><strong>mse</strong> (<code>torch.Tensor</code>): The Mean Squared Error reconstruction loss.</li>
+<li><strong>kl</strong> (<code>torch.Tensor</code>): The KL divergence between the approximate posterior and the prior.</li>
+</ul>
+<h4>Example</h4>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Calculate ELBO during training</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">elbo_loss</span><span class="p">,</span> <span class="n">mse_loss</span><span class="p">,</span> <span class="n">kl_div</span> <span class="o">=</span> <span class="n">DeepProMP</span><span class="o">.</span><span class="n">calculate_elbo</span><span class="p">(</span><span class="n">y_pred</span><span class="o">=</span><span class="n">pred</span><span class="p">,</span> <span class="n">y_star</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">mu</span><span class="o">=</span><span class="n">mu_tensor</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">std_tensor</span><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h4 id="train"><span class="highlight-text">train()</span><a class="headerlink" href="#train" title="Permanent link">&para;</a></h4>
+<p>The <code>train</code> method is responsible for training the <code>DeepProMP</code> model using the provided trajectories. The training process is guided by the Evidence Lower Bound (ELBO) as the loss function. It leverages the Adam optimizer for updating model parameters and supports KL annealing for better regularization during training. The method divides the data into training and validation sets, logs metrics, and saves the model and losses after training.</p>
+<h4>Method Signature</h4>
+
+<p><code>train(trajectories: List[Trajectory], kl_annealing: bool = True, beta: float = None, learning_rate: float = None, epochs: int = None) -&gt; None</code></p>
+<h4>Parameters</h4>
+
+<ul>
+<li><strong>trajectories</strong> (<code>List[Trajectory]</code>): A list of trajectory data used for training the model.</li>
+<li><strong>kl_annealing</strong> (<code>bool</code>, optional): If <code>True</code>, applies KL annealing during training. Defaults to <code>True</code>.</li>
+<li><strong>beta</strong> (<code>float</code>, optional): The regularization weight for the KL divergence term. If not specified, uses the default value in the class.</li>
+<li><strong>learning_rate</strong> (<code>float</code>, optional): The learning rate for the optimizer. If not specified, uses the default value in the class.</li>
+<li><strong>epochs</strong> (<code>int</code>, optional): The number of training epochs. If not specified, uses the default value in the class.</li>
+</ul>
+<h4>Returns</h4>
+
+<ul>
+<li><strong>None</strong></li>
+</ul>
+<h4>Description</h4>
+
+<p>The <code>train</code> method performs the following steps:</p>
+<ol>
+<li>Optionally adjusts the <code>beta</code>, <code>learning_rate</code>, and <code>epochs</code> values based on the provided arguments.</li>
+<li>Divides the input <code>trajectories</code> into training and validation sets.</li>
+<li>Initializes the Adam optimizer to update both the encoder and decoder parameters.</li>
+<li>For each epoch:<ul>
+<li>Loops over the training set, computes the ELBO loss (a combination of Mean Squared Error and KL divergence), and updates the model.</li>
+<li>If KL annealing is enabled, it applies a scheduling function to gradually increase the weight of the KL divergence term over training.</li>
+<li>Logs the metrics for each epoch.</li>
+<li>Validates the model on the validation set.</li>
+</ul>
+</li>
+<li>After training is completed:<ul>
+<li>Saves the training losses, validation losses, and models.</li>
+<li>Generates loss plots.</li>
+</ul>
+</li>
+</ol>
+<h4>Example</h4>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># Train the DeepProMP model with a list of trajectories</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">model</span> <span class="o">=</span> <span class="n">DeepProMP</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;example_model&quot;</span><span class="p">,</span> <span class="n">encoder</span><span class="o">=</span><span class="n">encoder</span><span class="p">,</span> <span class="n">decoder</span><span class="o">=</span><span class="n">decoder</span><span class="p">)</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">model</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">trajectories</span><span class="o">=</span><span class="n">trajectories_list</span><span class="p">,</span> <span class="n">kl_annealing</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">beta</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h4 id="validate"><span class="highlight-text">validate()</span><a class="headerlink" href="#validate" title="Permanent link">&para;</a></h4>
+<p>The <code>validate</code> method evaluates the performance of the trained <code>DeepProMP</code> model on a set of trajectories. It computes the Mean Squared Error (MSE) between the predicted (decoded) output and the actual trajectory data for each trajectory in the validation set. The average loss over all validation trajectories is returned as the validation loss.</p>
+<h4>Method Signature</h4>
+
+<p><code>validate(trajectories: List[Trajectory]) -&gt; float</code></p>
+<h4>Parameters</h4>
+
+<ul>
+<li><strong>trajectories</strong> (<code>List[Trajectory]</code>): A list of trajectory data used for validation.</li>
+</ul>
+<h4>Returns</h4>
+
+<ul>
+<li><strong>validation_loss</strong> (<code>float</code>): The average Mean Squared Error (MSE) loss over all validation trajectories.</li>
+</ul>
+<h4>Description</h4>
+
+<p>The <code>validate</code> method performs the following steps:</p>
+<ol>
+<li>For each trajectory in the validation set:<ul>
+<li>Passes the trajectory through the encoder to obtain the posterior distribution parameters (<code>mu</code> and <code>sigma</code>).</li>
+<li>Samples the latent variable <code>z</code> from the posterior.</li>
+<li>Decodes the latent variable at each time point to reconstruct the trajectory.</li>
+<li>Computes the Mean Squared Error (MSE) between the reconstructed trajectory and the ground truth trajectory.</li>
+</ul>
+</li>
+<li>Averages the MSE loss over all validation trajectories.</li>
+<li>Returns the average validation loss.</li>
+</ol>
+<h4>Example</h4>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Validate the DeepProMP model on a list of trajectories</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">validation_loss</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">trajectories</span><span class="o">=</span><span class="n">validation_trajectories_list</span><span class="p">)</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validation Loss: </span><span class="si">{</span><span class="n">validation_loss</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h4 id="save_models"><span class="highlight-text">save_models()</span><a class="headerlink" href="#save_models" title="Permanent link">&para;</a></h4>
+<p>The <code>save_models</code> method saves the encoder and decoder models to the specified path. If no path is provided, it uses the default save path.</p>
+<h4>Method Signature</h4>
+
+<p><code>save_models(save_path: str = None) -&gt; None</code></p>
+<h4>Parameters:</h4>
+
+<ul>
+<li><strong>save_path</strong> (<code>str</code>, optional): The path where the models should be saved. If <code>None</code>, the default <code>save_path</code> is used.</li>
+</ul>
+<h4>Example:</h4>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Save models to the default path</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">model</span><span class="o">.</span><span class="n">save_models</span><span class="p">()</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Save models to a custom path</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="n">model</span><span class="o">.</span><span class="n">save_models</span><span class="p">(</span><span class="n">save_path</span><span class="o">=</span><span class="s1">&#39;./custom_path/&#39;</span><span class="p">)</span>
+</span></code></pre></div>
+<h4 id="save_losses"><span class="highlight-text">save_losses()</span><a class="headerlink" href="#save_losses" title="Permanent link">&para;</a></h4>
+<p>The <code>save_losses</code> method saves the losses (training, validation, KL divergence, MSE) to the specified path. If no path is provided, it uses the default save path.</p>
+<h4>Method Signature</h4>
+
+<p><code>save_losses(save_path: str = None) -&gt; None</code></p>
+<h4>Parameters</h4>
+
+<ul>
+<li><strong>save_path</strong> (<code>str</code>, optional): The path where the losses should be saved. If <code>None</code>, the default <code>save_path</code> is used.</li>
+</ul>
+<h4>Description</h4>
+
+<p>This method saves the following loss values to disk:</p>
+<ul>
+<li>Validation loss (<code>validation_loss.pth</code>)</li>
+<li>KL divergence loss (<code>kl_loss.pth</code>)</li>
+<li>Mean Squared Error loss (<code>mse_loss.pth</code>)</li>
+<li>Training loss (<code>train_loss.pth</code>)</li>
+</ul>
+<p>For each type of loss, the method saves the values using the <code>torch.save()</code> function.</p>
+<h4>Example</h4>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Save losses to the default path</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">model</span><span class="o">.</span><span class="n">save_losses</span><span class="p">()</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Save losses to a custom path</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">model</span><span class="o">.</span><span class="n">save_losses</span><span class="p">(</span><span class="n">save_path</span><span class="o">=</span><span class="s1">&#39;./custom_path/&#39;</span><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h4 id="plot_values"><span class="highlight-text">plot_values()</span><a class="headerlink" href="#plot_values" title="Permanent link">&para;</a></h4>
+<p>The <code>plot_values</code> method plots the provided values and saves the plot to the specified path. If no path is provided, it uses the default save path.</p>
+<h4>Method Signature</h4>
+
+<p><code>plot_values(values: List[List], file_name: str, plot_title: str = "Plot", path: str = None) -&gt; None</code></p>
+<h4>Parameters</h4>
+
+<ul>
+<li><strong>values</strong> (<code>List[List]</code>): The values to be plotted. Each inner list represents a line in the plot.</li>
+<li><strong>file_name</strong> (<code>str</code>): The name of the file where the plot will be saved.</li>
+<li><strong>plot_title</strong> (<code>str</code>, optional): The title of the plot. Defaults to <code>"Plot"</code>.</li>
+<li><strong>path</strong> (<code>str</code>, optional): The path where the plot should be saved. If <code>None</code>, the default <code>save_path</code> is used.</li>
+</ul>
+<h4>Example</h4>
+
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Plot the values and save to the default path</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="n">model</span><span class="o">.</span><span class="n">plot_values</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="n">file_name</span><span class="o">=</span><span class="s1">&#39;example_plot.png&#39;</span><span class="p">,</span> <span class="n">plot_title</span><span class="o">=</span><span class="s2">&quot;Example Plot&quot;</span><span class="p">)</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Plot the values and save to a custom path</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">model</span><span class="o">.</span><span class="n">plot_values</span><span class="p">(</span><span class="n">values</span><span class="o">=</span><span class="p">[[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">]],</span> <span class="n">file_name</span><span class="o">=</span><span class="s1">&#39;example_plot.png&#39;</span><span class="p">,</span> <span class="n">plot_title</span><span class="o">=</span><span class="s2">&quot;Example Plot&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;./custom_path/&#39;</span><span class="p">)</span>
+</span></code></pre></div>
+<hr />
+<h2 id="decoderdeeppromp">DecoderDeepProMP<a class="headerlink" href="#decoderdeeppromp" title="Permanent link">&para;</a></h2>
+<p><code>moppy.deep_promp.decoder_deep_pro_mp.DeepProMP(self, latent_variable_dimension: int, hidden_neurons: List[int], trajectory_state_class: Type[TrajectoryState] = JointConfiguration, activation_function: Type[nn.Module] = nn.ReLU, activation_function_params: dict = {})</code></p>
+<p>Bases: <a href="/interfaces/latent_decoder"><code>moppy.interfaces.movement_primitive.LatentDecoder</code></a></p>
+<p>The <code>DecoderDeepProMP</code> class implements a latent decoder architecture, extending <code>LatentDecoder</code> and <code>nn.Module</code>. It is designed to decode a latent variable into a trajectory state.</p>
+<h3 id="parameters_1">Parameters<a class="headerlink" href="#parameters_1" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>latent_variable_dimension</strong> (<code>int</code>): The dimension of the latent variable.</li>
+<li><strong>hidden_neurons</strong> (<code>List[int]</code>): A list of integers representing the number of neurons in each hidden layer.</li>
+<li><strong>trajectory_state_class</strong> (<code>Type[TrajectoryState]</code>): The class of the trajectory state (default: <code>JointConfiguration</code>).</li>
+<li><strong>activation_function</strong> (<code>Type[nn.Module]</code>): The activation function to be used in the network (default: <code>nn.ReLU</code>).</li>
+<li><strong>activation_function_params</strong> (<code>dict</code>): Parameters for the activation function.</li>
+</ul>
+<h4>Raises:</h4>
+
+<ul>
+<li><strong>TypeError</strong>: If <code>trajectory_state_class</code> is not a subclass of <code>TrajectoryState</code>.</li>
+<li><strong>ValueError</strong>: If <code>latent_variable_dimension</code> is less than or equal to 0, if the number of neurons is less than 2, or if any neuron count is not greater than 0.</li>
+</ul>
+<hr />
+<h3 id="functions_1">Functions<a class="headerlink" href="#functions_1" title="Permanent link">&para;</a></h3>
+<h4 id="load_from_save_file"><span class="highlight-text">load_from_save_file()</span><a class="headerlink" href="#load_from_save_file" title="Permanent link">&para;</a></h4>
+<p>Loads a model from a file and returns a <code>DecoderDeepProMP</code> instance. It uses a the savefile created by <a href="#save_decoder"><code>save_decoder</code></a>.</p>
+<h4>Method Signature</h4>
+
+<p><code>load_from_save_file(cls, path: str = '', file: str = "decoder_deep_pro_mp.pth") -&gt; 'DecoderDeepProMP'</code></p>
+<h4>Parameters:</h4>
+
+<ul>
+<li><strong>path</strong> (<code>str</code>): The path to the directory containing the model file.</li>
+<li><strong>file</strong> (<code>str</code>): The name of the file to load (default: <code>"decoder_deep_pro_mp.pth"</code>).</li>
+</ul>
+<h4>Returns:</h4>
+
+<ul>
+<li><strong>DecoderDeepProMP</strong>: An instance of <code>DecoderDeepProMP</code>.</li>
+</ul>
+<hr />
+<h4 id="create_layers"><span class="highlight-text">create_layers()</span><a class="headerlink" href="#create_layers" title="Permanent link">&para;</a></h4>
+<p>Creates the layers of the decoder network based on the specified number of neurons.</p>
+<p><strong>Returns:</strong></p>
+<ul>
+<li><strong>List[nn.Module]</strong>: A list of layers for the neural network.</li>
+</ul>
+<hr />
+<h4 id="__init_weights"><span class="highlight-text">__init_weights()</span><a class="headerlink" href="#__init_weights" title="Permanent link">&para;</a></h4>
+<p>Initializes the weights and biases of the network using Xavier initialization.</p>
+<h4>Method Signature</h4>
+
+<p><code>__init_weights(self, m) -&gt; None</code></p>
+<h4>Parameters:</h4>
+
+<ul>
+<li><strong>m</strong>: The layer to initialize.</li>
+</ul>
+<hr />
+<h4 id="decode_from_latent_variable"><span class="highlight-text">decode_from_latent_variable()</span><a class="headerlink" href="#decode_from_latent_variable" title="Permanent link">&para;</a></h4>
+<p>Overrides: <a href="/interfaces/latent_decoder/#decode_from_latent_variable">moppy.interfaces.latent_decoder.LatentDecoder.decode_from_latent_variable</a></p>
+<p>Decodes a latent variable into a tensor representing the trajectory state.</p>
+<h4>Method Signature</h4>
+
+<p><code>decode_from_latent_variable(self, latent_variable: torch.Tensor, time: Union[torch.Tensor, float]) -&gt; torch.Tensor</code></p>
+<h4>Parameters:</h4>
+
+<ul>
+<li><strong>latent_variable</strong> (<code>torch.Tensor</code>): The latent variable to decode.</li>
+<li><strong>time</strong> (<code>Union[torch.Tensor, float]</code>): The normalized time value.</li>
+</ul>
+<h4>Returns:</h4>
+
+<ul>
+<li><strong>torch.Tensor</strong>: The decoded trajectory state.</li>
+</ul>
+<hr />
+<h4 id="save_decoder"><span class="highlight-text">save_decoder()</span><a class="headerlink" href="#save_decoder" title="Permanent link">&para;</a></h4>
+<p>Saves the decoder model to a file, including the state dictionary and configuration.</p>
+<p><strong>Method Signature</strong></p>
+<p><code>save_decoder(self, path: str = '', filename: str = "decoder_deep_pro_mp.pth")</code></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>path</strong> (<code>str</code>): The directory to save the model.</li>
+<li><strong>filename</strong> (<code>str</code>): The name of the file to save (default: <code>"decoder_deep_pro_mp.pth"</code>).</li>
+</ul>
+<hr />
+<h4 id="save_model"><span class="highlight-text">save_model()</span><a class="headerlink" href="#save_model" title="Permanent link">&para;</a></h4>
+<p>Saves only the model's state dictionary.</p>
+<p><strong>Method Signature</strong></p>
+<p><code>save_model(self, path: str = '', filename: str = "decoder_model_deep_pro_mp.pth")</code></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>path</strong> (<code>str</code>): The directory to save the model.</li>
+<li><strong>filename</strong> (<code>str</code>): The name of the file to save (default: <code>"decoder_model_deep_pro_mp.pth"</code>).</li>
+</ul>
+<hr />
+<h4 id="load_model"><span class="highlight-text">load_model()</span><a class="headerlink" href="#load_model" title="Permanent link">&para;</a></h4>
+<p>Loads the model's state dictionary (<code>net.state_dict()</code>) from a file. The save_file can be created by created by <a href="#save_model"><code>save_model</code></a>.</p>
+<p><strong>Method Signature</strong></p>
+<p><code>load_model(self, path: str = '', filename: str = "decoder_model_deep_pro_mp.pth")</code></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>path</strong> (<code>str</code>): The directory containing the model file.</li>
+<li><strong>filename</strong> (<code>str</code>): The name of the file to load (default: <code>"decoder_model_deep_pro_mp.pth"</code>).</li>
+</ul>
+<hr />
+<h4 id="forward"><span class="highlight-text">forward()</span><a class="headerlink" href="#forward" title="Permanent link">&para;</a></h4>
+<p>Defines the forward pass of the decoder.</p>
+<p><strong>Method Signature</strong></p>
+<p><code>forward(self, latent_variable: torch.Tensor, time: Union[torch.Tensor, float])</code></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>latent_variable</strong> (<code>torch.Tensor</code>): The latent variable to decode.</li>
+<li><strong>time</strong> (<code>Union[torch.Tensor, float]</code>): The normalized time value.</li>
+</ul>
+<p><strong>Returns:</strong></p>
+<ul>
+<li><strong>torch.Tensor</strong>: The decoded trajectory state.</li>
+</ul>
+<h2 id="encoderdeeppromp">EncoderDeepProMP<a class="headerlink" href="#encoderdeeppromp" title="Permanent link">&para;</a></h2>
+<p><code>moppy.deep_promp.encoder_deep_pro_mp.EncoderDeepProMP(self, latent_variable_dimension: int, hidden_neurons: List[int], trajectory_state_class: Type[TrajectoryState] = JointConfiguration, activation_function: Type[nn.Module] = nn.ReLU, activation_function_params: dict = {})</code></p>
+<p>Bases: <a href="/interfaces/latent_encoder"><code>moppy.interfaces.movement_primitive.LatentEncoder</code></a></p>
+<p>The <code>EncoderDeepProMP</code> class implements a latent encoder architecture, extending <code>LatentEncoder</code> and <code>nn.Module</code>. It is designed to encode a trajectory into a latent variable.</p>
+<h3 id="parameters_2">Parameters<a class="headerlink" href="#parameters_2" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>latent_variable_dimension</strong> (<code>int</code>): The dimension of the latent variable.</li>
+<li><strong>hidden_neurons</strong> (<code>List[int]</code>): A list of integers representing the number of neurons in each hidden layer.</li>
+<li><strong>trajectory_state_class</strong> (<code>Type[TrajectoryState]</code>): The class of the trajectory state (default: <code>JointConfiguration</code>).</li>
+<li><strong>activation_function</strong> (<code>Type[nn.Module]</code>): The activation function to be used in the network (default: <code>nn.ReLU</code>).</li>
+<li><strong>activation_function_params</strong> (<code>dict</code>): Parameters for the activation function.</li>
+</ul>
+<h4>Raises:</h4>
+
+<ul>
+<li><strong>TypeError</strong>: If <code>trajectory_state_class</code> is not a subclass of <code>TrajectoryState</code>.</li>
+<li><strong>ValueError</strong>: If <code>latent_variable_dimension</code> is less than or equal to 0, if the number of neurons is less than 2, or if any neuron count is not greater than 0.</li>
+</ul>
+<hr />
+<h3 id="functions_2">Functions<a class="headerlink" href="#functions_2" title="Permanent link">&para;</a></h3>
+<h4 id="load_from_save_file_1"><span class="highlight-text">load_from_save_file()</span><a class="headerlink" href="#load_from_save_file_1" title="Permanent link">&para;</a></h4>
+<p>Loads a model from a file and returns an <code>EncoderDeepProMP</code> instance. It uses a save file created by <a href="#save_encoder"><code>save_encoder</code></a>.</p>
+<h4>Method Signature</h4>
+
+<p><code>load_from_save_file(cls, path: str = '', file: str = "encoder_deep_pro_mp.pth") -&gt; 'EncoderDeepProMP'</code></p>
+<h4>Parameters:</h4>
+
+<ul>
+<li><strong>path</strong> (<code>str</code>): The path to the directory containing the model file.</li>
+<li><strong>file</strong> (<code>str</code>): The name of the file to load (default: <code>"encoder_deep_pro_mp.pth"</code>).</li>
+</ul>
+<h4>Returns:</h4>
+
+<ul>
+<li><strong>EncoderDeepProMP</strong>: An instance of <code>EncoderDeepProMP</code>.</li>
+</ul>
+<hr />
+<h4 id="create_layers_1"><span class="highlight-text">create_layers()</span><a class="headerlink" href="#create_layers_1" title="Permanent link">&para;</a></h4>
+<p>Creates the layers of the encoder network based on the specified number of neurons.</p>
+<p><strong>Returns:</strong></p>
+<ul>
+<li><strong>List[nn.Module]</strong>: A list of layers for the neural network.</li>
+</ul>
+<hr />
+<h4 id="__init_weights_1"><span class="highlight-text">__init_weights()</span><a class="headerlink" href="#__init_weights_1" title="Permanent link">&para;</a></h4>
+<p>Initializes the weights and biases of the network using Xavier initialization.</p>
+<h4>Method Signature</h4>
+
+<p><code>__init_weights(self, m) -&gt; None</code></p>
+<h4>Parameters:</h4>
+
+<ul>
+<li><strong>m</strong>: The layer to initialize.</li>
+</ul>
+<hr />
+<h4 id="encode_to_latent_variable"><span class="highlight-text">encode_to_latent_variable()</span><a class="headerlink" href="#encode_to_latent_variable" title="Permanent link">&para;</a></h4>
+<p>Encodes a trajectory into a mu and sigma (both with dimensions of <code>latent_variable_dimension</code>).</p>
+<h4>Method Signature</h4>
+
+<p><code>encode_to_latent_variable(self, trajectory: Trajectory) -&gt; tuple[Tensor, Tensor]</code></p>
+<h4>Parameters:</h4>
+
+<ul>
+<li><strong>trajectory</strong> (<code>Trajectory</code>): The trajectory to encode.</li>
+</ul>
+<h4>Returns:</h4>
+
+<ul>
+<li><strong>tuple[Tensor, Tensor]</strong>: The resulting <code>mu</code> and <code>sigma</code> tensors, each with size <code>latent_variable_dimension</code>.</li>
+</ul>
+<hr />
+<h4 id="sample_latent_variable"><span class="highlight-text">sample_latent_variable()</span><a class="headerlink" href="#sample_latent_variable" title="Permanent link">&para;</a></h4>
+<p>Samples a latent variable <code>z</code> from a normal distribution specified by <code>mu</code> and <code>sigma</code>.</p>
+<h4>Method Signature</h4>
+
+<p><code>sample_latent_variable(self, mu: torch.Tensor, sigma: torch.Tensor, percentage_of_standard_deviation=None) -&gt; torch.Tensor</code></p>
+<h4>Parameters:</h4>
+
+<ul>
+<li><strong>mu</strong> (<code>torch.Tensor</code>): The mean tensor.</li>
+<li><strong>sigma</strong> (<code>torch.Tensor</code>): The standard deviation tensor.</li>
+<li><strong>percentage_of_standard_deviation</strong> (<code>Optional[float]</code>): A percentage to scale the standard deviation (optional).</li>
+</ul>
+<h4>Returns:</h4>
+
+<ul>
+<li><strong>torch.Tensor</strong>: The sampled latent variable.</li>
+</ul>
+<hr />
+<h4 id="sample_latent_variables"><span class="highlight-text">sample_latent_variables()</span><a class="headerlink" href="#sample_latent_variables" title="Permanent link">&para;</a></h4>
+<p>Samples multiple latent variables from given <code>mu</code> and <code>sigma</code> tensors.</p>
+<h4>Method Signature</h4>
+
+<p><code>sample_latent_variables(self, mu: torch.Tensor, sigma: torch.Tensor, size: int = 1) -&gt; torch.Tensor</code></p>
+<h4>Parameters:</h4>
+
+<ul>
+<li><strong>mu</strong> (<code>torch.Tensor</code>): The mean tensor.</li>
+<li><strong>sigma</strong> (<code>torch.Tensor</code>): The standard deviation tensor.</li>
+<li><strong>size</strong> (<code>int</code>): The number of samples to generate (default: <code>1</code>).</li>
+</ul>
+<h4>Returns:</h4>
+
+<ul>
+<li><strong>torch.Tensor</strong>: A tensor containing the sampled latent variables.</li>
+</ul>
+<hr />
+<h4 id="bayesian_aggregation"><span class="highlight-text">bayesian_aggregation()</span><a class="headerlink" href="#bayesian_aggregation" title="Permanent link">&para;</a></h4>
+<p>Performs Bayesian aggregation on <code>mu_points</code> and <code>sigma_points</code> to calculate aggregated <code>mu</code> and <code>sigma</code>.</p>
+<h4>Method Signature</h4>
+
+<p><code>bayesian_aggregation(self, mu_points: torch.Tensor, sigma_points: torch.Tensor) -&gt; tuple[torch.Tensor, torch.Tensor]</code></p>
+<h4>Parameters:</h4>
+
+<ul>
+<li><strong>mu_points</strong> (<code>torch.Tensor</code>): Tensor of <code>mu</code> points.</li>
+<li><strong>sigma_points</strong> (<code>torch.Tensor</code>): Tensor of <code>sigma</code> points.</li>
+</ul>
+<h4>Returns:</h4>
+
+<ul>
+<li><strong>tuple[torch.Tensor, torch.Tensor]</strong>: Aggregated <code>mu_z</code> and <code>sigma_z_sq</code> tensors.</li>
+</ul>
+<hr />
+<h4 id="save_encoder"><span class="highlight-text">save_encoder()</span><a class="headerlink" href="#save_encoder" title="Permanent link">&para;</a></h4>
+<p>Saves the encoder model to a file, including the state dictionary and configuration.</p>
+<p><strong>Method Signature</strong></p>
+<p><code>save_encoder(self, path: str = '', filename: str = "encoder_deep_pro_mp.pth")</code></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>path</strong> (<code>str</code>): The directory to save the model.</li>
+<li><strong>filename</strong> (<code>str</code>): The name of the file to save (default: <code>"encoder_deep_pro_mp.pth"</code>).</li>
+</ul>
+<hr />
+<h4 id="save_model_1"><span class="highlight-text">save_model()</span><a class="headerlink" href="#save_model_1" title="Permanent link">&para;</a></h4>
+<p>Saves only the model's state dictionary.</p>
+<p><strong>Method Signature</strong></p>
+<p><code>save_model(self, path: str = '', filename: str = "encoder_model_deep_pro_mp.pth")</code></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>path</strong> (<code>str</code>): The directory to save the model.</li>
+<li><strong>filename</strong> (<code>str</code>): The name of the file to save (default: <code>"encoder_model_deep_pro_mp.pth"</code>).</li>
+</ul>
+<hr />
+<h4 id="load_model_1"><span class="highlight-text">load_model()</span><a class="headerlink" href="#load_model_1" title="Permanent link">&para;</a></h4>
+<p>Loads the model's state dictionary from a file.</p>
+<p><strong>Method Signature</strong></p>
+<p><code>load_model(self, path: str = '', filename: str = "encoder_model_deep_pro_mp.pth")</code></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>path</strong> (<code>str</code>): The directory containing the model file.</li>
+<li><strong>filename</strong> (<code>str</code>): The name of the file to load (default: <code>"encoder_model_deep_pro_mp.pth"</code>).</li>
+</ul>
+<hr />
+<h4 id="forward_1"><span class="highlight-text">forward()</span><a class="headerlink" href="#forward_1" title="Permanent link">&para;</a></h4>
+<p>Defines the forward pass of the encoder.</p>
+<p><strong>Method Signature</strong></p>
+<p><code>forward(self, trajectory: Trajectory) -&gt; tuple[Tensor, Tensor]</code></p>
+<p><strong>Parameters:</strong></p>
+<ul>
+<li><strong>trajectory</strong> (<code>Trajectory</code>): The trajectory to encode.</li>
+</ul>
+<p><strong>Returns:</strong></p>
+<ul>
+<li><strong>tuple[Tensor, Tensor]</strong>: The encoded <code>mu</code> and <code>sigma</code> tensors.</li>
+</ul>
+<hr />
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../usage/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Usage">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Usage
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../util/" class="md-footer__link md-footer__link--next" aria-label="Next: Util">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Util
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/SamuelePolimi/moppy" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8M97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["announce.dismiss", "content.action.edit", "content.action.view", "content.code.annotate", "content.code.copy", "content.tooltips", "navigation.footer", "navigation.indexes", "navigation.sections", "navigation.tabs", "navigation.top", "navigation.tracking", "search.highlight", "search.share", "search.suggest", "toc.follow"], "search": "../../assets/javascripts/workers/search.f8cc74c7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.c8b220af.min.js"></script>
+      
+    
+  </body>
+</html>
