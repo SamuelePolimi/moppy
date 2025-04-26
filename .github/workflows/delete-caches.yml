@@ -1,0 +1,24 @@
+name: Cache Management
+
+on:
+  schedule:
+    # Runs every Sunday at midnight
+    - cron: "0 0 * * 0"  
+  workflow_dispatch:  # Allows manual triggering
+  push:
+    branches:
+      - 'add_delete-cache'
+
+jobs:
+  manage-cache:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Delete all caches (per click or schedule)
+        run: |
+          gh cache list --repo ${{ github.repository }}
+          gh cache delete --repo ${{ github.repository }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
